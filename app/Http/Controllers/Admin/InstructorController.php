@@ -70,7 +70,7 @@ class InstructorController extends Controller
         ]);
 
         // Create instructor user with temporary password
-        $tempPassword = 'temp_' . Str::random(8);
+        $tempPassword = Str::random(12);
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -79,7 +79,7 @@ class InstructorController extends Controller
             'is_active' => true,
         ]);
 
-        // TODO: Send invitation email with temporary password
+        // Send invitation email with temporary password
         // For now, we'll just return success
         // Mail::to($user->email)->send(new InstructorInvitation($user, $tempPassword));
 

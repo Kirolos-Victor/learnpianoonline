@@ -49,8 +49,8 @@ const Homework = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Homework submission:', newSubmission);
-        setNewSubmission('');
+        // Handle homework submission logic here
+        // In a real app, you would send this data to your backend
     };
 
     return (

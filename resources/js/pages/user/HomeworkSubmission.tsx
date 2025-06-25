@@ -62,8 +62,7 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
             mediaRecorder.start();
             setIsRecording(true);
         } catch (error) {
-            console.error('Error accessing microphone:', error);
-            alert('Unable to access microphone. Please check your permissions.');
+            // Handle microphone access error
         }
     };
 
@@ -105,22 +104,11 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
         setIsSubmitting(true);
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // In a real app, you would send the data to your backend
-            console.log('Submitting homework:', {
-                studentId,
-                lessonId,
-                studentName,
-                lessonNumber,
-                writtenResponse,
-                hasAudio: !!recordedAudio
-            });
-
+            // Submit homework logic here
+            // In a real app, you would send this data to your backend
             setIsSubmitted(true);
         } catch (error) {
-            console.error('Error submitting homework:', error);
+            // Handle submission error
             alert('Error submitting homework. Please try again.');
         } finally {
             setIsSubmitting(false);
