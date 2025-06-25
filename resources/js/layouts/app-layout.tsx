@@ -1,4 +1,5 @@
-import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
+import Footer from '@/components/Footer';
+import Navbar from '@/components/Navbar';
 import { type BreadcrumbItem } from '@/types';
 import { type ReactNode } from 'react';
 
@@ -7,8 +8,10 @@ interface AppLayoutProps {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => (
-    <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
+export default ({ children }: AppLayoutProps) => (
+    <>
+        <Navbar></Navbar>
         {children}
-    </AppLayoutTemplate>
+        <Footer></Footer>
+    </>
 );
