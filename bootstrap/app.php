@@ -3,7 +3,6 @@
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\EnsureUserIsInstructor;
-use App\Http\Middleware\EnsureUserIsStudent;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\RedirectBasedOnRole;
 use Illuminate\Foundation\Application;
@@ -28,7 +27,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'instructor' => EnsureUserIsInstructor::class,
-            'student' => EnsureUserIsStudent::class,
             'admin' => EnsureUserIsAdmin::class,
             'role.redirect' => RedirectBasedOnRole::class,
         ]);

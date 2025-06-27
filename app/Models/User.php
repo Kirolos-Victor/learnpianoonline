@@ -90,6 +90,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all students owned by this user
+     */
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
+
+    /**
      * Get assigned students (for instructors)
      */
     public function assignedStudents()
@@ -111,5 +119,21 @@ class User extends Authenticatable
     public function studentLessons()
     {
         return $this->hasMany(Lesson::class, 'student_id');
+    }
+
+    /**
+     * Get all subscriptions for this user
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * Get active subscription for this user
+     */
+    public function activeSubscription()
+    {
+        return $this->subscriptions()->where('status', 'completed')->latest();
     }
 }

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import UserNavbarDropdown from '@/components/user-navbar-dropdown';
 import { SharedData } from '@/types';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { Menu, X, Music, Users, Star, MessageCircle, Home, BookOpen, Calendar, Settings } from 'lucide-react';
+import { Menu, X, Music, Users, Star, MessageCircle, Home, BookOpen, Calendar, Settings, CreditCard } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 const Navbar = () => {
@@ -17,10 +17,10 @@ const Navbar = () => {
 
     // Student navigation items
     const studentNavItems = [
-        { name: 'home.index', label: 'Home', icon: Home },
+        { name: 'dashboard.index', label: 'Home', icon: Home },
         { name: 'lessons.index', label: 'Lessons', icon: Music },
         { name: 'student.index', label: 'Students', icon: Users },
-        { name: 'pricing.index', label: 'Pricing', icon: Star },
+        { name: 'user.subscription', label: 'Subscriptions', icon: CreditCard },
         { name: 'contact.index', label: 'Contact', icon: MessageCircle }
     ];
 

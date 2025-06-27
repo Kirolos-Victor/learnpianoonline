@@ -65,4 +65,12 @@ class Lesson extends Model
             $this->student->decrement('sessions_remaining');
         }
     }
+
+    /**
+     * Get homework assigned for this lesson
+     */
+    public function homework()
+    {
+        return $this->hasMany(Homework::class);
+    }
 }

@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, router } from '@inertiajs/react';
 import {
     Clock,
     Upload,
@@ -24,6 +24,11 @@ interface Student {
     isSubscribed: boolean;
     subscriptionType?: 'monthly' | 'yearly';
     subscriptionEndDate?: string;
+    sessionsRemaining: number;
+    instructor?: {
+        id: string;
+        name: string;
+    };
 }
 
 interface Lesson {
@@ -34,6 +39,7 @@ interface Lesson {
     time: string;
     status: 'completed' | 'pending' | 'cancelled';
     type: 'private' | 'group';
+    scheduledAt: string;
 }
 
 interface Homework {
@@ -42,112 +48,47 @@ interface Homework {
     dueDate: string;
     isSubmitted: boolean;
     lessonTitle: string;
+    description?: string;
+    isOverdue: boolean;
+    isDueSoon: boolean;
+}
+
+interface StudentData {
+    student: Student;
+    lessons: Lesson[];
+    homework: Homework[];
+}
+
+interface DashboardSharedData extends SharedData {
+    students: Student[];
+    selectedStudentData: StudentData | null;
+    selectedStudentId?: string;
 }
 
 const Dashboard = () => {
-    const { subscribePrice } = usePage<SharedData>().props;
+    const { subscribePrice, students, selectedStudentData, selectedStudentId } = usePage<DashboardSharedData>().props;
+    const [loading, setLoading] = useState(false);
 
-    // Mock data - in real app this would come from the backend
-    const [students, setStudents] = useState<Student[]>([
-        {
-            id: '1',
-            name: 'Emma Johnson',
-            age: 12,
-            hasPiano: true,
-            isSubscribed: true,
-            subscriptionType: 'monthly',
-            subscriptionEndDate: '2024-04-15'
-        },
-        {
-            id: '2',
-            name: 'Michael Chen',
-            age: 8,
-            hasPiano: false,
-            isSubscribed: false
-        },
-        {
-            id: '3',
-            name: 'Sarah Williams',
-            age: 15,
-            hasPiano: true,
-            isSubscribed: true,
-            subscriptionType: 'yearly',
-            subscriptionEndDate: '2024-12-31'
-        }
-    ]);
+    // Handle student selection change using Inertia
+    const handleStudentChange = (studentId: string) => {
+        if (!studentId || studentId === selectedStudentId) return;
 
-    const [selectedStudentId, setSelectedStudentId] = useState<string>('1');
-    const selectedStudent = students.find(s => s.id === selectedStudentId) || students[0];
+        setLoading(true);
 
-    // Mock lesson data for subscribed students
-    const studentLessons: Record<string, Lesson[]> = {
-        '1': [
-            {
-                id: '1',
-                title: 'Advanced Chord Progressions',
-                instructor: 'Sarah Johnson',
-                date: 'March 25, 2024',
-                time: '2:00 PM',
-                status: 'pending',
-                type: 'private'
-            },
-            {
-                id: '2',
-                title: 'Classical Piano Techniques',
-                instructor: 'David Smith',
-                date: 'March 20, 2024',
-                time: '3:30 PM',
-                status: 'completed',
-                type: 'private'
+        router.visit(`/home/student/${studentId}`, {
+            method: 'get',
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                setLoading(false);
             }
-        ],
-        '3': [
-            {
-                id: '4',
-                title: 'Piano Fundamentals',
-                instructor: 'Sarah Johnson',
-                date: 'March 26, 2024',
-                time: '4:00 PM',
-                status: 'pending',
-                type: 'private'
-            },
-            {
-                id: '5',
-                title: 'Music Theory Basics',
-                instructor: 'David Smith',
-                date: 'March 22, 2024',
-                time: '2:30 PM',
-                status: 'completed',
-                type: 'private'
-            }
-        ]
+        });
     };
 
-    // Mock homework data
-    const studentHomework: Record<string, Homework[]> = {
-        '1': [
-            {
-                id: '1',
-                title: 'Practice scales in C major',
-                dueDate: 'March 24, 2024',
-                isSubmitted: false,
-                lessonTitle: 'Classical Piano Techniques'
-            }
-        ],
-        '3': [
-            {
-                id: '2',
-                title: 'Complete music theory exercises',
-                dueDate: 'March 25, 2024',
-                isSubmitted: true,
-                lessonTitle: 'Music Theory Basics'
-            }
-        ]
-    };
-
-    const currentLessons = studentLessons[selectedStudent.id] || [];
+    const selectedStudent = selectedStudentData?.student;
+    const currentLessons = selectedStudentData?.lessons || [];
     const upcomingLesson = currentLessons.find(lesson => lesson.status === 'pending');
-    const pendingHomework = studentHomework[selectedStudent.id]?.filter(hw => !hw.isSubmitted) || [];
+    const pendingHomework = selectedStudentData?.homework?.filter(hw => !hw.isSubmitted) || [];
 
     return (
         <AppLayout>
@@ -167,7 +108,7 @@ const Dashboard = () => {
                             {/* Student Selector */}
                             <div className="mt-4 md:mt-0">
                                 <Label className="text-sm font-medium text-primary mb-2 block">Select Student</Label>
-                                <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                                <Select value={selectedStudentId || ''} onValueChange={handleStudentChange}>
                                     <SelectTrigger className="w-full md:w-64">
                                         <SelectValue placeholder="Choose a student" />
                                     </SelectTrigger>
@@ -192,7 +133,18 @@ const Dashboard = () => {
                 </div>
 
                 <div className="container mx-auto px-6 py-8">
-                    {selectedStudent.isSubscribed ? (
+                    {loading ? (
+                        <div className="max-w-4xl mx-auto">
+                            <Card className="border-gold/20">
+                                <CardContent className="flex items-center justify-center py-12">
+                                    <div className="text-center">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mx-auto mb-4"></div>
+                                        <p className="text-muted-foreground">Loading student data...</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    ) : selectedStudent?.isSubscribed ? (
                         <div className="max-w-4xl mx-auto space-y-6">
                             {/* Student Info */}
                             <Card className="border-gold/20">
@@ -204,7 +156,7 @@ const Dashboard = () => {
                                                 {selectedStudent.name}'s Dashboard
                                             </CardTitle>
                                             <CardDescription>
-                                                {selectedStudent.age} years old • {selectedStudent.hasPiano ? 'Has Piano' : 'No Piano Access'}
+                                                {selectedStudent.age} years old • {selectedStudent.hasPiano ? 'Has Piano' : 'No Piano Access'} • {selectedStudent.sessionsRemaining} sessions remaining
                                             </CardDescription>
                                         </div>
                                         <Badge className="bg-green-100 text-green-800">
@@ -258,17 +210,42 @@ const Dashboard = () => {
                                     <CardContent>
                                         <div className="space-y-4">
                                             {pendingHomework.map((homework) => (
-                                                <div key={homework.id} className="flex items-center justify-between p-4 rounded-lg bg-orange-100 border border-orange-200">
+                                                <div key={homework.id} className={`flex items-center justify-between p-4 rounded-lg border ${
+                                                    homework.isOverdue
+                                                        ? 'bg-red-100 border-red-200'
+                                                        : homework.isDueSoon
+                                                        ? 'bg-yellow-100 border-yellow-200'
+                                                        : 'bg-orange-100 border-orange-200'
+                                                }`}>
                                                     <div>
-                                                        <h4 className="font-semibold text-orange-800">{homework.title}</h4>
-                                                        <p className="text-sm text-orange-700">
+                                                        <h4 className={`font-semibold ${
+                                                            homework.isOverdue ? 'text-red-800' :
+                                                            homework.isDueSoon ? 'text-yellow-800' : 'text-orange-800'
+                                                        }`}>
+                                                            {homework.title}
+                                                        </h4>
+                                                        <p className={`text-sm ${
+                                                            homework.isOverdue ? 'text-red-700' :
+                                                            homework.isDueSoon ? 'text-yellow-700' : 'text-orange-700'
+                                                        }`}>
                                                             From: {homework.lessonTitle}
                                                         </p>
-                                                        <p className="text-sm text-orange-600">
+                                                        <p className={`text-sm ${
+                                                            homework.isOverdue ? 'text-red-600' :
+                                                            homework.isDueSoon ? 'text-yellow-600' : 'text-orange-600'
+                                                        }`}>
                                                             Due: {homework.dueDate}
+                                                            {homework.isOverdue && ' (Overdue)'}
+                                                            {homework.isDueSoon && !homework.isOverdue && ' (Due Soon)'}
                                                         </p>
                                                     </div>
-                                                    <Button className="bg-orange-600 hover:bg-orange-700 text-white">
+                                                    <Button className={`${
+                                                        homework.isOverdue
+                                                            ? 'bg-red-600 hover:bg-red-700'
+                                                            : homework.isDueSoon
+                                                            ? 'bg-yellow-600 hover:bg-yellow-700'
+                                                            : 'bg-orange-600 hover:bg-orange-700'
+                                                    } text-white`}>
                                                         <Upload className="mr-2 h-4 w-4" />
                                                         Submit Homework
                                                     </Button>
@@ -300,7 +277,7 @@ const Dashboard = () => {
                             <Card className="border-orange-200 bg-orange-50">
                                 <CardHeader>
                                     <CardTitle className="text-orange-800">
-                                        {selectedStudent.name} needs a subscription
+                                        {selectedStudent?.name} needs a subscription
                                     </CardTitle>
                                     <CardDescription className="text-orange-600">
                                         Subscribe to access private piano lessons and homework assignments

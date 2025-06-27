@@ -25,6 +25,7 @@ export interface NavItem {
 export interface SharedData {
     name: string;
     subscribePrice: string;
+    discountPercentage: number;
     quote: { message: string; author: string };
     auth: Auth;
     ziggy: Config & { location: string };
@@ -42,4 +43,36 @@ export interface User {
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
+}
+
+export interface PricingData {
+    student_count: number;
+    amount: number;
+    students: Array<{
+        id: number;
+        name: string;
+    }>;
+}
+
+export interface AvailableStudent {
+    id: number;
+    name: string;
+    age: number;
+    is_subscribed: boolean;
+}
+
+export interface SubscriptionPageProps {
+    pricingData: PricingData[];
+    availableStudents: AvailableStudent[];
+    subscribedStudents?: Array<{
+        id: number;
+        name: string;
+        age: number;
+        is_subscribed: boolean;
+        subscription_expires_at?: string;
+        sessions_remaining: number;
+    }>;
+    isSingleStudent?: boolean;
+    selectedStudentId?: string;
+    [key: string]: unknown;
 }

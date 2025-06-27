@@ -5,9 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
-import { Users, Plus, Edit, Trash2, Music, UserPlus, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { Users, Plus, Edit, Trash2, Music, UserPlus, AlertCircle, CheckCircle, Clock, Crown } from 'lucide-react';
 import { useState } from 'react';
+import { SharedData } from '@/types';
 
 interface Student {
     id: string;
@@ -17,43 +18,26 @@ interface Student {
     isSubscribed: boolean;
     subscriptionType?: 'monthly' | 'yearly';
     subscriptionEndDate?: string;
+    sessionsRemaining: number;
+    instructor?: {
+        id: string;
+        name: string;
+    };
+    createdAt: string;
+}
+
+interface StudentSharedData extends SharedData {
+    students: Student[];
 }
 
 const Student = () => {
-    const [students, setStudents] = useState<Student[]>([
-        {
-            id: '1',
-            name: 'Emma Johnson',
-            age: 12,
-            hasPiano: true,
-            isSubscribed: true,
-            subscriptionType: 'monthly',
-            subscriptionEndDate: '2024-04-15'
-        },
-        {
-            id: '2',
-            name: 'Michael Chen',
-            age: 8,
-            hasPiano: false,
-            isSubscribed: false
-        },
-        {
-            id: '3',
-            name: 'Sarah Williams',
-            age: 15,
-            hasPiano: true,
-            isSubscribed: true,
-            subscriptionType: 'yearly',
-            subscriptionEndDate: '2024-12-31'
-        }
-    ]);
+    const { students } = usePage<StudentSharedData>().props;
     const [isAddingStudent, setIsAddingStudent] = useState(false);
     const [editingStudent, setEditingStudent] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         age: '',
         hasPiano: false,
-        isSubscribed: false,
     });
 
     const handleAddStudent = () => {
@@ -68,22 +52,21 @@ const Student = () => {
         }
 
         const age = parseInt(formData.age);
-        if (age < 3 || age > 100) {
-            alert('Please enter a valid age between 3 and 100.');
+        if (age < 5 || age > 100) {
+            alert('Please enter a valid age between 5 and 100.');
             return;
         }
 
-        const newStudent: Student = {
-            id: Date.now().toString(),
+        router.post('/student', {
             name: formData.name.trim(),
-            age,
+            age: age,
             hasPiano: formData.hasPiano,
-            isSubscribed: false,
-        };
-
-        setStudents([...students, newStudent]);
-        setFormData({ name: '', age: '', hasPiano: false, isSubscribed: false });
-        setIsAddingStudent(false);
+        }, {
+            onSuccess: () => {
+                setFormData({ name: '', age: '', hasPiano: false });
+                setIsAddingStudent(false);
+            },
+        });
     };
 
     const handleEditStudent = (studentId: string) => {
@@ -93,7 +76,6 @@ const Student = () => {
                 name: student.name,
                 age: student.age.toString(),
                 hasPiano: student.hasPiano,
-                isSubscribed: student.isSubscribed,
             });
             setEditingStudent(studentId);
             setIsAddingStudent(true);
@@ -109,42 +91,43 @@ const Student = () => {
         }
 
         const age = parseInt(formData.age);
-        if (age < 3 || age > 100) {
-            alert('Please enter a valid age between 3 and 100.');
+        if (age < 5 || age > 100) {
+            alert('Please enter a valid age between 5 and 100.');
             return;
         }
 
-        setStudents(students.map(student =>
-            student.id === editingStudent
-                ? {
-                    ...student,
-                    name: formData.name.trim(),
-                    age,
-                    hasPiano: formData.hasPiano,
-                    isSubscribed: formData.isSubscribed,
-                }
-                : student
-        ));
-
-        setFormData({ name: '', age: '', hasPiano: false, isSubscribed: false });
-        setEditingStudent(null);
-        setIsAddingStudent(false);
+        router.put(`/student/${editingStudent}`, {
+            name: formData.name.trim(),
+            age: age,
+            hasPiano: formData.hasPiano,
+        }, {
+            onSuccess: () => {
+                setFormData({ name: '', age: '', hasPiano: false });
+                setEditingStudent(null);
+                setIsAddingStudent(false);
+            },
+        });
     };
 
     const handleDeleteStudent = (studentId: string) => {
-        if (confirm('Are you sure you want to delete this student?')) {
-            setStudents(students.filter(student => student.id !== studentId));
+        if (confirm('Are you sure you want to delete this student? This action cannot be undone.')) {
+            router.delete(`/student/${studentId}`);
         }
     };
 
     const handleCancel = () => {
-        setFormData({ name: '', age: '', hasPiano: false, isSubscribed: false });
+        setFormData({ name: '', age: '', hasPiano: false });
         setEditingStudent(null);
         setIsAddingStudent(false);
     };
 
+    const handleSubscribeStudent = (studentId: string) => {
+        // Redirect to subscription page for this student
+        router.visit(`/subscription?studentId=${studentId}`);
+    };
+
     const getAgeGroup = (age: number) => {
-        if (age < 6) return 'Preschool';
+        if (age < 6) return 'Kindergarten';
         if (age < 12) return 'Elementary';
         if (age < 18) return 'Teen';
         return 'Adult';
@@ -216,7 +199,7 @@ const Student = () => {
                                                         value={formData.age}
                                                         onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                                                         placeholder="Enter age"
-                                                        min="3"
+                                                        min="5"
                                                         max="100"
                                                         required
                                                     />
@@ -230,15 +213,6 @@ const Student = () => {
                                                     onCheckedChange={(checked: boolean) => setFormData({ ...formData, hasPiano: checked })}
                                                 />
                                                 <Label htmlFor="hasPiano">Student has access to a piano/keyboard</Label>
-                                            </div>
-
-                                            <div className="flex items-center space-x-2">
-                                                <Switch
-                                                    id="isSubscribed"
-                                                    checked={formData.isSubscribed}
-                                                    onCheckedChange={(checked: boolean) => setFormData({ ...formData, isSubscribed: checked })}
-                                                />
-                                                <Label htmlFor="isSubscribed">Student is subscribed</Label>
                                             </div>
 
                                             <div className="flex space-x-2">
@@ -330,9 +304,23 @@ const Student = () => {
                                                                     </Badge>
                                                                 )}
                                                             </div>
+                                                            <p className="text-sm text-muted-foreground mt-1">
+                                                                Added: {student.createdAt}
+                                                            </p>
                                                         </div>
                                                     </div>
                                                     <div className="flex space-x-2">
+                                                        {!student.isSubscribed && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => handleSubscribeStudent(student.id)}
+                                                                className="text-green-600 hover:text-green-700"
+                                                            >
+                                                                <Crown className="mr-1 h-4 w-4" />
+                                                                Subscribe
+                                                            </Button>
+                                                        )}
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
@@ -395,6 +383,32 @@ const Student = () => {
                                 </CardContent>
                             </Card>
 
+                            {/* Subscription Notice */}
+                            <Card className="border-blue-200 bg-blue-50">
+                                <CardHeader>
+                                    <CardTitle className="text-blue-800 flex items-center">
+                                        <Crown className="mr-2 h-5 w-5" />
+                                        Subscription Required
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-3 text-sm text-blue-700">
+                                        <div className="flex items-start space-x-2">
+                                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                            <p>Students need a paid subscription to access lessons</p>
+                                        </div>
+                                        <div className="flex items-start space-x-2">
+                                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                            <p>Subscriptions are managed through secure payments</p>
+                                        </div>
+                                        <div className="flex items-start space-x-2">
+                                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                            <p>Click "Subscribe" next to any student to get started</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
                             {/* Tips */}
                             <Card className="border-blue-200 bg-blue-50">
                                 <CardHeader>
@@ -427,7 +441,7 @@ const Student = () => {
                                 <CardContent>
                                     <div className="space-y-3 text-sm">
                                         <div className="flex justify-between">
-                                            <span>Preschool (3-5)</span>
+                                            <span>Kindergarten (5-5)</span>
                                             <Badge variant="outline" className="text-xs">Basic</Badge>
                                         </div>
                                         <div className="flex justify-between">

@@ -35,6 +35,11 @@ interface Student {
     isSubscribed: boolean;
     subscriptionType?: 'monthly' | 'yearly';
     subscriptionEndDate?: string;
+    sessionsRemaining: number;
+    instructor?: {
+        id: string;
+        name: string;
+    };
 }
 
 interface Lesson {
@@ -47,217 +52,76 @@ interface Lesson {
     status: 'completed' | 'pending' | 'cancelled';
     type: 'private' | 'group';
     hasHomework: boolean;
-    homeworkStatus?: 'submitted' | 'pending' | 'overdue';
+    homeworkStatus?: 'submitted' | 'pending' | 'overdue' | 'none';
+}
+
+interface StudentData {
+    student: Student;
+    lessons: Lesson[];
+}
+
+interface LessonsSharedData extends SharedData {
+    students: Student[];
+    selectedStudentData: StudentData | null;
+    selectedStudentId?: string;
+    selectedMonth: string;
+    availableMonths: string[];
 }
 
 const Lessons = () => {
-    const { subscribePrice } = usePage<SharedData>().props;
+    const { subscribePrice, students, selectedStudentData, selectedStudentId, selectedMonth, availableMonths } = usePage<LessonsSharedData>().props;
+    const [loading, setLoading] = useState(false);
 
-    // Mock data - in real app this would come from the backend
-    const [students, setStudents] = useState<Student[]>([
-        {
-            id: '1',
-            name: 'Emma Johnson',
-            age: 12,
-            hasPiano: true,
-            isSubscribed: true,
-            subscriptionType: 'monthly',
-            subscriptionEndDate: '2024-04-15'
-        },
-        {
-            id: '2',
-            name: 'Michael Chen',
-            age: 8,
-            hasPiano: false,
-            isSubscribed: false
-        },
-        {
-            id: '3',
-            name: 'Sarah Williams',
-            age: 15,
-            hasPiano: true,
-            isSubscribed: true,
-            subscriptionType: 'yearly',
-            subscriptionEndDate: '2024-12-31'
-        }
-    ]);
-
-    const [selectedStudentId, setSelectedStudentId] = useState<string>('1');
-    const [selectedMonth, setSelectedMonth] = useState<string>('March 2024');
-    const selectedStudent = students.find(s => s.id === selectedStudentId) || students[0];
-
-    // Available months for filtering
-    const availableMonths = [
-        'January 2024',
-        'February 2024',
-        'March 2024',
-        'April 2024',
-        'May 2024',
-        'June 2024'
-    ];
-
-    // Mock lesson data for subscribed students (4 lessons per month)
-    const studentLessons: Record<string, Record<string, Lesson[]>> = {
-        '1': {
-            'March 2024': [
-                {
-                    id: '1',
-                    lessonNumber: 1,
-                    instructor: 'Sarah Johnson',
-                    date: 'March 5, 2024',
-                    time: '2:00 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'submitted'
-                },
-                {
-                    id: '2',
-                    lessonNumber: 2,
-                    instructor: 'David Smith',
-                    date: 'March 12, 2024',
-                    time: '3:30 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'submitted'
-                },
-                {
-                    id: '3',
-                    lessonNumber: 3,
-                    instructor: 'Sarah Johnson',
-                    date: 'March 19, 2024',
-                    time: '2:00 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'pending'
-                },
-                {
-                    id: '4',
-                    lessonNumber: 4,
-                    instructor: 'David Smith',
-                    date: 'March 26, 2024',
-                    time: '3:30 PM',
-                    duration: '60 min',
-                    status: 'pending',
-                    type: 'private',
-                    hasHomework: false
-                }
-            ],
-            'February 2024': [
-                {
-                    id: '5',
-                    lessonNumber: 1,
-                    instructor: 'Sarah Johnson',
-                    date: 'February 6, 2024',
-                    time: '2:00 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'submitted'
-                },
-                {
-                    id: '6',
-                    lessonNumber: 2,
-                    instructor: 'David Smith',
-                    date: 'February 13, 2024',
-                    time: '3:30 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'submitted'
-                },
-                {
-                    id: '7',
-                    lessonNumber: 3,
-                    instructor: 'Sarah Johnson',
-                    date: 'February 20, 2024',
-                    time: '2:00 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'submitted'
-                },
-                {
-                    id: '8',
-                    lessonNumber: 4,
-                    instructor: 'David Smith',
-                    date: 'February 27, 2024',
-                    time: '3:30 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'submitted'
-                }
-            ]
-        },
-        '3': {
-            'March 2024': [
-                {
-                    id: '9',
-                    lessonNumber: 1,
-                    instructor: 'Sarah Johnson',
-                    date: 'March 7, 2024',
-                    time: '4:00 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'submitted'
-                },
-                {
-                    id: '10',
-                    lessonNumber: 2,
-                    instructor: 'David Smith',
-                    date: 'March 14, 2024',
-                    time: '2:30 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'submitted'
-                },
-                {
-                    id: '11',
-                    lessonNumber: 3,
-                    instructor: 'Sarah Johnson',
-                    date: 'March 21, 2024',
-                    time: '4:00 PM',
-                    duration: '60 min',
-                    status: 'completed',
-                    type: 'private',
-                    hasHomework: true,
-                    homeworkStatus: 'pending'
-                },
-                {
-                    id: '12',
-                    lessonNumber: 4,
-                    instructor: 'David Smith',
-                    date: 'March 28, 2024',
-                    time: '2:30 PM',
-                    duration: '60 min',
-                    status: 'pending',
-                    type: 'private',
-                    hasHomework: false
-                }
-            ]
-        }
-    };
-
-    const currentLessons = studentLessons[selectedStudent.id]?.[selectedMonth] || [];
+    const selectedStudent = selectedStudentData?.student;
+    const currentLessons = selectedStudentData?.lessons || [];
     const completedLessons = currentLessons.filter(lesson => lesson.status === 'completed');
     const pendingLessons = currentLessons.filter(lesson => lesson.status === 'pending');
     const pendingHomework = currentLessons.filter(lesson =>
         lesson.hasHomework && lesson.homeworkStatus === 'pending'
     );
+
+    // Handle student selection change using Inertia
+    const handleStudentChange = (studentId: string) => {
+        if (!studentId || studentId === selectedStudentId) return;
+
+        setLoading(true);
+
+        router.visit(`/lessons/student/${studentId}`, {
+            method: 'get',
+            data: { month: selectedMonth },
+            preserveState: true,
+            preserveScroll: true,
+            onFinish: () => {
+                setLoading(false);
+            }
+        });
+    };
+
+    // Handle month change
+    const handleMonthChange = (direction: 'prev' | 'next') => {
+        const currentIndex = availableMonths.indexOf(selectedMonth);
+        let newIndex = currentIndex;
+
+        if (direction === 'prev' && currentIndex > 0) {
+            newIndex = currentIndex - 1;
+        } else if (direction === 'next' && currentIndex < availableMonths.length - 1) {
+            newIndex = currentIndex + 1;
+        }
+
+        if (newIndex !== currentIndex) {
+            setLoading(true);
+
+            router.visit(`/lessons/student/${selectedStudentId}`, {
+                method: 'get',
+                data: { month: availableMonths[newIndex] },
+                preserveState: true,
+                preserveScroll: true,
+                onFinish: () => {
+                    setLoading(false);
+                }
+            });
+        }
+    };
 
     const subscriptionBenefits = [
         {
@@ -318,21 +182,12 @@ const Lessons = () => {
 
     const handleSubmitHomework = (lessonId: string) => {
         // Redirect to homework page with student and lesson info
-        router.visit(`/homework/${selectedStudent.id}/${lessonId}`, {
+        router.visit(`/homework/${selectedStudent?.id}/${lessonId}`, {
             data: {
-                studentName: selectedStudent.name,
+                studentName: selectedStudent?.name,
                 lessonNumber: currentLessons.find(l => l.id === lessonId)?.lessonNumber
             }
         });
-    };
-
-    const handleMonthChange = (direction: 'prev' | 'next') => {
-        const currentIndex = availableMonths.indexOf(selectedMonth);
-        if (direction === 'prev' && currentIndex > 0) {
-            setSelectedMonth(availableMonths[currentIndex - 1]);
-        } else if (direction === 'next' && currentIndex < availableMonths.length - 1) {
-            setSelectedMonth(availableMonths[currentIndex + 1]);
-        }
     };
 
     return (
@@ -364,7 +219,7 @@ const Lessons = () => {
                             {/* Student Selector */}
                             <div className="mt-6 md:mt-0">
                                 <Label className="text-lg font-comic text-white mb-3 block">Choose Your Student:</Label>
-                                <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                                <Select value={selectedStudentId || ''} onValueChange={handleStudentChange}>
                                     <SelectTrigger className="w-full md:w-72 bg-white/20 backdrop-blur-sm border-white/30 text-white font-comic text-lg rounded-2xl">
                                         <SelectValue placeholder="Pick a student!" />
                                     </SelectTrigger>
@@ -389,7 +244,18 @@ const Lessons = () => {
                 </div>
 
                 <div className="container mx-auto px-6 py-8">
-                    {selectedStudent.isSubscribed ? (
+                    {loading ? (
+                        <div className="max-w-6xl mx-auto">
+                            <Card className="border-fun-purple/20">
+                                <CardContent className="flex items-center justify-center py-12">
+                                    <div className="text-center">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fun-purple mx-auto mb-4"></div>
+                                        <p className="text-muted-foreground font-comic text-lg">Loading lessons...</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    ) : selectedStudent?.isSubscribed ? (
                         <div className="max-w-6xl mx-auto space-y-8">
                             {/* Student Info */}
                             <Card className="border-fun-purple/20 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10 rounded-3xl shadow-float">
@@ -401,7 +267,7 @@ const Lessons = () => {
                                                 {selectedStudent.name}'s Lessons
                                             </CardTitle>
                                             <CardDescription className="font-comic text-lg text-gray-600">
-                                                {selectedMonth} • {completedLessons.length}/4 lessons completed! 🎉
+                                                {selectedMonth} • {completedLessons.length}/{currentLessons.length} lessons completed! 🎉
                                             </CardDescription>
                                         </div>
                                         <Badge className="bg-fun-green text-white font-comic text-lg px-4 py-2">
@@ -580,7 +446,7 @@ const Lessons = () => {
                                 <CardHeader>
                                     <CardTitle className="text-fun-orange flex items-center font-fredoka text-3xl">
                                         <Crown className="mr-3 h-8 w-8" />
-                                        {selectedStudent.name} needs a subscription! 👑
+                                        {selectedStudent?.name} needs a subscription! 👑
                                     </CardTitle>
                                     <CardDescription className="font-comic text-xl text-fun-orange/80">
                                         Subscribe to get fun piano lessons and cool homework!

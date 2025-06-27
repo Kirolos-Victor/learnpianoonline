@@ -8,8 +8,11 @@ use Inertia\Inertia;
 
 class PricingController extends Controller
 {
-    public function index(): \Inertia\Response
+    public function index(): \Illuminate\Http\RedirectResponse|\Inertia\Response
     {
+        if (Auth()->check()) {
+            return redirect()->route('user.subscription');
+        }
         return Inertia::render('user/Pricing');
     }
 }

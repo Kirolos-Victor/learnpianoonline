@@ -43,6 +43,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'subscribePrice' => env('SUBSCRIBE_PRICE'),
+            'discountPercentage' => env('DISCOUNT_PERCENTAGE', 10),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
