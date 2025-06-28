@@ -233,7 +233,7 @@ const InstructorStudents = ({ students }: Props) => {
                                 {/* Actions */}
                                 <div className="flex space-x-2 pt-2">
                                     <Button asChild className="flex-1">
-                                        <Link href={`/instructor/students/${student.id}/lessons`}>
+                                        <Link href={`/instructor/students/${student.id}/lessons`} className="cursor-pointer">
                                             <Eye className="h-4 w-4 mr-2" />
                                             View Lessons
                                         </Link>

@@ -33,7 +33,7 @@ const Login = () => {
             <Head title="Log in" />
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
-                    <a href={route('home.index')} className="flex justify-center">
+                    <a href={route('home.index')} className="flex justify-center cursor-pointer">
                         <Logo size="lg" className="justify-center" />
                     </a>
                 </div>
@@ -94,7 +94,7 @@ const Login = () => {
                         <div className="mt-6 text-center">
                             <p className="text-sm text-warm-gray-600">
                                 Don't have an account?{' '}
-                                <Link href={route('register')} className="text-teal hover:underline">
+                                <Link href={route('register')} className="text-teal hover:underline cursor-pointer">
                                     Sign up here
                                 </Link>
                             </p>

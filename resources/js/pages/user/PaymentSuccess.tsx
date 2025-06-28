@@ -116,7 +116,7 @@ const PaymentSuccess = () => {
                                 <div className="rounded-lg bg-gray-50 p-4 text-center">
                                     <p className="text-sm text-gray-600">
                                         Need help? Contact our support team at{' '}
-                                        <a href="mailto:support@learnpianoonline.com" className="text-primary hover:underline">
+                                        <a href="mailto:support@learnpianoonline.com" className="text-primary hover:underline cursor-pointer">
                                             support@learnpianoonline.com
                                         </a>
                                     </p>

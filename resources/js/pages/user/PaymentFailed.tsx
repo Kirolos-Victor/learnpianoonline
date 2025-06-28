@@ -107,11 +107,11 @@ const PaymentFailed = () => {
                                 <div className="rounded-lg bg-gray-50 p-4 text-center">
                                     <p className="text-sm text-gray-600">
                                         Need immediate assistance? Contact us at{' '}
-                                        <a href="mailto:support@learnpianoonline.com" className="text-primary hover:underline">
+                                        <a href="mailto:support@learnpianoonline.com" className="text-primary hover:underline cursor-pointer">
                                             support@learnpianoonline.com
                                         </a>
                                         {' '}or call us at{' '}
-                                        <a href="tel:+1234567890" className="text-primary hover:underline">
+                                        <a href="tel:+1234567890" className="text-primary hover:underline cursor-pointer">
                                             +1 (234) 567-890
                                         </a>
                                     </p>

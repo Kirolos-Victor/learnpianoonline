@@ -123,7 +123,7 @@ const Pricing = () => {
                                 </div>
 
                                 <div className="text-center">
-                                    <a href="/auth/register">
+                                    <a href="/auth/register" className="cursor-pointer">
                                         <Button size="lg" className="bg-gold hover:bg-gold/90 text-warm-brown px-8 font-semibold">
                                             Start Learning Today
                                             <ArrowRight className="ml-2 h-4 w-4" />
@@ -232,7 +232,7 @@ const Pricing = () => {
                                     Join hundreds of students who have transformed their piano skills with our personalized approach. Start your first
                                     lesson within 48 hours.
                                 </p>
-                                <a href="/auth/register">
+                                <a href="/auth/register" className="cursor-pointer">
                                     <Button size="lg" className="bg-gold hover:bg-gold/90 text-warm-brown font-semibold">
                                         Get Started Now - ${subscribePrice}/month
                                         <ArrowRight className="ml-2 h-4 w-4" />

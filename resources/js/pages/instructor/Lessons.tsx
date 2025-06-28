@@ -97,7 +97,7 @@ const InstructorLessons = ({ student, lessons }: Props) => {
             <div className="mb-8">
                 <div className="flex items-center space-x-4 mb-4">
                     <Button variant="outline" asChild>
-                        <Link href="/instructor/students">
+                        <Link href="/instructor/students" className="cursor-pointer">
                             <ArrowLeft className="h-4 w-4 mr-2" />
                             Back to Students
                         </Link>

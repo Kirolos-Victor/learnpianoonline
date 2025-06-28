@@ -251,7 +251,7 @@ const AdminInstructors = ({ instructors }: Props) => {
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <Link href={`/admin/instructors/${instructor.id}/students`}>
+                                    <Link href={`/admin/instructors/${instructor.id}/students`} className="cursor-pointer">
                                         <Button variant="outline" size="sm">
                                             <Users className="h-4 w-4" />
                                         </Button>

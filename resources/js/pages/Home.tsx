@@ -1,10 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
-import { ArrowRight, Check, Music, Users, MessageCircle } from 'lucide-react';
-import { usePage } from '@inertiajs/react';
 import { SharedData } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { ArrowRight, Check, MessageCircle, Music, Users } from 'lucide-react';
 
 const Home = () => {
     const { subscribePrice } = usePage<SharedData>().props;
@@ -14,19 +13,19 @@ const Home = () => {
             icon: Users,
             title: '1-on-1 Live Lessons',
             description: 'Personal attention from a friendly piano teacher, every week!',
-            color: 'bg-fun-pink'
+            color: 'bg-fun-pink',
         },
         {
             icon: Music,
             title: 'Fun Homework Assignments',
             description: 'Practice what you learn with creative, age-appropriate homework.',
-            color: 'bg-fun-blue'
+            color: 'bg-fun-blue',
         },
         {
             icon: MessageCircle,
             title: 'Personalized Feedback',
             description: 'Get helpful tips and encouragement from your teacher after every lesson.',
-            color: 'bg-fun-green'
+            color: 'bg-fun-green',
         },
     ];
 
@@ -35,7 +34,7 @@ const Home = () => {
     const testimonials = [
         {
             name: 'Emma, Age 8',
-            text: "I love my piano lessons! My teacher is so nice and helps me with my homework!",
+            text: 'I love my piano lessons! My teacher is so nice and helps me with my homework!',
             level: 'Beginner Student',
         },
         {
@@ -77,32 +76,42 @@ const Home = () => {
                 <section className="bg-rainbow-gradient px-6 py-20">
                     <div className="container mx-auto text-center">
                         <div>
-                            <h1 className="mb-6 font-fredoka text-5xl font-bold text-white md:text-7xl drop-shadow-lg">
+                            <h1 className="mb-6 font-fredoka text-5xl font-bold text-white drop-shadow-lg md:text-7xl">
                                 Learn Piano
-                                <span className="block text-2xl md:text-4xl font-comic">with Real Teachers! 🎹</span>
+                                <span className="block font-comic text-2xl md:text-4xl">with Real Teachers! 🎹</span>
                             </h1>
-                            <p className="mx-auto mb-8 max-w-3xl text-xl md:text-2xl text-white font-comic">
+                            <p className="mx-auto mb-8 max-w-3xl font-comic text-xl text-white md:text-2xl">
                                 Weekly 1-on-1 lessons, fun homework, and helpful feedback from your own piano teacher.
                             </p>
                             <div className="mb-8 flex flex-wrap justify-center gap-3">
                                 {skillLevels.map((level, index) => (
-                                    <span key={index} className="rounded-full bg-white/20 backdrop-blur-sm px-4 py-2 text-sm md:text-base text-white font-comic border-2 border-white/30">
+                                    <span
+                                        key={index}
+                                        className="rounded-full border-2 border-white/30 bg-white/20 px-4 py-2 font-comic text-sm text-white backdrop-blur-sm md:text-base"
+                                    >
                                         {level}
                                     </span>
                                 ))}
                             </div>
                             <div className="flex flex-col justify-center gap-4 sm:flex-row">
-                                <a href="/auth/register">
-                                    <Button size="lg" className="bg-fun-green hover:bg-fun-green-600 font-comic text-xl px-8 py-4 rounded-full shadow-float">
+                                <Link href={route('register')} className="cursor-pointer">
+                                    <Button
+                                        size="lg"
+                                        className="shadow-float rounded-full bg-fun-green px-8 py-4 font-comic text-xl hover:bg-fun-green-600"
+                                    >
                                         🎹 Start Learning Now!
                                         <ArrowRight className="ml-2 h-5 w-5" />
                                     </Button>
-                                </a>
-                                <a href="/pricing">
-                                    <Button size="lg" variant="outline" className="border-white text-fun-purple hover:bg-white hover:text-fun-purple font-comic text-xl px-8 py-4 rounded-full">
+                                </Link>
+                                <Link href={route('pricing.index')} className="cursor-pointer">
+                                    <Button
+                                        size="lg"
+                                        variant="outline"
+                                        className="rounded-full border-white px-8 py-4 font-comic text-xl text-fun-purple hover:bg-white hover:text-fun-purple"
+                                    >
                                         💰 See Prices
                                     </Button>
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -113,26 +122,26 @@ const Home = () => {
                     <div className="container mx-auto">
                         <h2 className="mb-12 text-center font-fredoka text-4xl font-bold text-fun-purple md:text-5xl">How It Works! 🚀</h2>
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-                            <div className="text-center group">
-                                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-fun-pink text-3xl font-bold text-white shadow-float group-hover:scale-105 transition-all duration-300">
+                            <div className="group text-center">
+                                <div className="shadow-float mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-fun-pink text-3xl font-bold text-white transition-all duration-300 group-hover:scale-105">
                                     1
                                 </div>
                                 <h3 className="mb-3 font-fredoka text-2xl font-semibold text-fun-purple">Pick Your Level</h3>
-                                <p className="text-lg font-comic text-gray-700">Tell us about your piano experience and what songs you love!</p>
+                                <p className="font-comic text-lg text-gray-700">Tell us about your piano experience and what songs you love!</p>
                             </div>
-                            <div className="text-center group">
-                                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-fun-blue text-3xl font-bold text-white shadow-float group-hover:scale-105 transition-all duration-300">
+                            <div className="group text-center">
+                                <div className="shadow-float mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-fun-blue text-3xl font-bold text-white transition-all duration-300 group-hover:scale-105">
                                     2
                                 </div>
                                 <h3 className="mb-3 font-fredoka text-2xl font-semibold text-fun-purple">Learn & Practice</h3>
-                                <p className="text-lg font-comic text-gray-700">Have fun weekly lessons and practice with your teacher's help!</p>
+                                <p className="font-comic text-lg text-gray-700">Have fun weekly lessons and practice with your teacher's help!</p>
                             </div>
-                            <div className="text-center group">
-                                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-fun-green text-3xl font-bold text-white shadow-float group-hover:scale-105 transition-all duration-300">
+                            <div className="group text-center">
+                                <div className="shadow-float mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-fun-green text-3xl font-bold text-white transition-all duration-300 group-hover:scale-105">
                                     3
                                 </div>
                                 <h3 className="mb-3 font-fredoka text-2xl font-semibold text-fun-purple">Get Feedback</h3>
-                                <p className="text-lg font-comic text-gray-700">Your teacher gives you tips and encouragement every week!</p>
+                                <p className="font-comic text-lg text-gray-700">Your teacher gives you tips and encouragement every week!</p>
                             </div>
                         </div>
                     </div>
@@ -144,13 +153,18 @@ const Home = () => {
                         <h2 className="mb-12 text-center font-fredoka text-4xl font-bold text-fun-purple md:text-5xl">Why Kids Love Us! 💖</h2>
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                             {benefits.map((benefit, index) => (
-                                <Card key={index} className="border-0 bg-white/90 backdrop-blur-sm shadow-float rounded-3xl hover:scale-105 transition-all duration-300">
+                                <Card
+                                    key={index}
+                                    className="shadow-float rounded-3xl border-0 bg-white/90 backdrop-blur-sm transition-all duration-300 hover:scale-105"
+                                >
                                     <CardContent className="p-8 text-center">
-                                        <div className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full ${benefit.color} text-white`}>
+                                        <div
+                                            className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full ${benefit.color} text-white`}
+                                        >
                                             <benefit.icon className="h-8 w-8" />
                                         </div>
                                         <h3 className="mb-3 font-fredoka text-2xl font-semibold text-fun-purple">{benefit.title}</h3>
-                                        <p className="text-lg font-comic text-gray-700">{benefit.description}</p>
+                                        <p className="font-comic text-lg text-gray-700">{benefit.description}</p>
                                     </CardContent>
                                 </Card>
                             ))}
@@ -164,12 +178,15 @@ const Home = () => {
                         <h2 className="mb-12 text-center font-fredoka text-4xl font-bold text-fun-purple md:text-5xl">What Kids Say! 🗣️</h2>
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                             {testimonials.map((testimonial, index) => (
-                                <Card key={index} className="border-fun-purple/20 bg-white/90 backdrop-blur-sm rounded-3xl shadow-float hover:scale-105 transition-all duration-300">
+                                <Card
+                                    key={index}
+                                    className="shadow-float rounded-3xl border-fun-purple/20 bg-white/90 backdrop-blur-sm transition-all duration-300 hover:scale-105"
+                                >
                                     <CardContent className="p-8">
-                                        <p className="mb-6 text-lg font-comic text-gray-700 italic">"{testimonial.text}"</p>
+                                        <p className="mb-6 font-comic text-lg text-gray-700 italic">"{testimonial.text}"</p>
                                         <div>
                                             <p className="font-fredoka text-xl font-semibold text-fun-purple">{testimonial.name}</p>
-                                            <p className="text-sm font-comic text-fun-blue">{testimonial.level}</p>
+                                            <p className="font-comic text-sm text-fun-blue">{testimonial.level}</p>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -183,7 +200,7 @@ const Home = () => {
                     <div className="container mx-auto text-center">
                         <h2 className="mb-6 font-fredoka text-4xl font-bold text-white md:text-5xl">Super Simple Pricing! 💰</h2>
                         <div className="mx-auto max-w-md">
-                            <Card className="border-fun-green/20 bg-white rounded-3xl shadow-float">
+                            <Card className="shadow-float rounded-3xl border-fun-green/20 bg-white">
                                 <CardContent className="p-8">
                                     <div className="text-center">
                                         <h3 className="mb-3 font-fredoka text-3xl font-bold text-fun-purple">Monthly Plan</h3>
@@ -209,11 +226,14 @@ const Home = () => {
                                                 <span className="font-comic text-lg text-gray-700">Cancel Anytime</span>
                                             </li>
                                         </ul>
-                                        <a href="/auth/register">
-                                            <Button size="lg" className="w-full bg-fun-green hover:bg-fun-green-600 font-comic text-xl py-4 rounded-full shadow-float">
+                                        <Link href={route('register')} className="cursor-pointer">
+                                            <Button
+                                                size="lg"
+                                                className="shadow-float w-full rounded-full bg-fun-green py-4 font-comic text-xl hover:bg-fun-green-600 cursor-pointer"
+                                            >
                                                 🎹 Start Your Journey!
                                             </Button>
-                                        </a>
+                                        </Link>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -224,10 +244,15 @@ const Home = () => {
                 {/* FAQ */}
                 <section className="bg-white px-6 py-20">
                     <div className="container mx-auto">
-                        <h2 className="mb-12 text-center font-fredoka text-4xl font-bold text-fun-purple md:text-5xl">Questions? We've Got Answers! 🤔</h2>
+                        <h2 className="mb-12 text-center font-fredoka text-4xl font-bold text-fun-purple md:text-5xl">
+                            Questions? We've Got Answers! 🤔
+                        </h2>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             {faqs.map((faq, index) => (
-                                <Card key={index} className="border-fun-purple/20 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10 rounded-3xl shadow-float">
+                                <Card
+                                    key={index}
+                                    className="shadow-float rounded-3xl border-fun-purple/20 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10"
+                                >
                                     <CardContent className="p-6">
                                         <h3 className="mb-3 font-fredoka text-xl font-semibold text-fun-purple">{faq.question}</h3>
                                         <p className="font-comic text-lg text-gray-700">{faq.answer}</p>
@@ -242,20 +267,27 @@ const Home = () => {
                 <section className="bg-rainbow-gradient px-6 py-20">
                     <div className="container mx-auto text-center">
                         <h2 className="mb-6 font-fredoka text-4xl font-bold text-white md:text-5xl">Ready to Start Your Musical Adventure? 🎵</h2>
-                        <p className="mx-auto mb-8 max-w-2xl text-xl font-comic text-white">
+                        <p className="mx-auto mb-8 max-w-2xl font-comic text-xl text-white">
                             Join thousands of kids making beautiful music every day!
                         </p>
                         <div className="flex flex-col justify-center gap-4 sm:flex-row">
-                            <a href="/auth/register">
-                                <Button size="lg" className="bg-fun-green hover:bg-fun-green-600 font-comic text-2xl px-10 py-6 rounded-full shadow-float">
+                            <Link href={route('register')} className="cursor-pointer">
+                                <Button
+                                    size="lg"
+                                    className="shadow-float rounded-full bg-fun-green px-10 py-6 font-comic text-2xl hover:bg-fun-green-600"
+                                >
                                     🎹 Start Learning Today!
                                 </Button>
-                            </a>
-                            <a href="/contact">
-                                <Button size="lg" variant="outline" className="border-white text-fun-purple hover:bg-white hover:text-fun-purple font-comic text-xl px-8 py-6 rounded-full">
+                            </Link>
+                            <Link href={route('contact.index')} className="cursor-pointer">
+                                <Button
+                                    size="lg"
+                                    variant="outline"
+                                    className="rounded-full border-white px-8 py-6 font-comic text-xl text-fun-purple hover:bg-white hover:text-fun-purple"
+                                >
                                     💬 Ask Questions
                                 </Button>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </section>

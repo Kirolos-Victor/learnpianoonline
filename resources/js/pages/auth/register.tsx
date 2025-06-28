@@ -33,7 +33,7 @@ const Register = () => {
             <Head title="Register" />
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
-                    <a href={'home.index'} className="inline-flex items-center space-x-2">
+                    <a href={'home.index'} className="inline-flex items-center space-x-2 cursor-pointer">
                         <Piano className="text-warm-brown h-8 w-8" />
                         <span className="font-playfair text-2xl font-bold text-primary">mypianoclass.net</span>
                     </a>
@@ -103,7 +103,7 @@ const Register = () => {
                         <div className="mt-6 text-center">
                             <p className="text-sm text-muted-foreground">
                                 Already have an account?{' '}
-                                <a href={route('login')} className="text-warm-brown hover:underline">
+                                <a href={route('login')} className="text-warm-brown hover:underline cursor-pointer">
                                     Sign in here
                                 </a>
                             </p>
