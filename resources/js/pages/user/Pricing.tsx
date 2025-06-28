@@ -71,14 +71,14 @@ const Pricing = () => {
         <AppLayout>
             <Head>
                 <title>Piano Lessons Pricing - Learn Piano Online</title>
-                <meta name="description" content="Affordable piano lessons starting at $49/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum, homework assignments, and expert feedback." />
+                <meta name="description" content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum, homework assignments, and expert feedback.`} />
                 <meta name="keywords" content="piano lessons pricing, online piano lessons cost, affordable piano lessons, piano teacher rates, piano lesson packages" />
                 <meta property="og:title" content="Piano Lessons Pricing - Learn Piano Online" />
-                <meta property="og:description" content="Affordable piano lessons starting at $49/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum." />
+                <meta property="og:description" content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum.`} />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary" />
                 <meta name="twitter:title" content="Piano Lessons Pricing - Learn Piano Online" />
-                <meta name="twitter:description" content="Affordable piano lessons starting at $49/month. Get 4 live 1-on-1 piano lessons per month." />
+                <meta name="twitter:description" content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month.`} />
             </Head>
             <div className="min-h-screen bg-background">
                 {/* Header */}
