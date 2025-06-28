@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { ArrowRight, Check } from 'lucide-react';
-import { usePage } from '@inertiajs/react';
+import { usePage, Link } from '@inertiajs/react';
 import { SharedData } from '@/types';
 
 const Pricing = () => {
@@ -123,12 +123,12 @@ const Pricing = () => {
                                 </div>
 
                                 <div className="text-center">
-                                    <a href="/auth/register" className="cursor-pointer">
+                                    <Link href="/auth/register" className="cursor-pointer">
                                         <Button size="lg" className="bg-gold hover:bg-gold/90 text-warm-brown px-8 font-semibold">
                                             Start Learning Today
                                             <ArrowRight className="ml-2 h-4 w-4" />
                                         </Button>
-                                    </a>
+                                    </Link>
                                     <p className="mt-3 text-sm text-muted-foreground">
                                         🔒 Secure payment • Start immediately • No long-term commitment
                                     </p>
@@ -232,12 +232,12 @@ const Pricing = () => {
                                     Join hundreds of students who have transformed their piano skills with our personalized approach. Start your first
                                     lesson within 48 hours.
                                 </p>
-                                <a href="/auth/register" className="cursor-pointer">
+                                <Link href="/auth/register" className="cursor-pointer">
                                     <Button size="lg" className="bg-gold hover:bg-gold/90 text-warm-brown font-semibold">
                                         Get Started Now - ${subscribePrice}/month
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
-                                </a>
+                                </Link>
                                 <p className="text-piano-white/60 mt-4 text-sm">Cancel anytime • No setup fees • Start immediately</p>
                             </CardContent>
                         </Card>

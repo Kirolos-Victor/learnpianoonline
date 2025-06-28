@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 import { LoaderCircle, Piano } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
@@ -33,10 +33,10 @@ const Register = () => {
             <Head title="Register" />
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
-                    <a href={'home.index'} className="inline-flex items-center space-x-2 cursor-pointer">
+                    <Link href={'home.index'} className="inline-flex items-center space-x-2 cursor-pointer">
                         <Piano className="text-warm-brown h-8 w-8" />
                         <span className="font-playfair text-2xl font-bold text-primary">mypianoclass.net</span>
-                    </a>
+                    </Link>
                 </div>
 
                 <Card className="border-gold/20 shadow-xl">
@@ -103,9 +103,9 @@ const Register = () => {
                         <div className="mt-6 text-center">
                             <p className="text-sm text-muted-foreground">
                                 Already have an account?{' '}
-                                <a href={route('login')} className="text-warm-brown hover:underline cursor-pointer">
+                                <Link href={route('login')} className="text-warm-brown hover:underline cursor-pointer">
                                     Sign in here
-                                </a>
+                                </Link>
                             </p>
                             <p className="mt-2 text-xs text-muted-foreground">🔒 Secure & encrypted</p>
                         </div>

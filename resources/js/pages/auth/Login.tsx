@@ -33,9 +33,9 @@ const Login = () => {
             <Head title="Log in" />
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
-                    <a href={route('home.index')} className="flex justify-center cursor-pointer">
+                    <Link href={route('home.index')} className="flex justify-center cursor-pointer">
                         <Logo size="lg" className="justify-center" />
-                    </a>
+                    </Link>
                 </div>
 
                 <Card className="border-teal/20 bg-white shadow-xl">

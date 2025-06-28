@@ -1,5 +1,6 @@
 import Logo from '@/components/Logo';
 import { Music } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
 const Footer = () => {
     return (
@@ -8,9 +9,9 @@ const Footer = () => {
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
                     {/* Logo & Description */}
                     <div className="col-span-1 md:col-span-2">
-                        <a href="/" className="mb-4 inline-block">
+                        <Link href="/" className="mb-4 inline-block">
                             <Logo className="text-cream" />
-                        </a>
+                        </Link>
                         <p className="mb-4 max-w-md text-cream/80">
                             Master the piano from home with personalized 1-on-1 lessons, monthly curriculum, and expert feedback from professional
                             instructors.
@@ -26,24 +27,24 @@ const Footer = () => {
                         <h3 className="mb-4 font-playfair text-lg font-semibold text-cream">Quick as</h3>
                         <ul className="space-y-2">
                             <li>
-                                <a href="/lessons" className="text-cream/80 transition-colors hover:text-teal">
+                                <Link href="/lessons" className="text-cream/80 transition-colors hover:text-teal">
                                     Lessons
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href="/pricing" className="text-cream/80 transition-colors hover:text-teal">
+                                <Link href="/pricing" className="text-cream/80 transition-colors hover:text-teal">
                                     Pricing
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href="/dashboard" className="text-cream/80 transition-colors hover:text-teal">
+                                <Link href="/dashboard" className="text-cream/80 transition-colors hover:text-teal">
                                     Dashboard
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href="/contact" className="text-cream/80 transition-colors hover:text-teal">
+                                <Link href="/contact" className="text-cream/80 transition-colors hover:text-teal">
                                     Contact
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>

@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { usePage } from '@inertiajs/react';
@@ -65,7 +65,7 @@ const InstructorLayout = ({ children, title }: InstructorLayoutProps) => {
                     <nav className="mt-8">
                         <div className="px-4 space-y-2">
                             {navigationItems.map((item) => (
-                                <a
+                                <Link
                                     key={item.name}
                                     href={item.href}
                                     className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
@@ -76,7 +76,7 @@ const InstructorLayout = ({ children, title }: InstructorLayoutProps) => {
                                 >
                                     <item.icon className="mr-3 h-5 w-5" />
                                     {item.label}
-                                </a>
+                                </Link>
                             ))}
                         </div>
                     </nav>
