@@ -55,7 +55,7 @@ const Pricing = () => {
         },
         {
             question: 'Is there a family discount?',
-            answer: 'Yes! We offer 20% off additional subscriptions for family members. Contact us for details.',
+            answer: 'Yes! You get 10% off for each additional student you add to your account. Contact us for details.',
         },
         {
             question: 'What happens if I cancel?',
@@ -96,6 +96,11 @@ const Pricing = () => {
                                     <span className="text-xl text-muted-foreground">/month</span>
                                 </div>
                                 <p className="mt-2 text-sm text-muted-foreground">That's just ${(parseFloat(subscribePrice) / 4).toFixed(2)} per lesson!</p>
+                                <div className="mt-4 flex justify-center">
+                                    <Badge className="bg-green-100 text-green-800 px-4 py-2 text-sm border border-green-300">
+                                        Enjoy 10% off for each additional student you add!
+                                    </Badge>
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
