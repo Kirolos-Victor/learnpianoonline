@@ -30,7 +30,18 @@ const Login = () => {
 
     return (
         <div className="bg-piano-gradient flex min-h-screen items-center justify-center px-6">
-            <Head title="Log in" />
+            <Head>
+                <title>Login - Learn Piano Online</title>
+                <meta name="description" content="Sign in to your piano lesson account. Access your personalized lessons, homework assignments, and progress tracking dashboard." />
+                <meta name="keywords" content="piano lesson login, sign in piano lessons, piano student login, online piano account" />
+                <meta property="og:title" content="Login - Learn Piano Online" />
+                <meta property="og:description" content="Sign in to your piano lesson account. Access your personalized lessons and progress." />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content="Login - Learn Piano Online" />
+                <meta name="twitter:description" content="Sign in to your piano lesson account." />
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
                     <Link href={route('home.index')} className="flex justify-center cursor-pointer">

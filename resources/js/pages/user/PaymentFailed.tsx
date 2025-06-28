@@ -2,11 +2,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { XCircle, CreditCard, RefreshCw } from 'lucide-react';
-import { usePage, router } from '@inertiajs/react';
+import { usePage, router, Head } from '@inertiajs/react';
 
 const PaymentFailed = () => {
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
+            <Head>
+                <title>Payment Failed - Learn Piano Online</title>
+                <meta name="description" content="There was an issue processing your payment. Please try again or contact our support team for assistance." />
+                <meta name="robots" content="noindex, nofollow" />
+                <meta property="og:title" content="Payment Failed - Learn Piano Online" />
+                <meta property="og:description" content="There was an issue processing your payment. Please try again." />
+                <meta property="og:type" content="website" />
+            </Head>
             {/* Header */}
             <div className="bg-piano-gradient px-6 py-8">
                 <div className="container mx-auto">

@@ -30,7 +30,18 @@ const Register = () => {
 
     return (
         <div className="bg-piano-gradient flex min-h-screen items-center justify-center px-6 py-12">
-            <Head title="Register" />
+            <Head>
+                <title>Register - Learn Piano Online</title>
+                <meta name="description" content="Start your piano learning journey today! Sign up for live 1-on-1 piano lessons with professional teachers. Personalized curriculum and flexible scheduling." />
+                <meta name="keywords" content="piano lesson registration, sign up piano lessons, piano student registration, online piano lessons signup" />
+                <meta property="og:title" content="Register - Learn Piano Online" />
+                <meta property="og:description" content="Start your piano learning journey today! Sign up for live 1-on-1 piano lessons." />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content="Register - Learn Piano Online" />
+                <meta name="twitter:description" content="Start your piano learning journey today!" />
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
                     <Link href={'home.index'} className="inline-flex items-center space-x-2 cursor-pointer">

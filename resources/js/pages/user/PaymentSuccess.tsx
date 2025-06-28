@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, CreditCard, Calendar } from 'lucide-react';
-import { usePage, router } from '@inertiajs/react';
+import { usePage, router, Head } from '@inertiajs/react';
 import { SharedData } from '@/types';
 
 interface Subscription {
@@ -20,7 +20,15 @@ const PaymentSuccess = () => {
     const { subscription } = usePage<PaymentSuccessPageProps>().props;
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+            <Head>
+                <title>Payment Successful - Learn Piano Online</title>
+                <meta name="description" content="Your piano lesson subscription has been successfully activated. Welcome to your musical journey!" />
+                <meta name="robots" content="noindex, nofollow" />
+                <meta property="og:title" content="Payment Successful - Learn Piano Online" />
+                <meta property="og:description" content="Your piano lesson subscription has been successfully activated." />
+                <meta property="og:type" content="website" />
+            </Head>
             {/* Header */}
             <div className="bg-piano-gradient px-6 py-8">
                 <div className="container mx-auto">

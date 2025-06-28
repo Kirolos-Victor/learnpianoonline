@@ -70,7 +70,19 @@ const Home = () => {
 
     return (
         <AppLayout>
-            <Head title={'Home'}></Head>
+            <Head>
+                <title>Learn Piano Online - Live 1-on-1 Piano Lessons</title>
+                <meta name="description" content="Learn piano online with live 1-on-1 lessons from professional teachers. Personalized curriculum, flexible scheduling, and expert feedback. Start your musical journey today!" />
+                <meta name="keywords" content="online piano lessons, learn piano online, piano teacher, live piano lessons, piano lessons for beginners, piano lessons for kids, virtual piano lessons" />
+                <meta property="og:title" content="Learn Piano Online - Live 1-on-1 Piano Lessons" />
+                <meta property="og:description" content="Learn piano online with live 1-on-1 lessons from professional teachers. Personalized curriculum and flexible scheduling." />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://learnpianoonline.com" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Learn Piano Online - Live 1-on-1 Piano Lessons" />
+                <meta name="twitter:description" content="Learn piano online with live 1-on-1 lessons from professional teachers." />
+                <link rel="canonical" href="https://learnpianoonline.com" />
+            </Head>
             <div className="min-h-screen">
                 {/* Hero Section */}
                 <section className="bg-rainbow-gradient px-6 py-20">

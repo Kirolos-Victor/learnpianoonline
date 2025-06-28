@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { Clock, Mail, MessageCircle, Phone } from 'lucide-react';
+import { Head } from '@inertiajs/react';
 
 const Contact = () => {
     const contactMethods = [
@@ -41,6 +42,17 @@ const Contact = () => {
 
     return (
         <AppLayout>
+            <Head>
+                <title>Contact & Support - Learn Piano Online</title>
+                <meta name="description" content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions about online piano lessons, scheduling, and technical support." />
+                <meta name="keywords" content="piano lessons support, contact piano teacher, online piano help, piano lesson questions, piano support team" />
+                <meta property="og:title" content="Contact & Support - Learn Piano Online" />
+                <meta property="og:description" content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions." />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content="Contact & Support - Learn Piano Online" />
+                <meta name="twitter:description" content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions." />
+            </Head>
             <div className="min-h-screen bg-background">
                 {/* Header */}
                 <div className="bg-piano-gradient px-6 py-16">
