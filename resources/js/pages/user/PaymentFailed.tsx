@@ -1,15 +1,18 @@
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { XCircle, CreditCard, RefreshCw } from 'lucide-react';
-import { usePage, router, Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
+import { RefreshCw, XCircle } from 'lucide-react';
 
 const PaymentFailed = () => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 p-4">
             <Head>
                 <title>Payment Failed - Learn Piano Online</title>
-                <meta name="description" content="There was an issue processing your payment. Please try again or contact our support team for assistance." />
+                <meta
+                    name="description"
+                    content="There was an issue processing your payment. Please try again or contact our support team for assistance."
+                />
                 <meta name="robots" content="noindex, nofollow" />
                 <meta property="og:title" content="Payment Failed - Learn Piano Online" />
                 <meta property="og:description" content="There was an issue processing your payment. Please try again." />
@@ -18,7 +21,7 @@ const PaymentFailed = () => {
             {/* Header */}
             <div className="bg-piano-gradient px-6 py-8">
                 <div className="container mx-auto">
-                    <h1 className="mb-2 font-playfair text-3xl font-bold text-primary md:text-4xl">Payment Failed</h1>
+                    <h1 className="font-playfair mb-2 text-3xl font-bold text-primary md:text-4xl">Payment Failed</h1>
                     <p className="text-muted-foreground">We couldn't process your payment. Please try again.</p>
                 </div>
             </div>
@@ -85,19 +88,12 @@ const PaymentFailed = () => {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
-                                    <Button
-                                        onClick={() => router.visit('/subscription')}
-                                        className="flex-1"
-                                    >
+                                <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3">
+                                    <Button onClick={() => router.visit('/subscription')} className="flex-1">
                                         <RefreshCw className="mr-2 h-4 w-4" />
                                         Try Again
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => router.visit('/contact')}
-                                        className="flex-1"
-                                    >
+                                    <Button variant="outline" onClick={() => router.visit('/contact')} className="flex-1">
                                         Contact Support
                                     </Button>
                                 </div>
@@ -106,8 +102,8 @@ const PaymentFailed = () => {
                                 <Alert>
                                     <XCircle className="h-4 w-4" />
                                     <AlertDescription>
-                                        <span className="font-semibold">Important:</span> No charges have been made to your account.
-                                        Your subscription will only be activated after a successful payment.
+                                        <span className="font-semibold">Important:</span> No charges have been made to your account. Your subscription
+                                        will only be activated after a successful payment.
                                     </AlertDescription>
                                 </Alert>
 
@@ -115,11 +111,11 @@ const PaymentFailed = () => {
                                 <div className="rounded-lg bg-gray-50 p-4 text-center">
                                     <p className="text-sm text-gray-600">
                                         Need immediate assistance? Contact us at{' '}
-                                        <a href="mailto:support@learnpianoonline.com" className="text-primary hover:underline cursor-pointer">
+                                        <a href="mailto:support@learnpianoonline.com" className="cursor-pointer text-primary hover:underline">
                                             support@learnpianoonline.com
-                                        </a>
-                                        {' '}or call us at{' '}
-                                        <a href="tel:+1234567890" className="text-primary hover:underline cursor-pointer">
+                                        </a>{' '}
+                                        or call us at{' '}
+                                        <a href="tel:+1234567890" className="cursor-pointer text-primary hover:underline">
                                             +1 (234) 567-890
                                         </a>
                                     </p>

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { Clock, Mail, MessageCircle, Phone } from 'lucide-react';
 import { Head } from '@inertiajs/react';
+import { Clock, Mail, Phone } from 'lucide-react';
 
 const Contact = () => {
     const contactMethods = [
@@ -44,20 +44,32 @@ const Contact = () => {
         <AppLayout>
             <Head>
                 <title>Contact & Support - Learn Piano Online</title>
-                <meta name="description" content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions about online piano lessons, scheduling, and technical support." />
-                <meta name="keywords" content="piano lessons support, contact piano teacher, online piano help, piano lesson questions, piano support team" />
+                <meta
+                    name="description"
+                    content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions about online piano lessons, scheduling, and technical support."
+                />
+                <meta
+                    name="keywords"
+                    content="piano lessons support, contact piano teacher, online piano help, piano lesson questions, piano support team"
+                />
                 <meta property="og:title" content="Contact & Support - Learn Piano Online" />
-                <meta property="og:description" content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions." />
+                <meta
+                    property="og:description"
+                    content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions."
+                />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary" />
                 <meta name="twitter:title" content="Contact & Support - Learn Piano Online" />
-                <meta name="twitter:description" content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions." />
+                <meta
+                    name="twitter:description"
+                    content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions."
+                />
             </Head>
             <div className="min-h-screen bg-background">
                 {/* Header */}
                 <div className="bg-piano-gradient px-6 py-16">
                     <div className="container mx-auto text-center">
-                        <h1 className="mb-4 font-playfair text-4xl font-bold text-primary md:text-5xl">Contact & Support</h1>
+                        <h1 className="font-playfair mb-4 text-4xl font-bold text-primary md:text-5xl">Contact & Support</h1>
                         <p className="mx-auto max-w-2xl text-xl text-muted-foreground">
                             Have questions about your piano lessons? Need technical support? We're here to help you succeed in your musical journey.
                         </p>
@@ -75,7 +87,10 @@ const Contact = () => {
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     {contactMethods.map((method, index) => (
-                                        <div key={index} className="flex items-start space-x-4 rounded-lg border p-4 hover:bg-gray-50 transition-colors">
+                                        <div
+                                            key={index}
+                                            className="flex items-start space-x-4 rounded-lg border p-4 transition-colors hover:bg-gray-50"
+                                        >
                                             <method.icon className="text-gold mt-1 h-6 w-6 flex-shrink-0" />
                                             <div>
                                                 <h4 className="text-lg font-semibold text-primary">{method.title}</h4>
@@ -120,7 +135,7 @@ const Contact = () => {
                                         {faqs.map((faq, index) => (
                                             <div key={index} className="border-b border-gray-200 pb-6 last:border-b-0">
                                                 <h4 className="mb-3 text-lg font-semibold text-primary">{faq.question}</h4>
-                                                <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
+                                                <p className="leading-relaxed text-muted-foreground">{faq.answer}</p>
                                             </div>
                                         ))}
                                     </div>

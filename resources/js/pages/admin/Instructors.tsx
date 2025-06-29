@@ -1,22 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import AdminLayout from '@/layouts/admin-layout';
-import { Head, useForm, Link } from '@inertiajs/react';
-import {
-    Shield,
-    Edit,
-    UserX,
-    UserCheck,
-    UserPlus,
-    GraduationCap,
-    BookOpen,
-    CheckCircle,
-    Users
-} from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { BookOpen, Edit, GraduationCap, Shield, UserCheck, UserPlus, Users, UserX } from 'lucide-react';
 import { useState } from 'react';
 
 interface Instructor {
@@ -91,8 +81,8 @@ const AdminInstructors = ({ instructors }: Props) => {
         }
     };
 
-    const activeInstructors = instructors.filter(instructor => instructor.is_active);
-    const inactiveInstructors = instructors.filter(instructor => !instructor.is_active);
+    const activeInstructors = instructors.filter((instructor) => instructor.is_active);
+    const inactiveInstructors = instructors.filter((instructor) => !instructor.is_active);
     const totalStudents = instructors.reduce((sum, instructor) => sum + instructor.students_count, 0);
     const totalLessons = instructors.reduce((sum, instructor) => sum + instructor.lessons_count, 0);
 
@@ -105,21 +95,19 @@ const AdminInstructors = ({ instructors }: Props) => {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">Instructors Management</h1>
-                        <p className="text-gray-600 mt-2">Manage instructors and their assigned students</p>
+                        <p className="mt-2 text-gray-600">Manage instructors and their assigned students</p>
                     </div>
                     <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
                         <DialogTrigger asChild>
                             <Button>
-                                <UserPlus className="h-4 w-4 mr-2" />
+                                <UserPlus className="mr-2 h-4 w-4" />
                                 Invite Instructor
                             </Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Invite Instructor</DialogTitle>
-                                <DialogDescription>
-                                    Send an invitation to a new instructor.
-                                </DialogDescription>
+                                <DialogDescription>Send an invitation to a new instructor.</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">
                                 <div>
@@ -158,7 +146,7 @@ const AdminInstructors = ({ instructors }: Props) => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Instructors</CardTitle>
@@ -179,9 +167,7 @@ const AdminInstructors = ({ instructors }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{activeInstructors.length}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Currently active
-                        </p>
+                        <p className="text-xs text-muted-foreground">Currently active</p>
                     </CardContent>
                 </Card>
 
@@ -192,9 +178,7 @@ const AdminInstructors = ({ instructors }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalStudents}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Assigned to instructors
-                        </p>
+                        <p className="text-xs text-muted-foreground">Assigned to instructors</p>
                     </CardContent>
                 </Card>
 
@@ -205,9 +189,7 @@ const AdminInstructors = ({ instructors }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalLessons}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Conducted by instructors
-                        </p>
+                        <p className="text-xs text-muted-foreground">Conducted by instructors</p>
                     </CardContent>
                 </Card>
             </div>
@@ -216,18 +198,16 @@ const AdminInstructors = ({ instructors }: Props) => {
             <Card>
                 <CardHeader>
                     <CardTitle>All Instructors</CardTitle>
-                    <CardDescription>
-                        Manage instructor access and view their performance
-                    </CardDescription>
+                    <CardDescription>Manage instructor access and view their performance</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
                         {instructors.map((instructor) => (
-                            <div key={instructor.id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div key={instructor.id} className="flex items-center justify-between rounded-lg border p-4">
                                 <div className="flex items-center space-x-4">
                                     <div className="flex items-center space-x-2">
                                         <Badge className="bg-blue-100 text-blue-800">
-                                            <Shield className="h-3 w-3 mr-1" />
+                                            <Shield className="mr-1 h-3 w-3" />
                                             Instructor
                                         </Badge>
                                         <Badge className={instructor.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
@@ -238,15 +218,9 @@ const AdminInstructors = ({ instructors }: Props) => {
                                         <p className="font-medium text-gray-900">{instructor.name}</p>
                                         <p className="text-sm text-gray-600">{instructor.email}</p>
                                         <div className="mt-1 flex items-center space-x-4">
-                                            <p className="text-xs text-gray-500">
-                                                Students: {instructor.students_count}
-                                            </p>
-                                            <p className="text-xs text-gray-500">
-                                                Lessons: {instructor.lessons_count}
-                                            </p>
-                                            <p className="text-xs text-gray-500">
-                                                Completed: {instructor.completed_lessons}
-                                            </p>
+                                            <p className="text-xs text-gray-500">Students: {instructor.students_count}</p>
+                                            <p className="text-xs text-gray-500">Lessons: {instructor.lessons_count}</p>
+                                            <p className="text-xs text-gray-500">Completed: {instructor.completed_lessons}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -256,11 +230,7 @@ const AdminInstructors = ({ instructors }: Props) => {
                                             <Users className="h-4 w-4" />
                                         </Button>
                                     </Link>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleEditInstructor(instructor)}
-                                    >
+                                    <Button variant="outline" size="sm" onClick={() => handleEditInstructor(instructor)}>
                                         <Edit className="h-4 w-4" />
                                     </Button>
                                     {instructor.is_active ? (
@@ -294,28 +264,17 @@ const AdminInstructors = ({ instructors }: Props) => {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Edit Instructor</DialogTitle>
-                        <DialogDescription>
-                            Update instructor information.
-                        </DialogDescription>
+                        <DialogDescription>Update instructor information.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div>
                             <Label htmlFor="edit-name">Name</Label>
-                            <Input
-                                id="edit-name"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                            />
+                            <Input id="edit-name" value={data.name} onChange={(e) => setData('name', e.target.value)} />
                             {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
                         </div>
                         <div>
                             <Label htmlFor="edit-email">Email</Label>
-                            <Input
-                                id="edit-email"
-                                type="email"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                            />
+                            <Input id="edit-email" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} />
                             {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
                         </div>
                     </div>

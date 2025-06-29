@@ -1,10 +1,8 @@
-import { Head, Link } from '@inertiajs/react';
-import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { usePage } from '@inertiajs/react';
 import { SharedData } from '@/types';
-import { LogOut, Users, BookOpen, Calendar, Settings, Shield, GraduationCap, Clock } from 'lucide-react';
-import { useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Clock, GraduationCap, LogOut, Shield, Users } from 'lucide-react';
+import { ReactNode } from 'react';
 
 interface AdminLayoutProps {
     children: ReactNode;
@@ -34,23 +32,16 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
             <Head title={title} />
 
             {/* Header */}
-            <header className="bg-white border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
+            <header className="border-b border-gray-200 bg-white">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="flex h-16 items-center justify-between">
                         <div className="flex items-center">
                             <h1 className="text-xl font-semibold text-gray-900">Admin Panel</h1>
                         </div>
 
                         <div className="flex items-center space-x-4">
-                            <span className="text-sm text-gray-700">
-                                Welcome, {auth.user.name}
-                            </span>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleLogout}
-                                className="flex items-center space-x-2"
-                            >
+                            <span className="text-sm text-gray-700">Welcome, {auth.user.name}</span>
+                            <Button variant="outline" size="sm" onClick={handleLogout} className="flex items-center space-x-2">
                                 <LogOut className="h-4 w-4" />
                                 <span>Logout</span>
                             </Button>
@@ -61,16 +52,16 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
 
             <div className="flex">
                 {/* Sidebar */}
-                <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
+                <aside className="min-h-screen w-64 border-r border-gray-200 bg-white">
                     <nav className="mt-8">
-                        <div className="px-4 space-y-2">
+                        <div className="space-y-2 px-4">
                             {navigationItems.map((item) => (
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                                    className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                                         isActive(item.name)
-                                            ? 'bg-red-50 text-red-700 border-r-2 border-red-700'
+                                            ? 'border-r-2 border-red-700 bg-red-50 text-red-700'
                                             : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                                     }`}
                                 >
@@ -83,9 +74,7 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
                 </aside>
 
                 {/* Main Content */}
-                <main className="flex-1 p-8">
-                    {children}
-                </main>
+                <main className="flex-1 p-8">{children}</main>
             </div>
         </div>
     );

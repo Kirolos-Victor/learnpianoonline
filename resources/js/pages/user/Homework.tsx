@@ -58,7 +58,7 @@ const Homework = () => {
             {/* Header */}
             <div className="bg-piano-gradient px-6 py-8">
                 <div className="container mx-auto">
-                    <h1 className="mb-2 font-playfair text-3xl font-bold text-primary md:text-4xl">Homework & Practice</h1>
+                    <h1 className="font-playfair mb-2 text-3xl font-bold text-primary md:text-4xl">Homework & Practice</h1>
                     <p className="text-muted-foreground">Submit your practice recordings and receive personalized feedback</p>
                 </div>
             </div>

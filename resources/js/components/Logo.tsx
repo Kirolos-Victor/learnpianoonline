@@ -59,10 +59,12 @@ const Logo: React.FC<LogoProps> = ({ className = '', showText = true, size = 'md
 
             {showText && (
                 <div className="flex flex-col">
-                    <span className={`font-fredoka ${textSizeClasses[size]} font-bold bg-gradient-to-r from-fun-purple via-fun-pink to-fun-orange bg-clip-text text-transparent`}>
+                    <span
+                        className={`font-fredoka ${textSizeClasses[size]} bg-gradient-to-r from-fun-purple via-fun-pink to-fun-orange bg-clip-text font-bold text-transparent`}
+                    >
                         MyPianoClass
                     </span>
-                    <span className="text-xs font-comic text-white/80">Learn & Play! 🎵</span>
+                    <span className="font-comic text-xs text-white/80">Learn & Play! 🎵</span>
                 </div>
             )}
         </div>

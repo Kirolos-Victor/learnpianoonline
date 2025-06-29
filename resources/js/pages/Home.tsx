@@ -72,10 +72,19 @@ const Home = () => {
         <AppLayout>
             <Head>
                 <title>Learn Piano Online - Live 1-on-1 Piano Lessons</title>
-                <meta name="description" content="Learn piano online with live 1-on-1 lessons from professional teachers. Personalized curriculum, flexible scheduling, and expert feedback. Start your musical journey today!" />
-                <meta name="keywords" content="online piano lessons, learn piano online, piano teacher, live piano lessons, piano lessons for beginners, piano lessons for kids, virtual piano lessons" />
+                <meta
+                    name="description"
+                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Personalized curriculum, flexible scheduling, and expert feedback. Start your musical journey today!"
+                />
+                <meta
+                    name="keywords"
+                    content="online piano lessons, learn piano online, piano teacher, live piano lessons, piano lessons for beginners, piano lessons for kids, virtual piano lessons"
+                />
                 <meta property="og:title" content="Learn Piano Online - Live 1-on-1 Piano Lessons" />
-                <meta property="og:description" content="Learn piano online with live 1-on-1 lessons from professional teachers. Personalized curriculum and flexible scheduling." />
+                <meta
+                    property="og:description"
+                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Personalized curriculum and flexible scheduling."
+                />
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://learnpianoonline.com" />
                 <meta name="twitter:card" content="summary_large_image" />
@@ -241,7 +250,7 @@ const Home = () => {
                                         <Link href={route('register')} className="cursor-pointer">
                                             <Button
                                                 size="lg"
-                                                className="shadow-float w-full rounded-full bg-fun-green py-4 font-comic text-xl hover:bg-fun-green-600 cursor-pointer"
+                                                className="shadow-float w-full cursor-pointer rounded-full bg-fun-green py-4 font-comic text-xl hover:bg-fun-green-600"
                                             >
                                                 🎹 Start Your Journey!
                                             </Button>

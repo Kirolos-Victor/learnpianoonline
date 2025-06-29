@@ -1,22 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import InstructorLayout from '@/layouts/instructor-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    Calendar,
-    CheckCircle,
-    Clock,
-    Upload,
-    FileText,
-    Image,
-    Plus
-} from 'lucide-react';
+import { ArrowLeft, Calendar, CheckCircle, Clock, FileText, Image } from 'lucide-react';
 import { useState } from 'react';
 
 interface Lesson {
@@ -83,11 +74,15 @@ const InstructorLessons = ({ student, lessons }: Props) => {
     };
 
     const getInitials = (name: string) => {
-        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+        return name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase();
     };
 
-    const pendingLessons = lessons.filter(lesson => lesson.status === 'pending');
-    const completedLessons = lessons.filter(lesson => lesson.status === 'completed');
+    const pendingLessons = lessons.filter((lesson) => lesson.status === 'pending');
+    const completedLessons = lessons.filter((lesson) => lesson.status === 'completed');
 
     return (
         <InstructorLayout title={`Lessons - ${student.name}`}>
@@ -95,10 +90,10 @@ const InstructorLessons = ({ student, lessons }: Props) => {
 
             {/* Header */}
             <div className="mb-8">
-                <div className="flex items-center space-x-4 mb-4">
+                <div className="mb-4 flex items-center space-x-4">
                     <Button variant="outline" asChild>
                         <Link href="/instructor/students" className="cursor-pointer">
-                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Students
                         </Link>
                     </Button>
@@ -111,20 +106,18 @@ const InstructorLessons = ({ student, lessons }: Props) => {
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">{student.name}</h1>
                         <p className="text-gray-600">{student.email}</p>
-                        <div className="flex items-center space-x-4 mt-2">
+                        <div className="mt-2 flex items-center space-x-4">
                             <Badge className={student.is_subscribed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
                                 {student.is_subscribed ? 'Active' : 'Inactive'}
                             </Badge>
-                            <span className="text-sm text-gray-600">
-                                {student.sessions_remaining} sessions remaining
-                            </span>
+                            <span className="text-sm text-gray-600">{student.sessions_remaining} sessions remaining</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Lessons</CardTitle>
@@ -165,15 +158,15 @@ const InstructorLessons = ({ student, lessons }: Props) => {
                 {lessons.length === 0 ? (
                     <Card>
                         <CardContent className="pt-6 text-center">
-                            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No lessons found</h3>
+                            <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                            <h3 className="mb-2 text-lg font-medium text-gray-900">No lessons found</h3>
                             <p className="text-gray-600">This student doesn't have any lessons scheduled yet.</p>
                         </CardContent>
                     </Card>
                 ) : (
                     <div className="grid gap-4">
                         {lessons.map((lesson) => (
-                            <Card key={lesson.id} className="hover:shadow-md transition-shadow">
+                            <Card key={lesson.id} className="transition-shadow hover:shadow-md">
                                 <CardContent className="pt-6">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center space-x-4">
@@ -201,17 +194,20 @@ const InstructorLessons = ({ student, lessons }: Props) => {
                                             </Badge>
 
                                             {lesson.status === 'pending' && (
-                                                <Dialog open={isDialogOpen && selectedLesson?.id === lesson.id} onOpenChange={(open) => {
-                                                    setIsDialogOpen(open);
-                                                    if (open) {
-                                                        setSelectedLesson(lesson);
-                                                    } else {
-                                                        setSelectedLesson(null);
-                                                    }
-                                                }}>
+                                                <Dialog
+                                                    open={isDialogOpen && selectedLesson?.id === lesson.id}
+                                                    onOpenChange={(open) => {
+                                                        setIsDialogOpen(open);
+                                                        if (open) {
+                                                            setSelectedLesson(lesson);
+                                                        } else {
+                                                            setSelectedLesson(null);
+                                                        }
+                                                    }}
+                                                >
                                                     <DialogTrigger asChild>
                                                         <Button>
-                                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                                            <CheckCircle className="mr-2 h-4 w-4" />
                                                             Mark Complete
                                                         </Button>
                                                     </DialogTrigger>
@@ -232,11 +228,11 @@ const InstructorLessons = ({ student, lessons }: Props) => {
                                                                         id="screenshot"
                                                                         accept="image/*"
                                                                         onChange={handleFileChange}
-                                                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                                                        className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
                                                                     />
                                                                 </div>
                                                                 {errors.screenshot && (
-                                                                    <p className="text-sm text-red-600 mt-1">{errors.screenshot}</p>
+                                                                    <p className="mt-1 text-sm text-red-600">{errors.screenshot}</p>
                                                                 )}
                                                             </div>
 
@@ -253,16 +249,10 @@ const InstructorLessons = ({ student, lessons }: Props) => {
                                                         </div>
 
                                                         <DialogFooter>
-                                                            <Button
-                                                                variant="outline"
-                                                                onClick={() => setIsDialogOpen(false)}
-                                                            >
+                                                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                                                                 Cancel
                                                             </Button>
-                                                            <Button
-                                                                onClick={() => handleSubmit(lesson.id)}
-                                                                disabled={!data.screenshot || processing}
-                                                            >
+                                                            <Button onClick={() => handleSubmit(lesson.id)} disabled={!data.screenshot || processing}>
                                                                 {processing ? 'Marking Complete...' : 'Mark Complete'}
                                                             </Button>
                                                         </DialogFooter>
@@ -272,7 +262,7 @@ const InstructorLessons = ({ student, lessons }: Props) => {
 
                                             {lesson.status === 'completed' && lesson.screenshot_path && (
                                                 <Button variant="outline" size="sm">
-                                                    <Image className="h-4 w-4 mr-2" />
+                                                    <Image className="mr-2 h-4 w-4" />
                                                     View Screenshot
                                                 </Button>
                                             )}
@@ -280,9 +270,9 @@ const InstructorLessons = ({ student, lessons }: Props) => {
                                     </div>
 
                                     {lesson.notes && (
-                                        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                                        <div className="mt-4 rounded-lg bg-gray-50 p-3">
                                             <div className="flex items-start space-x-2">
-                                                <FileText className="h-4 w-4 text-gray-400 mt-0.5" />
+                                                <FileText className="mt-0.5 h-4 w-4 text-gray-400" />
                                                 <div>
                                                     <p className="text-sm font-medium text-gray-700">Notes:</p>
                                                     <p className="text-sm text-gray-600">{lesson.notes}</p>

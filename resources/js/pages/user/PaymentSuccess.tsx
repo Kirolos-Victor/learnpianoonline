@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, CreditCard, Calendar } from 'lucide-react';
-import { usePage, router, Head } from '@inertiajs/react';
-import { SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
+import { Calendar, CheckCircle, CreditCard } from 'lucide-react';
 
 interface Subscription {
     id: number;
@@ -20,7 +19,7 @@ const PaymentSuccess = () => {
     const { subscription } = usePage<PaymentSuccessPageProps>().props;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 p-4">
             <Head>
                 <title>Payment Successful - Learn Piano Online</title>
                 <meta name="description" content="Your piano lesson subscription has been successfully activated. Welcome to your musical journey!" />
@@ -32,7 +31,7 @@ const PaymentSuccess = () => {
             {/* Header */}
             <div className="bg-piano-gradient px-6 py-8">
                 <div className="container mx-auto">
-                    <h1 className="mb-2 font-playfair text-3xl font-bold text-primary md:text-4xl">Payment Successful!</h1>
+                    <h1 className="font-playfair mb-2 text-3xl font-bold text-primary md:text-4xl">Payment Successful!</h1>
                     <p className="text-muted-foreground">Your subscription has been activated successfully</p>
                 </div>
             </div>
@@ -46,9 +45,7 @@ const PaymentSuccess = () => {
                                 <CheckCircle className="h-8 w-8 text-green-600" />
                             </div>
                             <CardTitle className="text-green-800">Payment Completed Successfully</CardTitle>
-                            <CardDescription className="text-green-600">
-                                Thank you for subscribing to our piano lessons!
-                            </CardDescription>
+                            <CardDescription className="text-green-600">Thank you for subscribing to our piano lessons!</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-6">
@@ -104,18 +101,11 @@ const PaymentSuccess = () => {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
-                                    <Button
-                                        onClick={() => router.visit('/dashboard')}
-                                        className="flex-1"
-                                    >
+                                <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3">
+                                    <Button onClick={() => router.visit('/dashboard')} className="flex-1">
                                         Go to Dashboard
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => router.visit('/lessons')}
-                                        className="flex-1"
-                                    >
+                                    <Button variant="outline" onClick={() => router.visit('/lessons')} className="flex-1">
                                         View Lessons
                                     </Button>
                                 </div>
@@ -124,7 +114,7 @@ const PaymentSuccess = () => {
                                 <div className="rounded-lg bg-gray-50 p-4 text-center">
                                     <p className="text-sm text-gray-600">
                                         Need help? Contact our support team at{' '}
-                                        <a href="mailto:support@learnpianoonline.com" className="text-primary hover:underline cursor-pointer">
+                                        <a href="mailto:support@learnpianoonline.com" className="cursor-pointer text-primary hover:underline">
                                             support@learnpianoonline.com
                                         </a>
                                     </p>

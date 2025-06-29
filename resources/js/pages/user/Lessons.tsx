@@ -1,31 +1,31 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import {
+    AlertTriangle,
+    Award,
     Calendar,
     CheckCircle,
-    Clock,
-    FileText,
-    Users,
-    Crown,
-    Target,
-    Award,
-    Zap,
-    Star,
-    AlertTriangle,
-    Upload,
     ChevronLeft,
     ChevronRight,
+    Clock,
+    Crown,
+    FileText,
     Music,
+    Sparkles,
+    Star,
+    Target,
     Trophy,
-    Sparkles
+    Upload,
+    Users,
+    Zap,
 } from 'lucide-react';
 import { useState } from 'react';
-import { SharedData } from '@/types';
 
 interface Student {
     id: string;
@@ -75,11 +75,9 @@ const Lessons = () => {
     const selectedStudent = selectedStudentData?.student;
     const numericSelectedStudentId = Number(selectedStudentId);
     const currentLessons = selectedStudentData?.lessons || [];
-    const completedLessons = currentLessons.filter(lesson => lesson.status === 'completed');
+    const completedLessons = currentLessons.filter((lesson) => lesson.status === 'completed');
     // const pendingLessons = currentLessons.filter(lesson => lesson.status === 'pending');
-    const pendingHomework = currentLessons.filter(lesson =>
-        lesson.hasHomework && lesson.homeworkStatus === 'pending'
-    );
+    const pendingHomework = currentLessons.filter((lesson) => lesson.hasHomework && lesson.homeworkStatus === 'pending');
 
     // Handle student selection change using Inertia
     const handleStudentChange = (studentId: string) => {
@@ -94,7 +92,7 @@ const Lessons = () => {
             preserveScroll: true,
             onFinish: () => {
                 setLoading(false);
-            }
+            },
         });
     };
 
@@ -119,7 +117,7 @@ const Lessons = () => {
                 preserveScroll: true,
                 onFinish: () => {
                     setLoading(false);
-                }
+                },
             });
         }
     };
@@ -129,55 +127,63 @@ const Lessons = () => {
             icon: Crown,
             title: 'Fun 1-on-1 Lessons',
             description: 'Learn with your own friendly teacher! 🎵',
-            color: 'bg-fun-pink'
+            color: 'bg-fun-pink',
         },
         {
             icon: Target,
             title: 'Cool Songs to Learn',
             description: 'Play your favorite songs and discover new ones! 🎶',
-            color: 'bg-fun-blue'
+            color: 'bg-fun-blue',
         },
         {
             icon: Award,
             title: 'Awesome Teachers',
             description: 'Learn from super nice and patient teachers! 👩‍🏫',
-            color: 'bg-fun-yellow'
+            color: 'bg-fun-yellow',
         },
         {
             icon: Zap,
             title: 'Flexible Times',
             description: 'Choose lesson times that work for you! ⏰',
-            color: 'bg-fun-green'
+            color: 'bg-fun-green',
         },
         {
             icon: Star,
             title: 'Earn Stars & Badges',
             description: 'Get rewards for practicing and learning! ⭐',
-            color: 'bg-fun-purple'
+            color: 'bg-fun-purple',
         },
         {
             icon: FileText,
             title: 'Fun Homework',
             description: 'Practice assignments that are actually fun! 📝',
-            color: 'bg-fun-cyan'
-        }
+            color: 'bg-fun-cyan',
+        },
     ];
 
     const getHomeworkStatusColor = (status: string) => {
         switch (status) {
-            case 'submitted': return 'bg-fun-green text-white';
-            case 'pending': return 'bg-fun-orange text-white';
-            case 'overdue': return 'bg-fun-red text-white';
-            default: return 'bg-gray-100 text-gray-800';
+            case 'submitted':
+                return 'bg-fun-green text-white';
+            case 'pending':
+                return 'bg-fun-orange text-white';
+            case 'overdue':
+                return 'bg-fun-red text-white';
+            default:
+                return 'bg-gray-100 text-gray-800';
         }
     };
 
     const getHomeworkStatusIcon = (status: string) => {
         switch (status) {
-            case 'submitted': return <CheckCircle className="h-5 w-5" />;
-            case 'pending': return <Clock className="h-5 w-5" />;
-            case 'overdue': return <AlertTriangle className="h-5 w-5" />;
-            default: return <Clock className="h-5 w-5" />;
+            case 'submitted':
+                return <CheckCircle className="h-5 w-5" />;
+            case 'pending':
+                return <Clock className="h-5 w-5" />;
+            case 'overdue':
+                return <AlertTriangle className="h-5 w-5" />;
+            default:
+                return <Clock className="h-5 w-5" />;
         }
     };
 
@@ -186,8 +192,8 @@ const Lessons = () => {
         router.visit(`/homework/${selectedStudent?.id}/${lessonId}`, {
             data: {
                 studentName: selectedStudent?.name,
-                lessonNumber: currentLessons.find(l => l.id === lessonId)?.lessonNumber
-            }
+                lessonNumber: currentLessons.find((l) => l.id === lessonId)?.lessonNumber,
+            },
         });
     };
 
@@ -197,32 +203,34 @@ const Lessons = () => {
                 <Head title="Lessons" />
 
                 {/* Header */}
-                <div className="bg-rainbow-gradient px-6 py-12 relative overflow-hidden">
+                <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
                     {/* Floating musical notes */}
                     <div className="absolute inset-0 overflow-hidden">
-                        <div className="absolute top-10 left-10 text-3xl animate-bounce-gentle">🎵</div>
-                        <div className="absolute top-20 right-20 text-2xl animate-bounce-gentle" style={{animationDelay: '0.5s'}}>🎶</div>
-                        <div className="absolute bottom-20 left-20 text-2xl animate-bounce-gentle" style={{animationDelay: '1s'}}>🎹</div>
-                        <div className="absolute bottom-10 right-10 text-3xl animate-bounce-gentle" style={{animationDelay: '1.5s'}}>⭐</div>
+                        <div className="absolute top-10 left-10 animate-bounce-gentle text-3xl">🎵</div>
+                        <div className="absolute top-20 right-20 animate-bounce-gentle text-2xl" style={{ animationDelay: '0.5s' }}>
+                            🎶
+                        </div>
+                        <div className="absolute bottom-20 left-20 animate-bounce-gentle text-2xl" style={{ animationDelay: '1s' }}>
+                            🎹
+                        </div>
+                        <div className="absolute right-10 bottom-10 animate-bounce-gentle text-3xl" style={{ animationDelay: '1.5s' }}>
+                            ⭐
+                        </div>
                     </div>
 
-                    <div className="container mx-auto relative z-10">
+                    <div className="relative z-10 container mx-auto">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                             <div>
-                                <h1 className="mb-3 font-fredoka text-4xl font-bold text-white md:text-5xl drop-shadow-lg">
-                                    My Piano Lessons! 🎹
-                                </h1>
-                                <p className="text-xl font-comic text-white/90">
-                                    Track your learning progress and have fun with homework!
-                                </p>
+                                <h1 className="mb-3 font-fredoka text-4xl font-bold text-white drop-shadow-lg md:text-5xl">My Piano Lessons! 🎹</h1>
+                                <p className="font-comic text-xl text-white/90">Track your learning progress and have fun with homework!</p>
                             </div>
 
                             {/* Student Selector - only show if there are students */}
                             {students.length > 0 && (
                                 <div className="mt-6 md:mt-0">
-                                    <Label className="text-lg font-comic text-white mb-3 block">Choose Your Student:</Label>
-                                    <Select value={selectedStudentId? selectedStudent?.id : ''} onValueChange={handleStudentChange}>
-                                        <SelectTrigger className="w-full md:w-72 bg-white/20 backdrop-blur-sm border-white/30 text-white font-comic text-lg rounded-2xl">
+                                    <Label className="mb-3 block font-comic text-lg text-white">Choose Your Student:</Label>
+                                    <Select value={selectedStudentId ? selectedStudent?.id : ''} onValueChange={handleStudentChange}>
+                                        <SelectTrigger className="w-full rounded-2xl border-white/30 bg-white/20 font-comic text-lg text-white backdrop-blur-sm md:w-72">
                                             <SelectValue placeholder="Pick a student!" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -231,9 +239,7 @@ const Lessons = () => {
                                                     <div className="flex items-center space-x-3">
                                                         <span className="font-comic text-lg">{student.name}</span>
                                                         {student.isSubscribed && (
-                                                            <Badge className="bg-fun-green text-white text-sm font-comic">
-                                                                ⭐ Subscribed
-                                                            </Badge>
+                                                            <Badge className="bg-fun-green font-comic text-sm text-white">⭐ Subscribed</Badge>
                                                         )}
                                                     </div>
                                                 </SelectItem>
@@ -248,90 +254,100 @@ const Lessons = () => {
 
                 <div className="container mx-auto px-6 py-8">
                     {loading ? (
-                        <div className="max-w-6xl mx-auto">
+                        <div className="mx-auto max-w-6xl">
                             <Card className="border-fun-purple/20">
                                 <CardContent className="flex items-center justify-center py-12">
                                     <div className="text-center">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fun-purple mx-auto mb-4"></div>
-                                        <p className="text-muted-foreground font-comic text-lg">Loading lessons...</p>
+                                        <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-fun-purple"></div>
+                                        <p className="font-comic text-lg text-muted-foreground">Loading lessons...</p>
                                     </div>
                                 </CardContent>
                             </Card>
                         </div>
                     ) : students.length === 0 ? (
                         /* No Students - Prompt to Add Student */
-                        <div className="max-w-4xl mx-auto">
-                            <Card className="border-fun-pink/30 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10 rounded-3xl shadow-float">
+                        <div className="mx-auto max-w-4xl">
+                            <Card className="shadow-float rounded-3xl border-fun-pink/30 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10">
                                 <CardHeader className="text-center">
                                     <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-fun-pink to-fun-purple">
                                         <Music className="h-10 w-10 text-white" />
                                     </div>
-                                    <CardTitle className="text-fun-purple font-fredoka text-4xl mb-4">
+                                    <CardTitle className="mb-4 font-fredoka text-4xl text-fun-purple">
                                         Ready to Start Your Piano Journey! 🎹✨
                                     </CardTitle>
-                                    <CardDescription className="text-fun-blue font-comic text-xl">
+                                    <CardDescription className="font-comic text-xl text-fun-blue">
                                         Let's get you set up so you can start having amazing piano lessons!
                                     </CardDescription>
                                 </CardHeader>
-                                <CardContent className="text-center space-y-8">
+                                <CardContent className="space-y-8 text-center">
                                     <div className="space-y-6">
                                         <div className="flex items-center justify-center space-x-6 text-fun-purple">
                                             <div className="flex items-center space-x-3">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-pink text-white font-fredoka text-xl font-bold">1</div>
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-pink font-fredoka text-xl font-bold text-white">
+                                                    1
+                                                </div>
                                                 <span className="font-comic text-xl font-bold">Add Student</span>
                                             </div>
-                                            <div className="h-1 w-12 bg-gradient-to-r from-fun-pink to-fun-blue rounded"></div>
+                                            <div className="h-1 w-12 rounded bg-gradient-to-r from-fun-pink to-fun-blue"></div>
                                             <div className="flex items-center space-x-3">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-blue text-white font-fredoka text-xl font-bold">2</div>
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-blue font-fredoka text-xl font-bold text-white">
+                                                    2
+                                                </div>
                                                 <span className="font-comic text-xl font-bold">Subscribe</span>
                                             </div>
-                                            <div className="h-1 w-12 bg-gradient-to-r from-fun-blue to-fun-green rounded"></div>
+                                            <div className="h-1 w-12 rounded bg-gradient-to-r from-fun-blue to-fun-green"></div>
                                             <div className="flex items-center space-x-3">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-green text-white font-fredoka text-xl font-bold">3</div>
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-green font-fredoka text-xl font-bold text-white">
+                                                    3
+                                                </div>
                                                 <span className="font-comic text-xl font-bold">Start Learning</span>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                                            <div className="text-center p-6 bg-white/80 rounded-3xl border-2 border-fun-pink/20 hover:shadow-float transition-all duration-300">
+                                        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+                                            <div className="hover:shadow-float rounded-3xl border-2 border-fun-pink/20 bg-white/80 p-6 text-center transition-all duration-300">
                                                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-pink text-white">
                                                     <Users className="h-8 w-8" />
                                                 </div>
-                                                <h3 className="font-fredoka text-2xl text-fun-purple mb-2">Add Student Profile</h3>
-                                                <p className="font-comic text-lg text-fun-purple/80">Create a fun profile for your little pianist! 🎵</p>
+                                                <h3 className="mb-2 font-fredoka text-2xl text-fun-purple">Add Student Profile</h3>
+                                                <p className="font-comic text-lg text-fun-purple/80">
+                                                    Create a fun profile for your little pianist! 🎵
+                                                </p>
                                             </div>
-                                            <div className="text-center p-6 bg-white/80 rounded-3xl border-2 border-fun-blue/20 hover:shadow-float transition-all duration-300">
+                                            <div className="hover:shadow-float rounded-3xl border-2 border-fun-blue/20 bg-white/80 p-6 text-center transition-all duration-300">
                                                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-blue text-white">
                                                     <Crown className="h-8 w-8" />
                                                 </div>
-                                                <h3 className="font-fredoka text-2xl text-fun-purple mb-2">Choose Your Plan</h3>
-                                                <p className="font-comic text-lg text-fun-purple/80">Pick a subscription to unlock awesome lessons! 👑</p>
+                                                <h3 className="mb-2 font-fredoka text-2xl text-fun-purple">Choose Your Plan</h3>
+                                                <p className="font-comic text-lg text-fun-purple/80">
+                                                    Pick a subscription to unlock awesome lessons! 👑
+                                                </p>
                                             </div>
-                                            <div className="text-center p-6 bg-white/80 rounded-3xl border-2 border-fun-green/20 hover:shadow-float transition-all duration-300">
+                                            <div className="hover:shadow-float rounded-3xl border-2 border-fun-green/20 bg-white/80 p-6 text-center transition-all duration-300">
                                                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-green text-white">
                                                     <Trophy className="h-8 w-8" />
                                                 </div>
-                                                <h3 className="font-fredoka text-2xl text-fun-purple mb-2">Rock Your Lessons</h3>
+                                                <h3 className="mb-2 font-fredoka text-2xl text-fun-purple">Rock Your Lessons</h3>
                                                 <p className="font-comic text-lg text-fun-purple/80">Start your amazing piano adventure! 🚀</p>
                                             </div>
                                         </div>
 
-                                        <div className="bg-gradient-to-r from-fun-yellow/20 to-fun-orange/20 rounded-3xl p-6 border-2 border-fun-yellow/30">
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                                        <div className="rounded-3xl border-2 border-fun-yellow/30 bg-gradient-to-r from-fun-yellow/20 to-fun-orange/20 p-6">
+                                            <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-4">
                                                 <div>
-                                                    <div className="text-3xl mb-2">🎹</div>
+                                                    <div className="mb-2 text-3xl">🎹</div>
                                                     <p className="font-comic text-lg text-fun-purple">1-on-1 Lessons</p>
                                                 </div>
                                                 <div>
-                                                    <div className="text-3xl mb-2">🎵</div>
+                                                    <div className="mb-2 text-3xl">🎵</div>
                                                     <p className="font-comic text-lg text-fun-purple">Fun Songs</p>
                                                 </div>
                                                 <div>
-                                                    <div className="text-3xl mb-2">⭐</div>
+                                                    <div className="mb-2 text-3xl">⭐</div>
                                                     <p className="font-comic text-lg text-fun-purple">Earn Rewards</p>
                                                 </div>
                                                 <div>
-                                                    <div className="text-3xl mb-2">📝</div>
+                                                    <div className="mb-2 text-3xl">📝</div>
                                                     <p className="font-comic text-lg text-fun-purple">Fun Homework</p>
                                                 </div>
                                             </div>
@@ -339,14 +355,14 @@ const Lessons = () => {
                                     </div>
 
                                     <Button
-                                        className="bg-gradient-to-r from-fun-pink to-fun-purple hover:from-fun-pink-600 hover:to-fun-purple-600 text-white font-fredoka text-2xl px-12 py-4 rounded-full shadow-float animate-bounce-gentle"
+                                        className="shadow-float animate-bounce-gentle rounded-full bg-gradient-to-r from-fun-pink to-fun-purple px-12 py-4 font-fredoka text-2xl text-white hover:from-fun-pink-600 hover:to-fun-purple-600"
                                         onClick={() => router.visit(route('student.index'))}
                                     >
                                         <Sparkles className="mr-3 h-6 w-6" />
                                         🎹 Add Your First Student!
                                     </Button>
 
-                                    <div className="bg-white/60 rounded-2xl p-4 border border-fun-blue/20">
+                                    <div className="rounded-2xl border border-fun-blue/20 bg-white/60 p-4">
                                         <p className="font-comic text-lg text-fun-purple">
                                             💡 You can add multiple students and manage their lessons separately
                                             <br />
@@ -357,33 +373,32 @@ const Lessons = () => {
                             </Card>
                         </div>
                     ) : selectedStudent?.isSubscribed ? (
-                        <div className="max-w-6xl mx-auto space-y-8">
+                        <div className="mx-auto max-w-6xl space-y-8">
                             {/* Student Info */}
-                            <Card className="border-fun-purple/20 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10 rounded-3xl shadow-float">
+                            <Card className="shadow-float rounded-3xl border-fun-purple/20 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10">
                                 <CardHeader>
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <CardTitle className="flex items-center font-fredoka text-3xl text-fun-purple">
-                                                <Users className="text-fun-pink mr-3 h-8 w-8" />
+                                                <Users className="mr-3 h-8 w-8 text-fun-pink" />
                                                 {selectedStudent.name}'s Lessons
                                             </CardTitle>
                                             <CardDescription className="font-comic text-lg text-gray-600">
                                                 {selectedMonth} • {completedLessons.length}/{currentLessons.length} lessons completed! 🎉
                                             </CardDescription>
                                         </div>
-                                        <Badge className="bg-fun-green text-white font-comic text-lg px-4 py-2">
-                                            <CheckCircle className="mr-2 h-5 w-5" />
-                                            ⭐ Subscribed
+                                        <Badge className="bg-fun-green px-4 py-2 font-comic text-lg text-white">
+                                            <CheckCircle className="mr-2 h-5 w-5" />⭐ Subscribed
                                         </Badge>
                                     </div>
                                 </CardHeader>
                             </Card>
 
                             {/* Month Filter */}
-                            <Card className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-float">
+                            <Card className="shadow-float rounded-3xl bg-white/90 backdrop-blur-sm">
                                 <CardHeader>
                                     <CardTitle className="flex items-center font-fredoka text-2xl text-fun-purple">
-                                        <Calendar className="text-fun-blue mr-3 h-6 w-6" />
+                                        <Calendar className="mr-3 h-6 w-6 text-fun-blue" />
                                         Pick a Month! 📅
                                     </CardTitle>
                                 </CardHeader>
@@ -393,13 +408,13 @@ const Lessons = () => {
                                             variant="outline"
                                             onClick={() => handleMonthChange('prev')}
                                             disabled={availableMonths.indexOf(selectedMonth) === 0}
-                                            className="rounded-full bg-fun-pink/20 border-fun-pink text-fun-pink hover:bg-fun-pink hover:text-white font-comic text-lg px-6 py-3"
+                                            className="rounded-full border-fun-pink bg-fun-pink/20 px-6 py-3 font-comic text-lg text-fun-pink hover:bg-fun-pink hover:text-white"
                                         >
                                             <ChevronLeft className="h-5 w-5" />
                                         </Button>
                                         <div className="text-center">
-                                            <h3 className="text-2xl font-fredoka text-fun-purple">{selectedMonth}</h3>
-                                            <p className="text-lg font-comic text-gray-600">
+                                            <h3 className="font-fredoka text-2xl text-fun-purple">{selectedMonth}</h3>
+                                            <p className="font-comic text-lg text-gray-600">
                                                 {currentLessons.length} lessons • {completedLessons.length} completed! 🎉
                                             </p>
                                         </div>
@@ -407,7 +422,7 @@ const Lessons = () => {
                                             variant="outline"
                                             onClick={() => handleMonthChange('next')}
                                             disabled={availableMonths.indexOf(selectedMonth) === availableMonths.length - 1}
-                                            className="rounded-full bg-fun-blue/20 border-fun-blue text-fun-blue hover:bg-fun-blue hover:text-white font-comic text-lg px-6 py-3"
+                                            className="rounded-full border-fun-blue bg-fun-blue/20 px-6 py-3 font-comic text-lg text-fun-blue hover:bg-fun-blue hover:text-white"
                                         >
                                             <ChevronRight className="h-5 w-5" />
                                         </Button>
@@ -417,9 +432,9 @@ const Lessons = () => {
 
                             {/* Pending Homework Warning */}
                             {pendingHomework.length > 0 && (
-                                <Card className="border-fun-orange/30 bg-gradient-to-r from-fun-orange/10 to-fun-yellow/10 rounded-3xl shadow-float">
+                                <Card className="shadow-float rounded-3xl border-fun-orange/30 bg-gradient-to-r from-fun-orange/10 to-fun-yellow/10">
                                     <CardHeader>
-                                        <CardTitle className="text-fun-orange flex items-center font-fredoka text-2xl">
+                                        <CardTitle className="flex items-center font-fredoka text-2xl text-fun-orange">
                                             <AlertTriangle className="mr-3 h-6 w-6" />
                                             📝 Homework Time! ({pendingHomework.length})
                                         </CardTitle>
@@ -430,15 +445,18 @@ const Lessons = () => {
                                     <CardContent>
                                         <div className="space-y-4">
                                             {pendingHomework.map((lesson) => (
-                                                <div key={lesson.id} className="flex items-center justify-between p-4 rounded-2xl bg-fun-orange/20 border border-fun-orange/30">
+                                                <div
+                                                    key={lesson.id}
+                                                    className="flex items-center justify-between rounded-2xl border border-fun-orange/30 bg-fun-orange/20 p-4"
+                                                >
                                                     <div>
-                                                        <h4 className="font-fredoka text-xl text-fun-orange">Lesson {lesson.lessonNumber} Homework</h4>
-                                                        <p className="font-comic text-lg text-fun-orange/80">
-                                                            Due: {lesson.date}
-                                                        </p>
+                                                        <h4 className="font-fredoka text-xl text-fun-orange">
+                                                            Lesson {lesson.lessonNumber} Homework
+                                                        </h4>
+                                                        <p className="font-comic text-lg text-fun-orange/80">Due: {lesson.date}</p>
                                                     </div>
                                                     <Button
-                                                        className="bg-fun-orange hover:bg-fun-orange-600 text-white font-comic text-lg px-6 py-3 rounded-full shadow-float"
+                                                        className="shadow-float rounded-full bg-fun-orange px-6 py-3 font-comic text-lg text-white hover:bg-fun-orange-600"
                                                         onClick={() => handleSubmitHomework(lesson.id)}
                                                     >
                                                         <Upload className="mr-2 h-5 w-5" />
@@ -452,10 +470,10 @@ const Lessons = () => {
                             )}
 
                             {/* Monthly Lessons */}
-                            <Card className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-float">
+                            <Card className="shadow-float rounded-3xl bg-white/90 backdrop-blur-sm">
                                 <CardHeader>
                                     <CardTitle className="flex items-center font-fredoka text-2xl text-fun-purple">
-                                        <Calendar className="text-fun-blue mr-3 h-6 w-6" />
+                                        <Calendar className="mr-3 h-6 w-6 text-fun-blue" />
                                         {selectedMonth} Lessons! 🎵
                                     </CardTitle>
                                     <CardDescription className="font-comic text-lg text-gray-600">
@@ -466,8 +484,11 @@ const Lessons = () => {
                                     <div className="space-y-6">
                                         {currentLessons.length > 0 ? (
                                             currentLessons.map((lesson) => (
-                                                <div key={lesson.id} className="border-2 border-fun-purple/20 rounded-3xl p-6 bg-gradient-to-r from-white to-fun-purple/5 hover:shadow-float transition-all duration-300">
-                                                    <div className="flex items-center justify-between mb-4">
+                                                <div
+                                                    key={lesson.id}
+                                                    className="hover:shadow-float rounded-3xl border-2 border-fun-purple/20 bg-gradient-to-r from-white to-fun-purple/5 p-6 transition-all duration-300"
+                                                >
+                                                    <div className="mb-4 flex items-center justify-between">
                                                         <div className="flex items-center space-x-4">
                                                             {lesson.status === 'completed' ? (
                                                                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-green text-white">
@@ -479,16 +500,22 @@ const Lessons = () => {
                                                                 </div>
                                                             )}
                                                             <div>
-                                                                <h4 className="font-fredoka text-2xl text-fun-purple">Lesson {lesson.lessonNumber}</h4>
+                                                                <h4 className="font-fredoka text-2xl text-fun-purple">
+                                                                    Lesson {lesson.lessonNumber}
+                                                                </h4>
                                                                 <p className="font-comic text-lg text-gray-600">
                                                                     {lesson.date} at {lesson.time} • {lesson.duration} • {lesson.instructor}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <Badge className={`font-comic text-lg px-4 py-2 rounded-full ${
-                                                                lesson.status === 'completed' ? 'bg-fun-green text-white' : 'bg-fun-blue text-white'
-                                                            }`}>
+                                                            <Badge
+                                                                className={`rounded-full px-4 py-2 font-comic text-lg ${
+                                                                    lesson.status === 'completed'
+                                                                        ? 'bg-fun-green text-white'
+                                                                        : 'bg-fun-blue text-white'
+                                                                }`}
+                                                            >
                                                                 {lesson.status === 'completed' ? '✅ Done!' : '⏰ Coming Soon!'}
                                                             </Badge>
                                                         </div>
@@ -496,13 +523,17 @@ const Lessons = () => {
 
                                                     {/* Homework Section */}
                                                     {lesson.hasHomework && (
-                                                        <div className="mt-4 p-4 bg-gradient-to-r from-fun-yellow/20 to-fun-orange/20 rounded-2xl border border-fun-yellow/30">
+                                                        <div className="mt-4 rounded-2xl border border-fun-yellow/30 bg-gradient-to-r from-fun-yellow/20 to-fun-orange/20 p-4">
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex items-center space-x-3">
                                                                     <FileText className="h-5 w-5 text-fun-orange" />
-                                                                    <span className="font-comic text-lg font-medium text-fun-orange">📝 Homework Available!</span>
+                                                                    <span className="font-comic text-lg font-medium text-fun-orange">
+                                                                        📝 Homework Available!
+                                                                    </span>
                                                                 </div>
-                                                                <Badge className={`font-comic text-lg px-3 py-1 rounded-full ${getHomeworkStatusColor(lesson.homeworkStatus || 'pending')}`}>
+                                                                <Badge
+                                                                    className={`rounded-full px-3 py-1 font-comic text-lg ${getHomeworkStatusColor(lesson.homeworkStatus || 'pending')}`}
+                                                                >
                                                                     {getHomeworkStatusIcon(lesson.homeworkStatus || 'pending')}
                                                                     <span className="ml-2">{lesson.homeworkStatus}</span>
                                                                 </Badge>
@@ -514,7 +545,7 @@ const Lessons = () => {
                                                                     </p>
                                                                     <Button
                                                                         size="lg"
-                                                                        className="bg-fun-orange hover:bg-fun-orange-600 text-white font-comic text-lg px-6 py-3 rounded-full shadow-float"
+                                                                        className="shadow-float rounded-full bg-fun-orange px-6 py-3 font-comic text-lg text-white hover:bg-fun-orange-600"
                                                                         onClick={() => handleSubmitHomework(lesson.id)}
                                                                     >
                                                                         <Upload className="mr-2 h-5 w-5" />
@@ -527,12 +558,10 @@ const Lessons = () => {
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="text-center py-12">
-                                                <Calendar className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-                                                <h3 className="text-2xl font-fredoka text-fun-purple mb-3">No lessons for {selectedMonth}</h3>
-                                                <p className="font-comic text-lg text-gray-600 mb-6">
-                                                    Pick a different month to see your lessons!
-                                                </p>
+                                            <div className="py-12 text-center">
+                                                <Calendar className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+                                                <h3 className="mb-3 font-fredoka text-2xl text-fun-purple">No lessons for {selectedMonth}</h3>
+                                                <p className="mb-6 font-comic text-lg text-gray-600">Pick a different month to see your lessons!</p>
                                                 <div className="text-4xl">🎵</div>
                                             </div>
                                         )}
@@ -542,10 +571,10 @@ const Lessons = () => {
                         </div>
                     ) : (
                         /* Subscription Benefits for Non-Subscribed Students */
-                        <div className="max-w-4xl mx-auto">
-                            <Card className="border-fun-orange/30 bg-gradient-to-r from-fun-orange/10 to-fun-yellow/10 rounded-3xl shadow-float">
+                        <div className="mx-auto max-w-4xl">
+                            <Card className="shadow-float rounded-3xl border-fun-orange/30 bg-gradient-to-r from-fun-orange/10 to-fun-yellow/10">
                                 <CardHeader>
-                                    <CardTitle className="text-fun-orange flex items-center font-fredoka text-3xl">
+                                    <CardTitle className="flex items-center font-fredoka text-3xl text-fun-orange">
                                         <Crown className="mr-3 h-8 w-8" />
                                         {selectedStudent?.name} needs a subscription! 👑
                                     </CardTitle>
@@ -554,10 +583,10 @@ const Lessons = () => {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
                                         {subscriptionBenefits.map((benefit, index) => (
-                                            <div key={index} className="flex items-start space-x-4 p-4 bg-white/50 rounded-2xl">
-                                                <div className={`p-3 rounded-full ${benefit.color} text-white`}>
+                                            <div key={index} className="flex items-start space-x-4 rounded-2xl bg-white/50 p-4">
+                                                <div className={`rounded-full p-3 ${benefit.color} text-white`}>
                                                     <benefit.icon className="h-6 w-6" />
                                                 </div>
                                                 <div>
@@ -568,13 +597,11 @@ const Lessons = () => {
                                         ))}
                                     </div>
                                     <div className="text-center">
-                                        <Button className="bg-fun-green hover:bg-fun-green-600 text-white font-comic text-2xl px-10 py-4 rounded-full shadow-float animate-bounce-gentle">
+                                        <Button className="shadow-float animate-bounce-gentle rounded-full bg-fun-green px-10 py-4 font-comic text-2xl text-white hover:bg-fun-green-600">
                                             <Crown className="mr-3 h-6 w-6" />
                                             🎹 Subscribe Now - ${subscribePrice}/month
                                         </Button>
-                                        <p className="font-comic text-lg text-fun-orange mt-3">
-                                            4 fun lessons per month • Cancel anytime! 😊
-                                        </p>
+                                        <p className="mt-3 font-comic text-lg text-fun-orange">4 fun lessons per month • Cancel anytime! 😊</p>
                                     </div>
                                 </CardContent>
                             </Card>

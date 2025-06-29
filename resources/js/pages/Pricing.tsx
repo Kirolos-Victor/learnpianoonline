@@ -2,9 +2,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { ArrowRight, Check } from 'lucide-react';
-import { usePage, Link, Head } from '@inertiajs/react';
 import { SharedData } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { ArrowRight, Check } from 'lucide-react';
 
 const Pricing = () => {
     const { subscribePrice } = usePage<SharedData>().props;
@@ -71,20 +71,32 @@ const Pricing = () => {
         <AppLayout>
             <Head>
                 <title>Piano Lessons Pricing - Learn Piano Online</title>
-                <meta name="description" content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum, homework assignments, and expert feedback.`} />
-                <meta name="keywords" content="piano lessons pricing, online piano lessons cost, affordable piano lessons, piano teacher rates, piano lesson packages" />
+                <meta
+                    name="description"
+                    content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum, homework assignments, and expert feedback.`}
+                />
+                <meta
+                    name="keywords"
+                    content="piano lessons pricing, online piano lessons cost, affordable piano lessons, piano teacher rates, piano lesson packages"
+                />
                 <meta property="og:title" content="Piano Lessons Pricing - Learn Piano Online" />
-                <meta property="og:description" content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum.`} />
+                <meta
+                    property="og:description"
+                    content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum.`}
+                />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary" />
                 <meta name="twitter:title" content="Piano Lessons Pricing - Learn Piano Online" />
-                <meta name="twitter:description" content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month.`} />
+                <meta
+                    name="twitter:description"
+                    content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month.`}
+                />
             </Head>
             <div className="min-h-screen bg-background">
                 {/* Header */}
                 <div className="bg-piano-gradient px-6 py-16">
                     <div className="container mx-auto text-center">
-                        <h1 className="mb-4 font-playfair text-4xl font-bold text-primary md:text-5xl">Simple, Transparent Pricing</h1>
+                        <h1 className="font-playfair mb-4 text-4xl font-bold text-primary md:text-5xl">Simple, Transparent Pricing</h1>
                         <p className="mx-auto mb-8 max-w-2xl text-xl text-muted-foreground">
                             One affordable monthly plan that includes everything you need to master the piano
                         </p>
@@ -100,15 +112,17 @@ const Pricing = () => {
                                 <div className="mb-4">
                                     <Badge className="bg-gold text-warm-brown">Most Popular</Badge>
                                 </div>
-                                <CardTitle className="mb-2 font-playfair text-3xl">Monthly Piano Lessons</CardTitle>
+                                <CardTitle className="font-playfair mb-2 text-3xl">Monthly Piano Lessons</CardTitle>
                                 <CardDescription className="text-lg">Complete piano education with personal instructor guidance</CardDescription>
                                 <div className="mt-6">
                                     <span className="text-5xl font-bold text-primary">${subscribePrice}</span>
                                     <span className="text-xl text-muted-foreground">/month</span>
                                 </div>
-                                <p className="mt-2 text-sm text-muted-foreground">That's just ${(parseFloat(subscribePrice) / 4).toFixed(2)} per lesson!</p>
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                    That's just ${(parseFloat(subscribePrice) / 4).toFixed(2)} per lesson!
+                                </p>
                                 <div className="mt-4 flex justify-center">
-                                    <Badge className="bg-green-100 text-green-800 px-4 py-2 text-sm border border-green-300">
+                                    <Badge className="border border-green-300 bg-green-100 px-4 py-2 text-sm text-green-800">
                                         Enjoy 10% off for each additional student you add!
                                     </Badge>
                                 </div>
@@ -206,7 +220,7 @@ const Pricing = () => {
 
                         {/* Testimonials */}
                         <div className="mb-16">
-                            <h2 className="mb-8 text-center font-playfair text-3xl font-bold">What Students Say</h2>
+                            <h2 className="font-playfair mb-8 text-center text-3xl font-bold">What Students Say</h2>
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                                 {testimonials.map((testimonial, index) => (
                                     <Card key={index} className="border-gold/20">
@@ -224,11 +238,11 @@ const Pricing = () => {
 
                         {/* FAQ */}
                         <div className="mb-16">
-                            <h2 className="mb-8 text-center font-playfair text-3xl font-bold">Frequently Asked Questions</h2>
+                            <h2 className="font-playfair mb-8 text-center text-3xl font-bold">Frequently Asked Questions</h2>
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 {faqs.map((faq, index) => (
                                     <div key={index} className="rounded-lg border p-6">
-                                        <h3 className="mb-2 font-playfair text-lg font-semibold text-primary">{faq.question}</h3>
+                                        <h3 className="font-playfair mb-2 text-lg font-semibold text-primary">{faq.question}</h3>
                                         <p className="text-sm text-muted-foreground">{faq.answer}</p>
                                     </div>
                                 ))}
@@ -238,7 +252,7 @@ const Pricing = () => {
                         {/* Final CTA */}
                         <Card className="bg-warm-brown text-piano-white text-center">
                             <CardContent className="p-8">
-                                <h2 className="mb-4 font-playfair text-3xl font-bold">Ready to Start Your Musical Journey?</h2>
+                                <h2 className="font-playfair mb-4 text-3xl font-bold">Ready to Start Your Musical Journey?</h2>
                                 <p className="text-piano-white/80 mx-auto mb-6 max-w-2xl">
                                     Join hundreds of students who have transformed their piano skills with our personalized approach. Start your first
                                     lesson within 48 hours.

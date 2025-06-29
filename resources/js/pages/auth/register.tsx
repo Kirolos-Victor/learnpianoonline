@@ -4,8 +4,8 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Head, useForm, Link } from '@inertiajs/react';
-import { LoaderCircle, Piano, MapPin, MessageCircle } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { LoaderCircle, MapPin, MessageCircle, Piano } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 type RegisterForm = {
@@ -108,8 +108,14 @@ const Register = ({ countries }: Props) => {
         <div className="bg-piano-gradient flex min-h-screen items-center justify-center px-6 py-12">
             <Head>
                 <title>Register - Learn Piano Online</title>
-                <meta name="description" content="Start your piano learning journey today! Sign up for live 1-on-1 piano lessons with professional teachers. Personalized curriculum and flexible scheduling." />
-                <meta name="keywords" content="piano lesson registration, sign up piano lessons, piano student registration, online piano lessons signup" />
+                <meta
+                    name="description"
+                    content="Start your piano learning journey today! Sign up for live 1-on-1 piano lessons with professional teachers. Personalized curriculum and flexible scheduling."
+                />
+                <meta
+                    name="keywords"
+                    content="piano lesson registration, sign up piano lessons, piano student registration, online piano lessons signup"
+                />
                 <meta property="og:title" content="Register - Learn Piano Online" />
                 <meta property="og:description" content="Start your piano learning journey today! Sign up for live 1-on-1 piano lessons." />
                 <meta property="og:type" content="website" />
@@ -120,7 +126,7 @@ const Register = ({ countries }: Props) => {
             </Head>
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
-                    <Link href={'home.index'} className="inline-flex items-center space-x-2 cursor-pointer">
+                    <Link href={'home.index'} className="inline-flex cursor-pointer items-center space-x-2">
                         <Piano className="text-warm-brown h-8 w-8" />
                         <span className="font-playfair text-2xl font-bold text-primary">mypianoclass.net</span>
                     </Link>
@@ -128,7 +134,7 @@ const Register = ({ countries }: Props) => {
 
                 <Card className="border-gold/20 shadow-xl">
                     <CardHeader>
-                        <CardTitle className="text-center font-playfair text-2xl">Start Your Piano Journey</CardTitle>
+                        <CardTitle className="font-playfair text-center text-2xl">Start Your Piano Journey</CardTitle>
                         <CardDescription className="text-center">Create your account and begin learning piano today</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -159,19 +165,16 @@ const Register = ({ countries }: Props) => {
                             </div>
 
                             {/* Location Section */}
-                            <div className="space-y-3 border-t pt-4 mt-6">
-                                <div className="flex items-center space-x-2 mb-3">
-                                    <MapPin className="h-4 w-4 text-warm-brown" />
+                            <div className="mt-6 space-y-3 border-t pt-4">
+                                <div className="mb-3 flex items-center space-x-2">
+                                    <MapPin className="text-warm-brown h-4 w-4" />
                                     <Label className="text-base font-medium">Location Information</Label>
                                 </div>
                                 <p className="text-sm text-muted-foreground">This helps us schedule lessons in your timezone.</p>
 
-                                                                <div>
+                                <div>
                                     <Label htmlFor="country">Country *</Label>
-                                    <Select
-                                        value={data.country}
-                                        onValueChange={handleCountryChange}
-                                    >
+                                    <Select value={data.country} onValueChange={handleCountryChange}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select your country" />
                                         </SelectTrigger>
@@ -197,11 +200,9 @@ const Register = ({ countries }: Props) => {
                                             disabled={loadingLocations}
                                         >
                                             <SelectTrigger>
-                                                <SelectValue placeholder={
-                                                    loadingLocations
-                                                        ? 'Loading...'
-                                                        : `Select your ${locationLabel.toLowerCase()}`
-                                                } />
+                                                <SelectValue
+                                                    placeholder={loadingLocations ? 'Loading...' : `Select your ${locationLabel.toLowerCase()}`}
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {Object.entries(locations).map(([code, name]) => (
@@ -229,9 +230,9 @@ const Register = ({ countries }: Props) => {
                             </div>
 
                             {/* WhatsApp Number Section */}
-                            <div className="space-y-3 border-t pt-4 mt-6">
-                                <div className="flex items-center space-x-2 mb-3">
-                                    <MessageCircle className="h-4 w-4 text-warm-brown" />
+                            <div className="mt-6 space-y-3 border-t pt-4">
+                                <div className="mb-3 flex items-center space-x-2">
+                                    <MessageCircle className="text-warm-brown h-4 w-4" />
                                     <Label className="text-base font-medium">WhatsApp Contact</Label>
                                 </div>
                                 <p className="text-sm text-muted-foreground">We'll use this to communicate about your lessons.</p>
@@ -239,7 +240,7 @@ const Register = ({ countries }: Props) => {
                                 <div>
                                     <Label htmlFor="whatsapp_number">WhatsApp Number *</Label>
                                     <div className="flex">
-                                        <div className="flex items-center px-3 border border-r-0 border-input bg-muted rounded-l-md text-sm text-muted-foreground min-w-[60px] justify-center">
+                                        <div className="flex min-w-[60px] items-center justify-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
                                             {loadingPhoneCode ? '...' : phoneCode}
                                         </div>
                                         <Input
@@ -290,7 +291,7 @@ const Register = ({ countries }: Props) => {
                         <div className="mt-6 text-center">
                             <p className="text-sm text-muted-foreground">
                                 Already have an account?{' '}
-                                <Link href={route('login')} className="text-warm-brown hover:underline cursor-pointer">
+                                <Link href={route('login')} className="text-warm-brown cursor-pointer hover:underline">
                                     Sign in here
                                 </Link>
                             </p>

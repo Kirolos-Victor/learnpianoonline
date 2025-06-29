@@ -32,7 +32,10 @@ const Login = () => {
         <div className="bg-piano-gradient flex min-h-screen items-center justify-center px-6">
             <Head>
                 <title>Login - Learn Piano Online</title>
-                <meta name="description" content="Sign in to your piano lesson account. Access your personalized lessons, homework assignments, and progress tracking dashboard." />
+                <meta
+                    name="description"
+                    content="Sign in to your piano lesson account. Access your personalized lessons, homework assignments, and progress tracking dashboard."
+                />
                 <meta name="keywords" content="piano lesson login, sign in piano lessons, piano student login, online piano account" />
                 <meta property="og:title" content="Login - Learn Piano Online" />
                 <meta property="og:description" content="Sign in to your piano lesson account. Access your personalized lessons and progress." />
@@ -44,15 +47,15 @@ const Login = () => {
             </Head>
             <div className="w-full max-w-md">
                 <div className="mb-8 text-center">
-                    <Link href={route('home.index')} className="flex justify-center cursor-pointer">
+                    <Link href={route('home.index')} className="flex cursor-pointer justify-center">
                         <Logo size="lg" className="justify-center" />
                     </Link>
                 </div>
 
                 <Card className="border-teal/20 bg-white shadow-xl">
                     <CardHeader>
-                        <CardTitle className="text-center font-playfair text-2xl text-navy">Welcome Back</CardTitle>
-                        <CardDescription className="text-center text-warm-gray-600">Sign in to continue your piano journey</CardDescription>
+                        <CardTitle className="font-playfair text-navy text-center text-2xl">Welcome Back</CardTitle>
+                        <CardDescription className="text-warm-gray-600 text-center">Sign in to continue your piano journey</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={submit} className="space-y-4">
@@ -103,13 +106,13 @@ const Login = () => {
                         </form>
 
                         <div className="mt-6 text-center">
-                            <p className="text-sm text-warm-gray-600">
+                            <p className="text-warm-gray-600 text-sm">
                                 Don't have an account?{' '}
-                                <Link href={route('register')} className="text-teal hover:underline cursor-pointer">
+                                <Link href={route('register')} className="text-teal cursor-pointer hover:underline">
                                     Sign up here
                                 </Link>
                             </p>
-                            <p className="mt-2 text-xs text-warm-gray-500">🔒 Secure & encrypted</p>
+                            <p className="text-warm-gray-500 mt-2 text-xs">🔒 Secure & encrypted</p>
                         </div>
                     </CardContent>
                 </Card>

@@ -1,26 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, router } from '@inertiajs/react';
-import {
-    Users,
-    UserCheck,
-    BookOpen,
-    CheckCircle,
-    Clock,
-    Shield,
-    TrendingUp,
-    UserX,
-    GraduationCap,
-    CreditCard,
-    DollarSign,
-    Calendar,
-    Filter,
-    Activity
-} from 'lucide-react';
+import { Activity, BookOpen, Calendar, CheckCircle, Clock, CreditCard, DollarSign, Filter, GraduationCap, Shield, Users } from 'lucide-react';
 import { useState } from 'react';
 
 interface Stats {
@@ -118,7 +102,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-gray-600 mt-2">Overview of platform statistics and recent activities for the selected date range</p>
+                <p className="mt-2 text-gray-600">Overview of platform statistics and recent activities for the selected date range</p>
             </div>
 
             {/* Date Filter */}
@@ -128,29 +112,17 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                         <Filter className="mr-2 h-5 w-5" />
                         Date Range Filter
                     </CardTitle>
-                    <CardDescription>
-                        Filter statistics by date range. ALL metrics below show data only for the selected period.
-                    </CardDescription>
+                    <CardDescription>Filter statistics by date range. ALL metrics below show data only for the selected period.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex flex-col sm:flex-row gap-4 items-end">
+                    <div className="flex flex-col items-end gap-4 sm:flex-row">
                         <div className="flex-1">
                             <Label htmlFor="start-date">Start Date</Label>
-                            <Input
-                                id="start-date"
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                            />
+                            <Input id="start-date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                         </div>
                         <div className="flex-1">
                             <Label htmlFor="end-date">End Date</Label>
-                            <Input
-                                id="end-date"
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                            />
+                            <Input id="end-date" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                         </div>
                         <div className="flex gap-2">
                             <Button onClick={handleDateFilterChange}>
@@ -166,7 +138,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
             </Card>
 
             {/* Users Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Users</CardTitle>
@@ -177,9 +149,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                         <p className="text-xs text-muted-foreground">
                             {stats.active_users} active, {stats.inactive_users} inactive
                         </p>
-                        <p className="text-xs text-blue-600 mt-2">
-                            📅 In selected date range
-                        </p>
+                        <p className="mt-2 text-xs text-blue-600">📅 In selected date range</p>
                     </CardContent>
                 </Card>
 
@@ -193,9 +163,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                         <p className="text-xs text-muted-foreground">
                             {stats.active_instructors} active, {stats.inactive_instructors} inactive
                         </p>
-                        <p className="text-xs text-blue-600 mt-2">
-                            📅 In selected date range
-                        </p>
+                        <p className="mt-2 text-xs text-blue-600">📅 In selected date range</p>
                     </CardContent>
                 </Card>
 
@@ -206,18 +174,14 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{stats.total_students}</div>
-                        <p className="text-xs text-muted-foreground">
-                            {stats.subscribed_students} subscribed
-                        </p>
-                        <p className="text-xs text-blue-600 mt-2">
-                            📅 In selected date range
-                        </p>
+                        <p className="text-xs text-muted-foreground">{stats.subscribed_students} subscribed</p>
+                        <p className="mt-2 text-xs text-blue-600">📅 In selected date range</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Lessons Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
@@ -227,9 +191,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-blue-600">{stats.total_lessons}</div>
-                        <p className="text-sm text-gray-600 mt-2">
-                            Lessons created in date range
-                        </p>
+                        <p className="mt-2 text-sm text-gray-600">Lessons created in date range</p>
                     </CardContent>
                 </Card>
 
@@ -242,9 +204,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-green-600">{stats.completed_lessons}</div>
-                        <p className="text-sm text-gray-600 mt-2">
-                            Lessons completed in date range
-                        </p>
+                        <p className="mt-2 text-sm text-gray-600">Lessons completed in date range</p>
                     </CardContent>
                 </Card>
 
@@ -257,15 +217,13 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-yellow-600">{stats.pending_lessons}</div>
-                        <p className="text-sm text-gray-600 mt-2">
-                            Pending lessons in date range
-                        </p>
+                        <p className="mt-2 text-sm text-gray-600">Pending lessons in date range</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Subscription & Revenue Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
@@ -275,12 +233,10 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-purple-600">{stats.total_subscriptions}</div>
-                        <p className="text-sm text-gray-600 mt-2">
+                        <p className="mt-2 text-sm text-gray-600">
                             {stats.completed_subscriptions} completed, {stats.pending_subscriptions} pending
                         </p>
-                        <p className="text-xs text-blue-600 mt-2">
-                            📅 In selected date range
-                        </p>
+                        <p className="mt-2 text-xs text-blue-600">📅 In selected date range</p>
                     </CardContent>
                 </Card>
 
@@ -293,9 +249,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-green-600">${stats.total_revenue?.toFixed(2) || '0.00'}</div>
-                        <p className="text-sm text-gray-600 mt-2">
-                            Revenue in selected date range
-                        </p>
+                        <p className="mt-2 text-sm text-gray-600">Revenue in selected date range</p>
                     </CardContent>
                 </Card>
 
@@ -307,13 +261,9 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-blue-600">
-                            {stats.average_students_per_subscription?.toFixed(1) || '0.0'}
-                        </div>
-                        <p className="text-sm text-gray-600 mt-2">
-                            Avg students per subscription in period
-                        </p>
-                        <div className="text-sm text-muted-foreground mt-2">
+                        <div className="text-3xl font-bold text-blue-600">{stats.average_students_per_subscription?.toFixed(1) || '0.0'}</div>
+                        <p className="mt-2 text-sm text-gray-600">Avg students per subscription in period</p>
+                        <div className="mt-2 text-sm text-muted-foreground">
                             Avg amount: ${stats.average_subscription_amount?.toFixed(2) || '0.00'}
                         </div>
                     </CardContent>
@@ -328,17 +278,10 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-green-600">
-                            {stats.total_subscriptions > 0
-                                ? ((stats.completed_subscriptions / stats.total_subscriptions) * 100).toFixed(1)
-                                : '0.0'
-                            }%
+                            {stats.total_subscriptions > 0 ? ((stats.completed_subscriptions / stats.total_subscriptions) * 100).toFixed(1) : '0.0'}%
                         </div>
-                        <p className="text-sm text-gray-600 mt-2">
-                            Success rate in date range
-                        </p>
-                        <div className="text-sm text-red-600 mt-2">
-                            {stats.failed_subscriptions} failed payments
-                        </div>
+                        <p className="mt-2 text-sm text-gray-600">Success rate in date range</p>
+                        <div className="mt-2 text-sm text-red-600">{stats.failed_subscriptions} failed payments</div>
                     </CardContent>
                 </Card>
             </div>
@@ -350,26 +293,22 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                         <Activity className="mr-2 h-5 w-5" />
                         Recent Subscription Activity
                     </CardTitle>
-                    <CardDescription>
-                        Latest successful subscriptions in the selected date range
-                    </CardDescription>
+                    <CardDescription>Latest successful subscriptions in the selected date range</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {recentSubscriptions.length === 0 ? (
-                        <div className="text-center py-8">
-                            <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No recent subscriptions</h3>
-                            <p className="text-gray-600">
-                                No subscription activity found in the selected date range.
-                            </p>
+                        <div className="py-8 text-center">
+                            <CreditCard className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                            <h3 className="mb-2 text-lg font-medium text-gray-900">No recent subscriptions</h3>
+                            <p className="text-gray-600">No subscription activity found in the selected date range.</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
                             {recentSubscriptions.map((subscription) => (
-                                <div key={subscription.id} className="flex items-center justify-between p-4 border rounded-lg">
+                                <div key={subscription.id} className="flex items-center justify-between rounded-lg border p-4">
                                     <div className="flex items-center space-x-4">
                                         <div className="flex-shrink-0">
-                                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
                                                 <CreditCard className="h-5 w-5 text-green-600" />
                                             </div>
                                         </div>
@@ -381,9 +320,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                                     <div className="text-right">
                                         <div className="flex items-center space-x-4">
                                             <div>
-                                                <p className="font-semibold text-green-600">
-                                                    ${subscription.amount.toFixed(2)}
-                                                </p>
+                                                <p className="font-semibold text-green-600">${subscription.amount.toFixed(2)}</p>
                                                 <p className="text-sm text-gray-600">
                                                     {subscription.student_count} student{subscription.student_count !== 1 ? 's' : ''}
                                                 </p>

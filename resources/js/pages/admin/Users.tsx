@@ -1,13 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TablePagination, PaginationData } from '@/components/ui/table-pagination';
+import { PaginationData, TablePagination } from '@/components/ui/table-pagination';
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, router } from '@inertiajs/react';
-import { Users, UserX, UserCheck, Search, Filter } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Search, UserCheck, Users, UserX } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface User {
     id: string;
@@ -96,20 +96,28 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
     const handleRestrictAccess = (userId: string) => {
         if (confirm('Are you sure you want to deactivate this user?')) {
             setProcessing(true);
-            router.patch(`/admin/users/${userId}/restrict`, {}, {
-                preserveScroll: true,
-                onFinish: () => setProcessing(false),
-            });
+            router.patch(
+                `/admin/users/${userId}/restrict`,
+                {},
+                {
+                    preserveScroll: true,
+                    onFinish: () => setProcessing(false),
+                },
+            );
         }
     };
 
     const handleActivateUser = (userId: string) => {
         if (confirm('Are you sure you want to activate this user?')) {
             setProcessing(true);
-            router.patch(`/admin/users/${userId}/activate`, {}, {
-                preserveScroll: true,
-                onFinish: () => setProcessing(false),
-            });
+            router.patch(
+                `/admin/users/${userId}/activate`,
+                {},
+                {
+                    preserveScroll: true,
+                    onFinish: () => setProcessing(false),
+                },
+            );
         }
     };
 
@@ -118,11 +126,11 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
             <Head title="Users Management" />
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
-                <p className="text-gray-600 mt-2">Manage users. You can only deactivate or reactivate users from login here.</p>
+                <p className="mt-2 text-gray-600">Manage users. You can only deactivate or reactivate users from login here.</p>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -142,9 +150,7 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{stats.active}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Currently active
-                        </p>
+                        <p className="text-xs text-muted-foreground">Currently active</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -154,17 +160,15 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{stats.inactive}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Currently inactive
-                        </p>
+                        <p className="text-xs text-muted-foreground">Currently inactive</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Search and Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                     <Input
                         placeholder="Search users by name or email..."
                         value={searchTerm}
@@ -186,26 +190,23 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
             <Card>
                 <CardHeader>
                     <CardTitle>All Users</CardTitle>
-                    <CardDescription>
-                        Activate or deactivate user accounts
-                    </CardDescription>
+                    <CardDescription>Activate or deactivate user accounts</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
                         {users.data.length === 0 ? (
-                            <div className="text-center py-8">
-                                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+                            <div className="py-8 text-center">
+                                <Users className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                <h3 className="mb-2 text-lg font-medium text-gray-900">No users found</h3>
                                 <p className="text-gray-600">
                                     {searchTerm || statusFilter !== 'all'
                                         ? 'Try adjusting your search or filter criteria.'
-                                        : 'No users have been registered yet.'
-                                    }
+                                        : 'No users have been registered yet.'}
                                 </p>
                             </div>
                         ) : (
                             users.data.map((user: User) => (
-                                <div key={user.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg gap-2">
+                                <div key={user.id} className="flex flex-col justify-between gap-2 rounded-lg border p-4 md:flex-row md:items-center">
                                     <div className="flex items-center space-x-4">
                                         <Badge className={user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                                             {user.is_active ? 'Active' : 'Inactive'}
@@ -213,12 +214,10 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
                                         <div>
                                             <p className="font-medium text-gray-900">{user.name}</p>
                                             <p className="text-sm text-gray-600">{user.email}</p>
-                                            <p className="text-xs text-gray-500">
-                                                Joined {new Date(user.created_at).toLocaleDateString()}
-                                            </p>
+                                            <p className="text-xs text-gray-500">Joined {new Date(user.created_at).toLocaleDateString()}</p>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+                                    <div className="flex flex-col items-center space-y-2 md:flex-row md:space-y-0 md:space-x-2">
                                         {user.is_active ? (
                                             <Button
                                                 variant="outline"
@@ -227,7 +226,7 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
                                                 className="text-red-600 hover:text-red-700"
                                                 disabled={processing}
                                             >
-                                                <UserX className="h-4 w-4 mr-2" />
+                                                <UserX className="mr-2 h-4 w-4" />
                                                 Deactivate
                                             </Button>
                                         ) : (
@@ -238,7 +237,7 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
                                                 className="text-green-600 hover:text-green-700"
                                                 disabled={processing}
                                             >
-                                                <UserCheck className="h-4 w-4 mr-2" />
+                                                <UserCheck className="mr-2 h-4 w-4" />
                                                 Activate
                                             </Button>
                                         )}
@@ -250,12 +249,8 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
 
                     {/* Pagination */}
                     {users.data.length > 0 && (
-                        <div className="mt-6 pt-6 border-t">
-                            <TablePagination
-                                data={users}
-                                onPageChange={handlePageChange}
-                                onPerPageChange={handlePerPageChange}
-                            />
+                        <div className="mt-6 border-t pt-6">
+                            <TablePagination data={users} onPageChange={handlePageChange} onPerPageChange={handlePerPageChange} />
                         </div>
                     )}
                 </CardContent>

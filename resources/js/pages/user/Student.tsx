@@ -1,14 +1,14 @@
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/app-layout';
-import { Head, router, usePage } from '@inertiajs/react';
-import { Users, Plus, Edit, Trash2, Music, UserPlus, AlertCircle, CheckCircle, Clock, Crown } from 'lucide-react';
-import { useState } from 'react';
 import { SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
+import { AlertCircle, CheckCircle, Clock, Crown, Edit, Music, Plus, Trash2, UserPlus, Users } from 'lucide-react';
+import { useState } from 'react';
 
 interface Student {
     id: string;
@@ -57,20 +57,24 @@ const Student = () => {
             return;
         }
 
-        router.post('/student', {
-            name: formData.name.trim(),
-            age: age,
-            hasPiano: formData.hasPiano,
-        }, {
-            onSuccess: () => {
-                setFormData({ name: '', age: '', hasPiano: false });
-                setIsAddingStudent(false);
+        router.post(
+            '/student',
+            {
+                name: formData.name.trim(),
+                age: age,
+                hasPiano: formData.hasPiano,
             },
-        });
+            {
+                onSuccess: () => {
+                    setFormData({ name: '', age: '', hasPiano: false });
+                    setIsAddingStudent(false);
+                },
+            },
+        );
     };
 
     const handleEditStudent = (studentId: string) => {
-        const student = students.find(s => s.id === studentId);
+        const student = students.find((s) => s.id === studentId);
         if (student) {
             setFormData({
                 name: student.name,
@@ -96,17 +100,21 @@ const Student = () => {
             return;
         }
 
-        router.put(`/student/${editingStudent}`, {
-            name: formData.name.trim(),
-            age: age,
-            hasPiano: formData.hasPiano,
-        }, {
-            onSuccess: () => {
-                setFormData({ name: '', age: '', hasPiano: false });
-                setEditingStudent(null);
-                setIsAddingStudent(false);
+        router.put(
+            `/student/${editingStudent}`,
+            {
+                name: formData.name.trim(),
+                age: age,
+                hasPiano: formData.hasPiano,
             },
-        });
+            {
+                onSuccess: () => {
+                    setFormData({ name: '', age: '', hasPiano: false });
+                    setEditingStudent(null);
+                    setIsAddingStudent(false);
+                },
+            },
+        );
     };
 
     const handleDeleteStudent = (studentId: string) => {
@@ -141,12 +149,8 @@ const Student = () => {
                 {/* Header */}
                 <div className="bg-piano-gradient px-6 py-8">
                     <div className="container mx-auto">
-                        <h1 className="mb-2 font-playfair text-3xl font-bold text-primary md:text-4xl">
-                            Student Management
-                        </h1>
-                        <p className="text-muted-foreground">
-                            Manage your students and their piano learning journey
-                        </p>
+                        <h1 className="font-playfair mb-2 text-3xl font-bold text-primary md:text-4xl">Student Management</h1>
+                        <p className="text-muted-foreground">Manage your students and their piano learning journey</p>
                     </div>
                 </div>
 
@@ -164,8 +168,7 @@ const Student = () => {
                                     <CardDescription>
                                         {editingStudent
                                             ? 'Update student information below'
-                                            : `Add a new student to your account (${students.length}/10 students)`
-                                        }
+                                            : `Add a new student to your account (${students.length}/10 students)`}
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -223,12 +226,7 @@ const Student = () => {
                                                 >
                                                     {editingStudent ? 'Update Student' : 'Add Student'}
                                                 </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={handleCancel}
-                                                    className="flex-1"
-                                                >
+                                                <Button type="button" variant="outline" onClick={handleCancel} className="flex-1">
                                                     Cancel
                                                 </Button>
                                             </div>
@@ -244,22 +242,17 @@ const Student = () => {
                                         <Users className="text-gold mr-2 h-5 w-5" />
                                         Your Students ({students.length}/10)
                                     </CardTitle>
-                                    <CardDescription>
-                                        Manage your students and their learning progress
-                                    </CardDescription>
+                                    <CardDescription>Manage your students and their learning progress</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     {students.length === 0 ? (
-                                        <div className="text-center py-8">
-                                            <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                                            <h3 className="text-lg font-semibold mb-2">No students added yet</h3>
-                                            <p className="text-muted-foreground mb-4">
+                                        <div className="py-8 text-center">
+                                            <Users className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                                            <h3 className="mb-2 text-lg font-semibold">No students added yet</h3>
+                                            <p className="mb-4 text-muted-foreground">
                                                 Start by adding your first student to begin their piano learning journey.
                                             </p>
-                                            <Button
-                                                onClick={() => setIsAddingStudent(true)}
-                                                className="bg-gold hover:bg-gold/90 text-warm-brown"
-                                            >
+                                            <Button onClick={() => setIsAddingStudent(true)} className="bg-gold hover:bg-gold/90 text-warm-brown">
                                                 <Plus className="mr-2 h-4 w-4" />
                                                 Add Your First Student
                                             </Button>
@@ -267,25 +260,18 @@ const Student = () => {
                                     ) : (
                                         <div className="space-y-4">
                                             {students.map((student) => (
-                                                <div
-                                                    key={student.id}
-                                                    className="flex items-center justify-between p-4 rounded-lg border bg-muted/50"
-                                                >
+                                                <div key={student.id} className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
                                                     <div className="flex items-center space-x-4">
-                                                        <div className="bg-gold h-10 w-10 rounded-full flex items-center justify-center">
+                                                        <div className="bg-gold flex h-10 w-10 items-center justify-center rounded-full">
                                                             <span className="text-warm-brown font-semibold">
                                                                 {student.name.charAt(0).toUpperCase()}
                                                             </span>
                                                         </div>
                                                         <div>
                                                             <h4 className="font-semibold text-primary">{student.name}</h4>
-                                                            <div className="flex items-center space-x-2 mt-1">
-                                                                <Badge variant="secondary">
-                                                                    {student.age} years old
-                                                                </Badge>
-                                                                <Badge variant="outline">
-                                                                    {getAgeGroup(student.age)}
-                                                                </Badge>
+                                                            <div className="mt-1 flex items-center space-x-2">
+                                                                <Badge variant="secondary">{student.age} years old</Badge>
+                                                                <Badge variant="outline">{getAgeGroup(student.age)}</Badge>
                                                                 {student.hasPiano && (
                                                                     <Badge className="bg-green-100 text-green-800">
                                                                         <Music className="mr-1 h-3 w-3" />
@@ -304,9 +290,7 @@ const Student = () => {
                                                                     </Badge>
                                                                 )}
                                                             </div>
-                                                            <p className="text-sm text-muted-foreground mt-1">
-                                                                Added: {student.createdAt}
-                                                            </p>
+                                                            <p className="mt-1 text-sm text-muted-foreground">Added: {student.createdAt}</p>
                                                         </div>
                                                     </div>
                                                     <div className="flex space-x-2">
@@ -321,11 +305,7 @@ const Student = () => {
                                                                 Subscribe
                                                             </Button>
                                                         )}
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => handleEditStudent(student.id)}
-                                                        >
+                                                        <Button variant="outline" size="sm" onClick={() => handleEditStudent(student.id)}>
                                                             <Edit className="h-4 w-4" />
                                                         </Button>
                                                         <Button
@@ -360,23 +340,16 @@ const Student = () => {
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-sm">Subscribed</span>
-                                            <span className="font-semibold text-green-600">
-                                                {students.filter(s => s.isSubscribed).length}
-                                            </span>
+                                            <span className="font-semibold text-green-600">{students.filter((s) => s.isSubscribed).length}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-sm">With Piano Access</span>
-                                            <span className="font-semibold text-blue-600">
-                                                {students.filter(s => s.hasPiano).length}
-                                            </span>
+                                            <span className="font-semibold text-blue-600">{students.filter((s) => s.hasPiano).length}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-sm">Average Age</span>
                                             <span className="font-semibold">
-                                                {students.length > 0
-                                                    ? Math.round(students.reduce((sum, s) => sum + s.age, 0) / students.length)
-                                                    : 0
-                                                }
+                                                {students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.age, 0) / students.length) : 0}
                                             </span>
                                         </div>
                                     </div>
@@ -386,7 +359,7 @@ const Student = () => {
                             {/* Subscription Notice */}
                             <Card className="border-blue-200 bg-blue-50">
                                 <CardHeader>
-                                    <CardTitle className="text-blue-800 flex items-center">
+                                    <CardTitle className="flex items-center text-blue-800">
                                         <Crown className="mr-2 h-5 w-5" />
                                         Subscription Required
                                     </CardTitle>
@@ -394,15 +367,15 @@ const Student = () => {
                                 <CardContent>
                                     <div className="space-y-3 text-sm text-blue-700">
                                         <div className="flex items-start space-x-2">
-                                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                                             <p>Students need a paid subscription to access lessons</p>
                                         </div>
                                         <div className="flex items-start space-x-2">
-                                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                                             <p>Subscriptions are managed through secure payments</p>
                                         </div>
                                         <div className="flex items-start space-x-2">
-                                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                                             <p>Click "Subscribe" next to any student to get started</p>
                                         </div>
                                     </div>
@@ -417,15 +390,15 @@ const Student = () => {
                                 <CardContent>
                                     <div className="space-y-3 text-sm text-blue-700">
                                         <div className="flex items-start space-x-2">
-                                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                                             <p>Students with piano access practice more effectively</p>
                                         </div>
                                         <div className="flex items-start space-x-2">
-                                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                                             <p>Consider age-appropriate lesson scheduling</p>
                                         </div>
                                         <div className="flex items-start space-x-2">
-                                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                                             <p>Regular practice leads to better progress</p>
                                         </div>
                                     </div>
@@ -442,19 +415,27 @@ const Student = () => {
                                     <div className="space-y-3 text-sm">
                                         <div className="flex justify-between">
                                             <span>Kindergarten (5-5)</span>
-                                            <Badge variant="outline" className="text-xs">Basic</Badge>
+                                            <Badge variant="outline" className="text-xs">
+                                                Basic
+                                            </Badge>
                                         </div>
                                         <div className="flex justify-between">
                                             <span>Elementary (6-11)</span>
-                                            <Badge variant="outline" className="text-xs">Foundation</Badge>
+                                            <Badge variant="outline" className="text-xs">
+                                                Foundation
+                                            </Badge>
                                         </div>
                                         <div className="flex justify-between">
                                             <span>Teen (12-17)</span>
-                                            <Badge variant="outline" className="text-xs">Intermediate</Badge>
+                                            <Badge variant="outline" className="text-xs">
+                                                Intermediate
+                                            </Badge>
                                         </div>
                                         <div className="flex justify-between">
                                             <span>Adult (18+)</span>
-                                            <Badge variant="outline" className="text-xs">Advanced</Badge>
+                                            <Badge variant="outline" className="text-xs">
+                                                Advanced
+                                            </Badge>
                                         </div>
                                     </div>
                                 </CardContent>

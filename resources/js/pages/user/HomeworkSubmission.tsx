@@ -1,25 +1,12 @@
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    FileText,
-    Mic,
-    MicOff,
-    Play,
-    Pause,
-    Trash2,
-    Upload,
-    CheckCircle,
-    Clock,
-    Star,
-    Sparkles
-} from 'lucide-react';
-import { useState, useRef } from 'react';
+import { ArrowLeft, CheckCircle, Clock, FileText, Mic, MicOff, Pause, Play, Trash2, Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 interface HomeworkSubmissionProps {
     studentId: string;
@@ -69,7 +56,7 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
     const stopRecording = () => {
         if (mediaRecorderRef.current && isRecording) {
             mediaRecorderRef.current.stop();
-            mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+            mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
             setIsRecording(false);
         }
     };
@@ -125,35 +112,32 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                 <Head title="Homework Submission" />
 
                 {/* Header */}
-                <div className="bg-rainbow-gradient px-6 py-12 relative overflow-hidden">
+                <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
                     {/* Floating elements */}
                     <div className="absolute inset-0 overflow-hidden">
-                        <div className="absolute top-10 left-10 text-3xl animate-bounce-gentle">📝</div>
-                        <div className="absolute top-20 right-20 text-2xl animate-bounce-gentle" style={{animationDelay: '0.5s'}}>🎵</div>
-                        <div className="absolute bottom-20 left-20 text-2xl animate-bounce-gentle" style={{animationDelay: '1s'}}>⭐</div>
-                        <div className="absolute bottom-10 right-10 text-3xl animate-bounce-gentle" style={{animationDelay: '1.5s'}}>🎹</div>
+                        <div className="absolute top-10 left-10 animate-bounce-gentle text-3xl">📝</div>
+                        <div className="absolute top-20 right-20 animate-bounce-gentle text-2xl" style={{ animationDelay: '0.5s' }}>
+                            🎵
+                        </div>
+                        <div className="absolute bottom-20 left-20 animate-bounce-gentle text-2xl" style={{ animationDelay: '1s' }}>
+                            ⭐
+                        </div>
+                        <div className="absolute right-10 bottom-10 animate-bounce-gentle text-3xl" style={{ animationDelay: '1.5s' }}>
+                            🎹
+                        </div>
                     </div>
 
-                    <div className="container mx-auto relative z-10">
+                    <div className="relative z-10 container mx-auto">
                         <div className="flex items-center justify-between">
                             <div>
-                                <Button
-                                    variant="ghost"
-                                    onClick={handleBack}
-                                    className="mb-4 text-white hover:text-white/80 font-comic text-lg"
-                                >
-                                    <ArrowLeft className="mr-2 h-5 w-5" />
-                                    ← Back to Lessons
+                                <Button variant="ghost" onClick={handleBack} className="mb-4 font-comic text-lg text-white hover:text-white/80">
+                                    <ArrowLeft className="mr-2 h-5 w-5" />← Back to Lessons
                                 </Button>
-                                <h1 className="mb-3 font-fredoka text-4xl font-bold text-white md:text-5xl drop-shadow-lg">
-                                    📝 Homework Time!
-                                </h1>
-                                <p className="text-xl font-comic text-white/90">
-                                    Complete your homework for Lesson {lessonNumber}
-                                </p>
+                                <h1 className="mb-3 font-fredoka text-4xl font-bold text-white drop-shadow-lg md:text-5xl">📝 Homework Time!</h1>
+                                <p className="font-comic text-xl text-white/90">Complete your homework for Lesson {lessonNumber}</p>
                             </div>
                             <div className="text-right">
-                                <Badge className="bg-white/20 backdrop-blur-sm text-white font-comic text-lg px-4 py-2">
+                                <Badge className="bg-white/20 px-4 py-2 font-comic text-lg text-white backdrop-blur-sm">
                                     <Clock className="mr-2 h-5 w-5" />
                                     {studentName}
                                 </Badge>
@@ -163,12 +147,12 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                 </div>
 
                 <div className="container mx-auto px-6 py-8">
-                    <div className="max-w-4xl mx-auto space-y-8">
+                    <div className="mx-auto max-w-4xl space-y-8">
                         {/* Student Info */}
-                        <Card className="border-fun-purple/20 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10 rounded-3xl shadow-float">
+                        <Card className="shadow-float rounded-3xl border-fun-purple/20 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10">
                             <CardHeader>
                                 <CardTitle className="flex items-center font-fredoka text-3xl text-fun-purple">
-                                    <FileText className="text-fun-pink mr-3 h-8 w-8" />
+                                    <FileText className="mr-3 h-8 w-8 text-fun-pink" />
                                     Lesson {lessonNumber} Homework
                                 </CardTitle>
                                 <CardDescription className="font-comic text-lg text-gray-600">
@@ -179,9 +163,9 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
 
                         {isSubmitted ? (
                             /* Success Message */
-                            <Card className="border-fun-green/30 bg-gradient-to-r from-fun-green/10 to-fun-blue/10 rounded-3xl shadow-float">
+                            <Card className="shadow-float rounded-3xl border-fun-green/30 bg-gradient-to-r from-fun-green/10 to-fun-blue/10">
                                 <CardHeader>
-                                    <CardTitle className="text-fun-green flex items-center font-fredoka text-3xl">
+                                    <CardTitle className="flex items-center font-fredoka text-3xl text-fun-green">
                                         <CheckCircle className="mr-3 h-8 w-8" />
                                         🎉 Homework Submitted Successfully!
                                     </CardTitle>
@@ -190,7 +174,10 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <Button onClick={handleBack} className="bg-fun-green hover:bg-fun-green-600 text-white font-comic text-xl px-8 py-4 rounded-full shadow-float">
+                                    <Button
+                                        onClick={handleBack}
+                                        className="shadow-float rounded-full bg-fun-green px-8 py-4 font-comic text-xl text-white hover:bg-fun-green-600"
+                                    >
                                         🎹 Return to Lessons
                                     </Button>
                                 </CardContent>
@@ -198,7 +185,7 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                         ) : (
                             <>
                                 {/* Written Response */}
-                                <Card className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-float">
+                                <Card className="shadow-float rounded-3xl bg-white/90 backdrop-blur-sm">
                                     <CardHeader>
                                         <CardTitle className="font-fredoka text-2xl text-fun-purple">✍️ Write About Your Lesson</CardTitle>
                                         <CardDescription className="font-comic text-lg text-gray-600">
@@ -208,14 +195,16 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                                     <CardContent>
                                         <div className="space-y-4">
                                             <div>
-                                                <Label htmlFor="written-response" className="font-comic text-lg text-fun-purple">Your Response:</Label>
+                                                <Label htmlFor="written-response" className="font-comic text-lg text-fun-purple">
+                                                    Your Response:
+                                                </Label>
                                                 <Textarea
                                                     id="written-response"
                                                     placeholder="What did you learn today? What was fun? What was challenging? Any questions for your teacher? 🎵"
                                                     value={writtenResponse}
                                                     onChange={(e) => setWrittenResponse(e.target.value)}
                                                     rows={8}
-                                                    className="mt-3 font-comic text-lg rounded-2xl border-2 border-fun-purple/20 focus:border-fun-purple"
+                                                    className="mt-3 rounded-2xl border-2 border-fun-purple/20 font-comic text-lg focus:border-fun-purple"
                                                 />
                                             </div>
                                         </div>
@@ -223,7 +212,7 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                                 </Card>
 
                                 {/* Voice Recording */}
-                                <Card className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-float">
+                                <Card className="shadow-float rounded-3xl bg-white/90 backdrop-blur-sm">
                                     <CardHeader>
                                         <CardTitle className="font-fredoka text-2xl text-fun-purple">🎤 Record Your Voice (Optional)</CardTitle>
                                         <CardDescription className="font-comic text-lg text-gray-600">
@@ -233,13 +222,13 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                                     <CardContent>
                                         <div className="space-y-6">
                                             {!recordedAudio ? (
-                                                <div className="text-center py-8">
+                                                <div className="py-8 text-center">
                                                     <Button
                                                         onClick={isRecording ? stopRecording : startRecording}
-                                                        className={`px-10 py-6 text-2xl font-comic rounded-full shadow-float transition-all duration-300 ${
+                                                        className={`shadow-float rounded-full px-10 py-6 font-comic text-2xl transition-all duration-300 ${
                                                             isRecording
-                                                                ? 'bg-fun-red hover:bg-fun-red-600 text-white animate-pulse'
-                                                                : 'bg-fun-blue hover:bg-fun-blue-600 text-white hover:scale-105'
+                                                                ? 'animate-pulse bg-fun-red text-white hover:bg-fun-red-600'
+                                                                : 'bg-fun-blue text-white hover:scale-105 hover:bg-fun-blue-600'
                                                         }`}
                                                     >
                                                         {isRecording ? (
@@ -255,14 +244,14 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                                                         )}
                                                     </Button>
                                                     {isRecording && (
-                                                        <p className="text-lg font-comic text-fun-red mt-4">
+                                                        <p className="mt-4 font-comic text-lg text-fun-red">
                                                             🎙️ Recording in progress... Click "Stop Recording" when done!
                                                         </p>
                                                     )}
                                                 </div>
                                             ) : (
                                                 <div className="space-y-4">
-                                                    <div className="flex items-center justify-between p-6 bg-gradient-to-r from-fun-blue/20 to-fun-purple/20 rounded-2xl border border-fun-blue/30">
+                                                    <div className="flex items-center justify-between rounded-2xl border border-fun-blue/30 bg-gradient-to-r from-fun-blue/20 to-fun-purple/20 p-6">
                                                         <div className="flex items-center space-x-4">
                                                             <FileText className="h-6 w-6 text-fun-blue" />
                                                             <span className="font-comic text-xl font-medium text-fun-blue">🎤 Voice Recording</span>
@@ -271,31 +260,22 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                                                             <Button
                                                                 size="lg"
                                                                 onClick={playRecording}
-                                                                className="bg-fun-green hover:bg-fun-green-600 text-white font-comic text-lg px-6 py-3 rounded-full shadow-float"
+                                                                className="shadow-float rounded-full bg-fun-green px-6 py-3 font-comic text-lg text-white hover:bg-fun-green-600"
                                                             >
-                                                                {isPlaying ? (
-                                                                    <Pause className="h-5 w-5" />
-                                                                ) : (
-                                                                    <Play className="h-5 w-5" />
-                                                                )}
+                                                                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                                                             </Button>
                                                             <Button
                                                                 size="lg"
                                                                 variant="outline"
                                                                 onClick={deleteRecording}
-                                                                className="text-fun-red hover:text-fun-red-600 border-fun-red font-comic text-lg px-6 py-3 rounded-full"
+                                                                className="rounded-full border-fun-red px-6 py-3 font-comic text-lg text-fun-red hover:text-fun-red-600"
                                                             >
                                                                 <Trash2 className="h-5 w-5" />
                                                             </Button>
                                                         </div>
                                                     </div>
                                                     {audioUrl && (
-                                                        <audio
-                                                            ref={audioRef}
-                                                            src={audioUrl}
-                                                            onEnded={() => setIsPlaying(false)}
-                                                            className="hidden"
-                                                        />
+                                                        <audio ref={audioRef} src={audioUrl} onEnded={() => setIsPlaying(false)} className="hidden" />
                                                     )}
                                                 </div>
                                             )}
@@ -304,21 +284,20 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                                 </Card>
 
                                 {/* Submit Button */}
-                                <Card className="bg-gradient-to-r from-fun-green/10 to-fun-blue/10 rounded-3xl shadow-float">
+                                <Card className="shadow-float rounded-3xl bg-gradient-to-r from-fun-green/10 to-fun-blue/10">
                                     <CardContent className="pt-8">
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <p className="font-comic text-xl text-gray-600">
                                                     {writtenResponse.trim() || recordedAudio
                                                         ? '🎉 Ready to submit your homework!'
-                                                        : '📝 Please provide either a written response or voice recording'
-                                                    }
+                                                        : '📝 Please provide either a written response or voice recording'}
                                                 </p>
                                             </div>
                                             <Button
                                                 onClick={handleSubmit}
                                                 disabled={(!writtenResponse.trim() && !recordedAudio) || isSubmitting}
-                                                className="bg-fun-green hover:bg-fun-green-600 text-white font-comic text-2xl px-10 py-6 rounded-full shadow-float transition-all duration-300 hover:scale-105"
+                                                className="shadow-float rounded-full bg-fun-green px-10 py-6 font-comic text-2xl text-white transition-all duration-300 hover:scale-105 hover:bg-fun-green-600"
                                             >
                                                 {isSubmitting ? (
                                                     <>

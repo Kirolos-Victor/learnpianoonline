@@ -1,20 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import InstructorLayout from '@/layouts/instructor-layout';
 import { Head } from '@inertiajs/react';
-import {
-    Users,
-    BookOpen,
-    Calendar,
-    CheckCircle,
-    Clock,
-    AlertTriangle,
-    Plus,
-    Eye
-} from 'lucide-react';
-
+import { AlertTriangle, BookOpen, Calendar, CheckCircle, Clock, Eye, Plus, Users } from 'lucide-react';
 
 interface Student {
     id: string;
@@ -56,7 +46,6 @@ interface Props {
 }
 
 const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Props) => {
-
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'active':
@@ -71,7 +60,11 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
     };
 
     const getInitials = (name: string) => {
-        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+        return name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase();
     };
 
     return (
@@ -81,11 +74,11 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-600 mt-2">Overview of your students and upcoming activities</p>
+                <p className="mt-2 text-gray-600">Overview of your students and upcoming activities</p>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Students</CardTitle>
@@ -93,9 +86,7 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{dashboardStats.totalStudents}</div>
-                        <p className="text-xs text-muted-foreground">
-                            {dashboardStats.activeStudents} active
-                        </p>
+                        <p className="text-xs text-muted-foreground">{dashboardStats.activeStudents} active</p>
                     </CardContent>
                 </Card>
 
@@ -106,9 +97,7 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{dashboardStats.totalLessonsThisMonth}</div>
-                        <p className="text-xs text-muted-foreground">
-                            +2 from last month
-                        </p>
+                        <p className="text-xs text-muted-foreground">+2 from last month</p>
                     </CardContent>
                 </Card>
 
@@ -119,9 +108,7 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{dashboardStats.totalPendingHomework}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Needs review
-                        </p>
+                        <p className="text-xs text-muted-foreground">Needs review</p>
                     </CardContent>
                 </Card>
 
@@ -135,7 +122,9 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                             {dashboardStats.nextLesson ? dashboardStats.nextLesson.formatted_date : 'No upcoming lessons'}
                         </div>
                         <p className="text-xs text-muted-foreground">
-                            {dashboardStats.nextLesson ? `${dashboardStats.nextLesson.student_name} - ${dashboardStats.nextLesson.formatted_time}` : 'Schedule a lesson'}
+                            {dashboardStats.nextLesson
+                                ? `${dashboardStats.nextLesson.student_name} - ${dashboardStats.nextLesson.formatted_time}`
+                                : 'Schedule a lesson'}
                         </p>
                     </CardContent>
                 </Card>
@@ -147,9 +136,7 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                     <div className="flex items-center justify-between">
                         <div>
                             <CardTitle>Your Students</CardTitle>
-                            <CardDescription>
-                                Manage your assigned students and their progress
-                            </CardDescription>
+                            <CardDescription>Manage your assigned students and their progress</CardDescription>
                         </div>
                         <Button className="flex items-center space-x-2">
                             <Plus className="h-4 w-4" />
@@ -160,23 +147,17 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                 <CardContent>
                     <div className="space-y-4">
                         {students.map((student) => (
-                            <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div key={student.id} className="flex items-center justify-between rounded-lg border p-4">
                                 <div className="flex items-center space-x-4">
                                     <Avatar>
-                                        <AvatarFallback>
-                                            {getInitials(student.name)}
-                                        </AvatarFallback>
+                                        <AvatarFallback>{getInitials(student.name)}</AvatarFallback>
                                     </Avatar>
                                     <div>
                                         <h3 className="font-semibold text-gray-900">{student.name}</h3>
                                         <p className="text-sm text-gray-600">{student.email}</p>
-                                        <div className="flex items-center space-x-4 mt-1">
-                                            <Badge className={getStatusColor(student.subscriptionStatus)}>
-                                                {student.subscriptionStatus}
-                                            </Badge>
-                                            <span className="text-sm text-gray-500">
-                                                {student.lessonsCompleted} lessons completed
-                                            </span>
+                                        <div className="mt-1 flex items-center space-x-4">
+                                            <Badge className={getStatusColor(student.subscriptionStatus)}>{student.subscriptionStatus}</Badge>
+                                            <span className="text-sm text-gray-500">{student.lessonsCompleted} lessons completed</span>
                                         </div>
                                     </div>
                                 </div>
@@ -187,8 +168,7 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                                         <p className="font-medium text-gray-900">
                                             {student.nextLessonDate === 'N/A'
                                                 ? 'No upcoming lessons'
-                                                : new Date(student.nextLessonDate).toLocaleDateString()
-                                            }
+                                                : new Date(student.nextLessonDate).toLocaleDateString()}
                                         </p>
                                     </div>
 
@@ -201,12 +181,12 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                                         )}
 
                                         <Button variant="outline" size="sm">
-                                            <Eye className="h-4 w-4 mr-2" />
+                                            <Eye className="mr-2 h-4 w-4" />
                                             View Details
                                         </Button>
 
                                         <Button size="sm">
-                                            <BookOpen className="h-4 w-4 mr-2" />
+                                            <BookOpen className="mr-2 h-4 w-4" />
                                             Assign Homework
                                         </Button>
                                     </div>
@@ -218,7 +198,7 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
             </Card>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <Card>
                     <CardHeader>
                         <CardTitle>Quick Actions</CardTitle>
@@ -226,19 +206,19 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <Button className="w-full justify-start">
-                            <Calendar className="h-4 w-4 mr-2" />
+                            <Calendar className="mr-2 h-4 w-4" />
                             Schedule New Lesson
                         </Button>
                         <Button className="w-full justify-start" variant="outline">
-                            <BookOpen className="h-4 w-4 mr-2" />
+                            <BookOpen className="mr-2 h-4 w-4" />
                             Create Homework Assignment
                         </Button>
                         <Button className="w-full justify-start" variant="outline">
-                            <CheckCircle className="h-4 w-4 mr-2" />
+                            <CheckCircle className="mr-2 h-4 w-4" />
                             Mark Lessons Complete
                         </Button>
                         <Button className="w-full justify-start" variant="outline">
-                            <Users className="h-4 w-4 mr-2" />
+                            <Users className="mr-2 h-4 w-4" />
                             View All Students
                         </Button>
                     </CardContent>
@@ -252,36 +232,33 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                     <CardContent className="space-y-3">
                         {recentActivities.length > 0 ? (
                             recentActivities.map((activity, index) => (
-                                <div key={index} className={`flex items-center space-x-3 p-2 rounded-lg ${
-                                    activity.type === 'lesson_completed'
-                                        ? 'bg-green-50'
-                                        : 'bg-blue-50'
-                                }`}>
+                                <div
+                                    key={index}
+                                    className={`flex items-center space-x-3 rounded-lg p-2 ${
+                                        activity.type === 'lesson_completed' ? 'bg-green-50' : 'bg-blue-50'
+                                    }`}
+                                >
                                     {activity.type === 'lesson_completed' ? (
                                         <CheckCircle className="h-4 w-4 text-green-600" />
                                     ) : (
                                         <BookOpen className="h-4 w-4 text-blue-600" />
                                     )}
                                     <div>
-                                        <p className={`text-sm font-medium ${
-                                            activity.type === 'lesson_completed'
-                                                ? 'text-green-900'
-                                                : 'text-blue-900'
-                                        }`}>
+                                        <p
+                                            className={`text-sm font-medium ${
+                                                activity.type === 'lesson_completed' ? 'text-green-900' : 'text-blue-900'
+                                            }`}
+                                        >
                                             {activity.title}
                                         </p>
-                                        <p className={`text-xs ${
-                                            activity.type === 'lesson_completed'
-                                                ? 'text-green-700'
-                                                : 'text-blue-700'
-                                        }`}>
+                                        <p className={`text-xs ${activity.type === 'lesson_completed' ? 'text-green-700' : 'text-blue-700'}`}>
                                             {activity.student_name} - {activity.date}
                                         </p>
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <div className="text-center py-4">
+                            <div className="py-4 text-center">
                                 <p className="text-sm text-gray-500">No recent activity</p>
                             </div>
                         )}

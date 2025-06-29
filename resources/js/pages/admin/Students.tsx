@@ -1,15 +1,15 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { TablePagination } from '@/components/ui/table-pagination';
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, router } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
-import { GraduationCap, UserCheck, Edit, Search, Users, Calendar } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { TablePagination } from '@/components/ui/table-pagination';
+import { Calendar, Edit, GraduationCap, Search, UserCheck, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Student {
     id: string;
@@ -89,26 +89,34 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
     }, [searchTerm]);
 
     const applyFilters = () => {
-        router.get('/admin/students', {
-            search: searchTerm,
-            subscription: subscriptionFilter,
-            per_page: filters.per_page,
-        }, {
-            preserveState: true,
-            replace: true,
-        });
+        router.get(
+            '/admin/students',
+            {
+                search: searchTerm,
+                subscription: subscriptionFilter,
+                per_page: filters.per_page,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
     };
 
     const handleSubscriptionFilterChange = (value: string) => {
         setSubscriptionFilter(value);
-        router.get('/admin/students', {
-            search: searchTerm,
-            subscription: value,
-            per_page: filters.per_page,
-        }, {
-            preserveState: true,
-            replace: true,
-        });
+        router.get(
+            '/admin/students',
+            {
+                search: searchTerm,
+                subscription: value,
+                per_page: filters.per_page,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
     };
 
     const handleOpenEditDialog = (student: Student) => {
@@ -121,29 +129,37 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
     };
 
     const handleEditChange = (field: 'sessions' | 'instructor_id', value: string) => {
-        setEditData(prev => ({ ...prev, [field]: value }));
+        setEditData((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleEditSubmit = () => {
         if (!selectedStudent) return;
         setProcessing(true);
-        router.patch(`/admin/students/${selectedStudent.id}/sessions`, {
-            sessions: Number(editData.sessions),
-        }, {
-            onSuccess: () => {
-                router.patch(`/admin/students/${selectedStudent.id}/instructor`, {
-                    instructor_id: editData.instructor_id,
-                }, {
-                    onSuccess: () => {
-                        setIsEditDialogOpen(false);
-                        setSelectedStudent(null);
-                        setProcessing(false);
-                    },
-                    onFinish: () => setProcessing(false),
-                });
+        router.patch(
+            `/admin/students/${selectedStudent.id}/sessions`,
+            {
+                sessions: Number(editData.sessions),
             },
-            onFinish: () => setProcessing(false),
-        });
+            {
+                onSuccess: () => {
+                    router.patch(
+                        `/admin/students/${selectedStudent.id}/instructor`,
+                        {
+                            instructor_id: editData.instructor_id,
+                        },
+                        {
+                            onSuccess: () => {
+                                setIsEditDialogOpen(false);
+                                setSelectedStudent(null);
+                                setProcessing(false);
+                            },
+                            onFinish: () => setProcessing(false),
+                        },
+                    );
+                },
+                onFinish: () => setProcessing(false),
+            },
+        );
     };
 
     return (
@@ -151,11 +167,11 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
             <Head title="Students Management" />
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Students Management</h1>
-                <p className="text-gray-600 mt-2">Manage student sessions, subscriptions, and instructor assignments</p>
+                <p className="mt-2 text-gray-600">Manage student sessions, subscriptions, and instructor assignments</p>
             </div>
 
             {/* Statistics Cards */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="mb-8 grid gap-6 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Students</CardTitle>
@@ -195,11 +211,11 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                     <CardDescription>Search and filter students</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex gap-4 items-end">
+                    <div className="flex items-end gap-4">
                         <div className="flex-1">
                             <Label htmlFor="search">Search by name or email</Label>
                             <div className="relative">
-                                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <Search className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
                                 <Input
                                     id="search"
                                     placeholder="Enter student name or email..."
@@ -229,13 +245,11 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
             <Card>
                 <CardHeader>
                     <CardTitle>All Students ({students.total})</CardTitle>
-                    <CardDescription>
-                        Manage student sessions, subscriptions, and instructor assignments
-                    </CardDescription>
+                    <CardDescription>Manage student sessions, subscriptions, and instructor assignments</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {students.data.length === 0 ? (
-                        <div className="text-center py-8">
+                        <div className="py-8 text-center">
                             <Users className="mx-auto h-12 w-12 text-gray-400" />
                             <h3 className="mt-2 text-sm font-medium text-gray-900">No students found</h3>
                             <p className="mt-1 text-sm text-gray-500">
@@ -264,9 +278,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                                                 <td className="px-4 py-2 whitespace-nowrap">
                                                     <div>
                                                         <span className="font-medium text-gray-900">{student.name}</span>
-                                                        <div className="text-xs text-gray-500">
-                                                            Joined {student.created_at}
-                                                        </div>
+                                                        <div className="text-xs text-gray-500">Joined {student.created_at}</div>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
@@ -274,17 +286,19 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
                                                     <div className="space-y-1">
-                                                        <Badge className={student.is_subscribed
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : 'bg-gray-100 text-gray-800'}>
+                                                        <Badge
+                                                            className={
+                                                                student.is_subscribed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                                            }
+                                                        >
                                                             {student.is_subscribed ? 'Subscribed' : 'Not Subscribed'}
                                                         </Badge>
                                                         {student.is_subscribed && (
-                                                            <div className="text-xs text-gray-600 flex items-center">
-                                                                <Calendar className="h-3 w-3 mr-1" />
+                                                            <div className="flex items-center text-xs text-gray-600">
+                                                                <Calendar className="mr-1 h-3 w-3" />
                                                                 {student.subscription_months} months
                                                                 {student.subscription_expires_at && (
-                                                                    <span className="text-gray-500 ml-1">
+                                                                    <span className="ml-1 text-gray-500">
                                                                         (until {student.subscription_expires_at})
                                                                     </span>
                                                                 )}
@@ -294,7 +308,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
                                                     <span className="font-medium">{student.sessions_remaining}</span>
-                                                    <span className="text-xs text-gray-500 ml-1">remaining</span>
+                                                    <span className="ml-1 text-xs text-gray-500">remaining</span>
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
                                                     {student.instructor_name || <span className="text-gray-400">None assigned</span>}
@@ -314,16 +328,28 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                             <div className="mt-6">
                                 <TablePagination
                                     data={students}
-                                    onPageChange={(page) => router.get(`/admin/students?page=${page}`, {
-                                        search: searchTerm,
-                                        subscription: subscriptionFilter,
-                                        per_page: filters.per_page,
-                                    }, { preserveState: true, replace: true })}
-                                    onPerPageChange={(perPage) => router.get('/admin/students', {
-                                        search: searchTerm,
-                                        subscription: subscriptionFilter,
-                                        per_page: perPage,
-                                    }, { preserveState: true, replace: true })}
+                                    onPageChange={(page) =>
+                                        router.get(
+                                            `/admin/students?page=${page}`,
+                                            {
+                                                search: searchTerm,
+                                                subscription: subscriptionFilter,
+                                                per_page: filters.per_page,
+                                            },
+                                            { preserveState: true, replace: true },
+                                        )
+                                    }
+                                    onPerPageChange={(perPage) =>
+                                        router.get(
+                                            '/admin/students',
+                                            {
+                                                search: searchTerm,
+                                                subscription: subscriptionFilter,
+                                                per_page: perPage,
+                                            },
+                                            { preserveState: true, replace: true },
+                                        )
+                                    }
                                 />
                             </div>
                         </>
@@ -336,9 +362,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                 <DialogContent className="max-w-md">
                     <DialogHeader>
                         <DialogTitle>Update Student</DialogTitle>
-                        <DialogDescription>
-                            Set the exact number of sessions and assign an instructor.
-                        </DialogDescription>
+                        <DialogDescription>Set the exact number of sessions and assign an instructor.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div>
@@ -348,7 +372,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                                 type="number"
                                 min="0"
                                 value={editData.sessions}
-                                onChange={e => handleEditChange('sessions', e.target.value)}
+                                onChange={(e) => handleEditChange('sessions', e.target.value)}
                                 placeholder="Enter exact number of sessions"
                             />
                         </div>
@@ -360,8 +384,10 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="">No instructor</SelectItem>
-                                    {instructors.map(inst => (
-                                        <SelectItem key={inst.id} value={inst.id}>{inst.name}</SelectItem>
+                                    {instructors.map((inst) => (
+                                        <SelectItem key={inst.id} value={inst.id}>
+                                            {inst.name}
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>

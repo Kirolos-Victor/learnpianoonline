@@ -1,6 +1,6 @@
 import Logo from '@/components/Logo';
-import { Music } from 'lucide-react';
 import { Link } from '@inertiajs/react';
+import { Music } from 'lucide-react';
 
 const Footer = () => {
     return (
@@ -12,11 +12,11 @@ const Footer = () => {
                         <Link href="/" className="mb-4 inline-block">
                             <Logo className="text-cream" />
                         </Link>
-                        <p className="mb-4 max-w-md text-cream/80">
+                        <p className="text-cream/80 mb-4 max-w-md">
                             Master the piano from home with personalized 1-on-1 lessons, monthly curriculum, and expert feedback from professional
                             instructors.
                         </p>
-                        <div className="flex items-center space-x-2 text-teal">
+                        <div className="text-teal flex items-center space-x-2">
                             <Music className="h-4 w-4" />
                             <span className="text-sm">Transform your musical journey</span>
                         </div>
@@ -24,25 +24,25 @@ const Footer = () => {
 
                     {/* Quick as */}
                     <div>
-                        <h3 className="mb-4 font-playfair text-lg font-semibold text-cream">Quick as</h3>
+                        <h3 className="font-playfair text-cream mb-4 text-lg font-semibold">Quick as</h3>
                         <ul className="space-y-2">
                             <li>
-                                <Link href="/lessons" className="text-cream/80 transition-colors hover:text-teal">
+                                <Link href="/lessons" className="text-cream/80 hover:text-teal transition-colors">
                                     Lessons
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/pricing" className="text-cream/80 transition-colors hover:text-teal">
+                                <Link href="/pricing" className="text-cream/80 hover:text-teal transition-colors">
                                     Pricing
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/dashboard" className="text-cream/80 transition-colors hover:text-teal">
+                                <Link href="/dashboard" className="text-cream/80 hover:text-teal transition-colors">
                                     Dashboard
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/contact" className="text-cream/80 transition-colors hover:text-teal">
+                                <Link href="/contact" className="text-cream/80 hover:text-teal transition-colors">
                                     Contact
                                 </Link>
                             </li>
@@ -51,8 +51,8 @@ const Footer = () => {
 
                     {/* Contact Info */}
                     <div>
-                        <h3 className="mb-4 font-playfair text-lg font-semibold text-cream">Contact</h3>
-                        <ul className="space-y-2 text-cream/80">
+                        <h3 className="font-playfair text-cream mb-4 text-lg font-semibold">Contact</h3>
+                        <ul className="text-cream/80 space-y-2">
                             <li>support@mypianoclass.net</li>
                             <li>1-800-PIANO-01</li>
                             <li>Available Mon-Fri 9AM-6PM</li>
@@ -60,7 +60,7 @@ const Footer = () => {
                     </div>
                 </div>
 
-                <div className="mt-8 border-t border-navy-600 pt-8 text-center text-cream/60">
+                <div className="border-navy-600 text-cream/60 mt-8 border-t pt-8 text-center">
                     <p>&copy; 2024 mypianoclass.net. All rights reserved. Made with ♥ for piano enthusiasts.</p>
                 </div>
             </div>
