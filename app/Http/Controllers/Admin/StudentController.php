@@ -154,18 +154,9 @@ class StudentController extends Controller
 
         $instructors = User::where('role', 'instructor')->where('is_active', true)->get(['id', 'name']);
 
-        // Get summary statistics
-        $stats = [
-            'total_pending' => Student::where('is_subscribed', true)
-                                    ->whereNull('instructor_id')
-                                    ->count(),
-            'total_subscribed' => Student::where('is_subscribed', true)->count(),
-        ];
-
         return Inertia::render('admin/PendingSubscribers', [
             'students' => $students,
             'instructors' => $instructors,
-            'stats' => $stats,
             'filters' => [
                 'search' => $search,
                 'per_page' => $perPage,

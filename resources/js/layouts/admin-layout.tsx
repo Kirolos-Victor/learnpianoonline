@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { usePage } from '@inertiajs/react';
 import { SharedData } from '@/types';
-import { LogOut, Users, BookOpen, Calendar, Settings, Shield, GraduationCap } from 'lucide-react';
+import { LogOut, Users, BookOpen, Calendar, Settings, Shield, GraduationCap, Clock } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
 
 interface AdminLayoutProps {
@@ -23,6 +23,7 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
         { name: 'admin.dashboard', label: 'Dashboard', icon: Shield, href: route('admin.dashboard') },
         { name: 'admin.users', label: 'Users', icon: Users, href: route('admin.users') },
         { name: 'admin.students', label: 'Students', icon: GraduationCap, href: route('admin.students') },
+        { name: 'admin.pending-subscribers', label: 'Pending Subscribers', icon: Clock, href: route('admin.pending-subscribers') },
         { name: 'admin.instructors', label: 'Instructors', icon: Shield, href: route('admin.instructors') },
     ];
 
