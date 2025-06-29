@@ -1,7 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import {
     Users,
     UserCheck,
@@ -11,10 +14,17 @@ import {
     Shield,
     TrendingUp,
     UserX,
-    GraduationCap
+    GraduationCap,
+    CreditCard,
+    DollarSign,
+    Calendar,
+    Filter,
+    Activity
 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Stats {
+    // All stats are now date-filtered based on selected date range
     total_users: number;
     active_users: number;
     inactive_users: number;
@@ -27,30 +37,67 @@ interface Stats {
     completed_lessons: number;
     pending_lessons: number;
     total_sessions_remaining: number;
+
+    // Subscription stats (also date-filtered)
+    total_subscriptions: number;
+    completed_subscriptions: number;
+    pending_subscriptions: number;
+    failed_subscriptions: number;
+    total_revenue: number;
+    average_subscription_amount: number;
+    average_students_per_subscription: number;
 }
 
-interface RecentLesson {
-    id: string;
-    student: {
-        user: {
-            name: string;
-        };
-    };
-    instructor: {
-        name: string;
-    };
-    status: string;
-    scheduled_at: string;
-    completed_at: string | null;
-    screenshot_path: string | null;
+interface RecentSubscription {
+    id: number;
+    user_name: string;
+    user_email: string;
+    amount: number;
+    student_count: number;
+    paid_at: string;
+    paid_at_human: string;
+}
+
+interface Filters {
+    start_date: string;
+    end_date: string;
 }
 
 interface Props {
     stats: Stats;
-    recentLessons: RecentLesson[];
+    recentSubscriptions: RecentSubscription[];
+    filters: Filters;
 }
 
-const AdminDashboard = ({ stats, recentLessons }: Props) => {
+const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
+    const [startDate, setStartDate] = useState(filters.start_date);
+    const [endDate, setEndDate] = useState(filters.end_date);
+
+    const handleDateFilterChange = () => {
+        router.visit(route('admin.dashboard'), {
+            data: {
+                start_date: startDate,
+                end_date: endDate,
+            },
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    const resetDateFilter = () => {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const today = new Date();
+
+        setStartDate(thirtyDaysAgo.toISOString().split('T')[0]);
+        setEndDate(today.toISOString().split('T')[0]);
+
+        router.visit(route('admin.dashboard'), {
+            preserveState: true,
+            replace: true,
+        });
+    };
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'completed':
@@ -71,8 +118,52 @@ const AdminDashboard = ({ stats, recentLessons }: Props) => {
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-gray-600 mt-2">Overview of platform statistics and recent activities</p>
+                <p className="text-gray-600 mt-2">Overview of platform statistics and recent activities for the selected date range</p>
             </div>
+
+            {/* Date Filter */}
+            <Card className="mb-8">
+                <CardHeader>
+                    <CardTitle className="flex items-center">
+                        <Filter className="mr-2 h-5 w-5" />
+                        Date Range Filter
+                    </CardTitle>
+                    <CardDescription>
+                        Filter statistics by date range. ALL metrics below show data only for the selected period.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col sm:flex-row gap-4 items-end">
+                        <div className="flex-1">
+                            <Label htmlFor="start-date">Start Date</Label>
+                            <Input
+                                id="start-date"
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <Label htmlFor="end-date">End Date</Label>
+                            <Input
+                                id="end-date"
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <Button onClick={handleDateFilterChange}>
+                                <Calendar className="mr-2 h-4 w-4" />
+                                Apply Filter
+                            </Button>
+                            <Button variant="outline" onClick={resetDateFilter}>
+                                Reset
+                            </Button>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Users Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -85,6 +176,9 @@ const AdminDashboard = ({ stats, recentLessons }: Props) => {
                         <div className="text-2xl font-bold">{stats.total_users}</div>
                         <p className="text-xs text-muted-foreground">
                             {stats.active_users} active, {stats.inactive_users} inactive
+                        </p>
+                        <p className="text-xs text-blue-600 mt-2">
+                            📅 In selected date range
                         </p>
                     </CardContent>
                 </Card>
@@ -99,6 +193,9 @@ const AdminDashboard = ({ stats, recentLessons }: Props) => {
                         <p className="text-xs text-muted-foreground">
                             {stats.active_instructors} active, {stats.inactive_instructors} inactive
                         </p>
+                        <p className="text-xs text-blue-600 mt-2">
+                            📅 In selected date range
+                        </p>
                     </CardContent>
                 </Card>
 
@@ -111,6 +208,9 @@ const AdminDashboard = ({ stats, recentLessons }: Props) => {
                         <div className="text-2xl font-bold">{stats.total_students}</div>
                         <p className="text-xs text-muted-foreground">
                             {stats.subscribed_students} subscribed
+                        </p>
+                        <p className="text-xs text-blue-600 mt-2">
+                            📅 In selected date range
                         </p>
                     </CardContent>
                 </Card>
@@ -128,7 +228,7 @@ const AdminDashboard = ({ stats, recentLessons }: Props) => {
                     <CardContent>
                         <div className="text-3xl font-bold text-blue-600">{stats.total_lessons}</div>
                         <p className="text-sm text-gray-600 mt-2">
-                            All lessons created
+                            Lessons created in date range
                         </p>
                     </CardContent>
                 </Card>
@@ -143,7 +243,7 @@ const AdminDashboard = ({ stats, recentLessons }: Props) => {
                     <CardContent>
                         <div className="text-3xl font-bold text-green-600">{stats.completed_lessons}</div>
                         <p className="text-sm text-gray-600 mt-2">
-                            Lessons with uploaded screenshots
+                            Lessons completed in date range
                         </p>
                     </CardContent>
                 </Card>
@@ -158,56 +258,148 @@ const AdminDashboard = ({ stats, recentLessons }: Props) => {
                     <CardContent>
                         <div className="text-3xl font-bold text-yellow-600">{stats.pending_lessons}</div>
                         <p className="text-sm text-gray-600 mt-2">
-                            Lessons awaiting completion
+                            Pending lessons in date range
                         </p>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Recent Activities */}
-            <div className="space-y-6">
-                <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Lessons</h2>
-                    <Card>
-                        <CardContent className="pt-6">
-                            {recentLessons.length === 0 ? (
-                                <div className="text-center py-8">
-                                    <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">No recent lessons</h3>
-                                    <p className="text-gray-600">No lessons have been created yet.</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {recentLessons.map((lesson) => (
-                                        <div key={lesson.id} className="flex items-center justify-between p-4 border rounded-lg">
-                                            <div className="flex items-center space-x-4">
-                                                <div>
-                                                    <p className="font-medium text-gray-900">
-                                                        {lesson.student.user.name} → {lesson.instructor.name}
-                                                    </p>
-                                                    <p className="text-sm text-gray-600">
-                                                        Scheduled: {new Date(lesson.scheduled_at).toLocaleDateString()}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center space-x-4">
-                                                <Badge className={getStatusColor(lesson.status)}>
-                                                    {lesson.status.charAt(0).toUpperCase() + lesson.status.slice(1)}
-                                                </Badge>
-                                                {lesson.screenshot_path && (
-                                                    <Badge className="bg-green-100 text-green-800">
-                                                        Screenshot ✓
-                                                    </Badge>
-                                                )}
+            {/* Subscription & Revenue Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                            <CreditCard className="h-5 w-5 text-purple-600" />
+                            <span>Total Subscriptions</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold text-purple-600">{stats.total_subscriptions}</div>
+                        <p className="text-sm text-gray-600 mt-2">
+                            {stats.completed_subscriptions} completed, {stats.pending_subscriptions} pending
+                        </p>
+                        <p className="text-xs text-blue-600 mt-2">
+                            📅 In selected date range
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                            <DollarSign className="h-5 w-5 text-green-600" />
+                            <span>Total Revenue</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold text-green-600">${stats.total_revenue?.toFixed(2) || '0.00'}</div>
+                        <p className="text-sm text-gray-600 mt-2">
+                            Revenue in selected date range
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                            <Users className="h-5 w-5 text-blue-600" />
+                            <span>Avg Students/Sub</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold text-blue-600">
+                            {stats.average_students_per_subscription?.toFixed(1) || '0.0'}
+                        </div>
+                        <p className="text-sm text-gray-600 mt-2">
+                            Avg students per subscription in period
+                        </p>
+                        <div className="text-sm text-muted-foreground mt-2">
+                            Avg amount: ${stats.average_subscription_amount?.toFixed(2) || '0.00'}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                            <span>Conversion Rate</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold text-green-600">
+                            {stats.total_subscriptions > 0
+                                ? ((stats.completed_subscriptions / stats.total_subscriptions) * 100).toFixed(1)
+                                : '0.0'
+                            }%
+                        </div>
+                        <p className="text-sm text-gray-600 mt-2">
+                            Success rate in date range
+                        </p>
+                        <div className="text-sm text-red-600 mt-2">
+                            {stats.failed_subscriptions} failed payments
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Recent Subscription Activity */}
+            <Card className="mb-8">
+                <CardHeader>
+                    <CardTitle className="flex items-center">
+                        <Activity className="mr-2 h-5 w-5" />
+                        Recent Subscription Activity
+                    </CardTitle>
+                    <CardDescription>
+                        Latest successful subscriptions in the selected date range
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {recentSubscriptions.length === 0 ? (
+                        <div className="text-center py-8">
+                            <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">No recent subscriptions</h3>
+                            <p className="text-gray-600">
+                                No subscription activity found in the selected date range.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {recentSubscriptions.map((subscription) => (
+                                <div key={subscription.id} className="flex items-center justify-between p-4 border rounded-lg">
+                                    <div className="flex items-center space-x-4">
+                                        <div className="flex-shrink-0">
+                                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                                <CreditCard className="h-5 w-5 text-green-600" />
                                             </div>
                                         </div>
-                                    ))}
+                                        <div>
+                                            <p className="font-medium text-gray-900">{subscription.user_name}</p>
+                                            <p className="text-sm text-gray-600">{subscription.user_email}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="flex items-center space-x-4">
+                                            <div>
+                                                <p className="font-semibold text-green-600">
+                                                    ${subscription.amount.toFixed(2)}
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {subscription.student_count} student{subscription.student_count !== 1 ? 's' : ''}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm text-gray-600">{subscription.paid_at}</p>
+                                                <p className="text-xs text-gray-500">{subscription.paid_at_human}</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
+                            ))}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </AdminLayout>
     );
 };

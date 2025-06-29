@@ -9,12 +9,50 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function index(): \Inertia\Response
+    public function index(Request $request): \Inertia\Response
     {
-        $users = User::where('role', '=', 'user')->get(['id', 'name', 'email', 'is_active', 'created_at']);
+        $perPage = $request->get('per_page', 25);
+        $search = $request->get('search', '');
+        $status = $request->get('status', 'all'); // all, active, inactive
+
+        $query = User::where('role', '=', 'user');
+
+        // Apply search filter
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply status filter
+        if ($status === 'active') {
+            $query->where('is_active', true);
+        } elseif ($status === 'inactive') {
+            $query->where('is_active', false);
+        }
+
+        // Get paginated results
+        $users = $query->select(['id', 'name', 'email', 'is_active', 'created_at'])
+                      ->orderBy('created_at', 'desc')
+                      ->paginate($perPage)
+                      ->withQueryString(); // Preserve query parameters in pagination links
+
+        // Get summary statistics
+        $stats = [
+            'total' => User::where('role', 'user')->count(),
+            'active' => User::where('role', 'user')->where('is_active', true)->count(),
+            'inactive' => User::where('role', 'user')->where('is_active', false)->count(),
+        ];
 
         return Inertia::render('admin/Users', [
             'users' => $users,
+            'stats' => $stats,
+            'filters' => [
+                'search' => $search,
+                'status' => $status,
+                'per_page' => $perPage,
+            ],
         ]);
     }
 

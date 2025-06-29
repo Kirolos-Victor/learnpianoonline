@@ -71,9 +71,9 @@ const Dashboard = () => {
 
     // Handle student selection change using Inertia
     const handleStudentChange = (studentId: string) => {
-        // if (!studentId || studentId === selectedStudentId) return;
 
         setLoading(true);
+        console.log(selectedStudent, selectedStudentId);
 
         router.visit(`/home/student/${studentId}`, {
             method: 'get',
@@ -108,7 +108,7 @@ const Dashboard = () => {
                             {/* Student Selector */}
                             <div className="mt-4 md:mt-0">
                                 <Label className="text-sm font-medium text-primary mb-2 block">Select Student</Label>
-                                <Select value={selectedStudentId || ''} onValueChange={handleStudentChange}>
+                                <Select value={ selectedStudentId? selectedStudent?.id:''} onValueChange={handleStudentChange}>
                                     <SelectTrigger className="w-full md:w-64">
                                         <SelectValue placeholder="Choose a student" />
                                     </SelectTrigger>

@@ -73,9 +73,10 @@ const Lessons = () => {
     const [loading, setLoading] = useState(false);
 
     const selectedStudent = selectedStudentData?.student;
+    const numericSelectedStudentId = Number(selectedStudentId);
     const currentLessons = selectedStudentData?.lessons || [];
     const completedLessons = currentLessons.filter(lesson => lesson.status === 'completed');
-    const pendingLessons = currentLessons.filter(lesson => lesson.status === 'pending');
+    // const pendingLessons = currentLessons.filter(lesson => lesson.status === 'pending');
     const pendingHomework = currentLessons.filter(lesson =>
         lesson.hasHomework && lesson.homeworkStatus === 'pending'
     );
@@ -219,7 +220,7 @@ const Lessons = () => {
                             {/* Student Selector */}
                             <div className="mt-6 md:mt-0">
                                 <Label className="text-lg font-comic text-white mb-3 block">Choose Your Student:</Label>
-                                <Select value={selectedStudentId || ''} onValueChange={handleStudentChange}>
+                                <Select value={selectedStudentId? selectedStudent?.id : ''} onValueChange={handleStudentChange}>
                                     <SelectTrigger className="w-full md:w-72 bg-white/20 backdrop-blur-sm border-white/30 text-white font-comic text-lg rounded-2xl">
                                         <SelectValue placeholder="Pick a student!" />
                                     </SelectTrigger>
