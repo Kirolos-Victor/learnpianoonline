@@ -3,23 +3,99 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Head, useForm, Link } from '@inertiajs/react';
-import { LoaderCircle, Piano } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { LoaderCircle, Piano, MapPin, MessageCircle } from 'lucide-react';
+import { FormEventHandler, useState } from 'react';
 
 type RegisterForm = {
     name: string;
     email: string;
     password: string;
     password_confirmation: string;
+    whatsapp_number: string;
+    city: string;
+    state_province: string;
+    country: string;
 };
-const Register = () => {
+
+interface Props {
+    countries: Record<string, string>;
+}
+
+const Register = ({ countries }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
+        whatsapp_number: '',
+        city: '',
+        state_province: '',
+        country: '',
     });
+
+    const [locations, setLocations] = useState<Record<string, string>>({});
+    const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+    const [loadingLocations, setLoadingLocations] = useState(false);
+    const [locationLabel, setLocationLabel] = useState('State/Province');
+    const [phoneCode, setPhoneCode] = useState('+1');
+    const [loadingPhoneCode, setLoadingPhoneCode] = useState(false);
+
+    const fetchLocations = async (countryCode: string) => {
+        if (!countryCode) return;
+
+        setLoadingLocations(true);
+        try {
+            const response = await fetch(`/locations?country=${countryCode}`);
+            const data = await response.json();
+
+            setLocations(data.locations || {});
+            setShowLocationDropdown(Object.keys(data.locations || {}).length > 0);
+
+            // Set appropriate label based on country
+            if (countryCode === 'US') {
+                setLocationLabel('State');
+            } else if (countryCode === 'CA') {
+                setLocationLabel('Province');
+            } else if (countryCode === 'AU') {
+                setLocationLabel('State/Territory');
+            } else if (countryCode === 'GB') {
+                setLocationLabel('Region');
+            } else {
+                setLocationLabel('City');
+            }
+        } catch (error) {
+            console.error('Error fetching locations:', error);
+            setLocations({});
+            setShowLocationDropdown(false);
+        } finally {
+            setLoadingLocations(false);
+        }
+    };
+
+    const fetchPhoneCode = async (countryCode: string) => {
+        if (!countryCode) return;
+
+        setLoadingPhoneCode(true);
+        try {
+            const response = await fetch(`/phone-code?country=${countryCode}`);
+            const data = await response.json();
+            setPhoneCode(data.phone_code || '+1');
+        } catch (error) {
+            console.error('Error fetching phone code:', error);
+            setPhoneCode('+1');
+        } finally {
+            setLoadingPhoneCode(false);
+        }
+    };
+
+    const handleCountryChange = (countryCode: string) => {
+        setData('country', countryCode);
+        setData('state_province', ''); // Reset state/province when country changes
+        fetchLocations(countryCode);
+        fetchPhoneCode(countryCode);
+    };
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -81,6 +157,105 @@ const Register = () => {
                                 />
                                 <InputError message={errors.email} className="mt-2" />
                             </div>
+
+                            {/* Location Section */}
+                            <div className="space-y-3 border-t pt-4 mt-6">
+                                <div className="flex items-center space-x-2 mb-3">
+                                    <MapPin className="h-4 w-4 text-warm-brown" />
+                                    <Label className="text-base font-medium">Location Information</Label>
+                                </div>
+                                <p className="text-sm text-muted-foreground">This helps us schedule lessons in your timezone.</p>
+
+                                                                <div>
+                                    <Label htmlFor="country">Country *</Label>
+                                    <Select
+                                        value={data.country}
+                                        onValueChange={handleCountryChange}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select your country" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {Object.entries(countries).map(([code, name]) => (
+                                                <SelectItem key={code} value={code}>
+                                                    {name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError message={errors.country} className="mt-2" />
+                                </div>
+
+                                {showLocationDropdown && (
+                                    <div>
+                                        <Label htmlFor="state_province">
+                                            {locationLabel} {Object.keys(locations).length > 0 ? '*' : ''}
+                                        </Label>
+                                        <Select
+                                            value={data.state_province}
+                                            onValueChange={(value) => setData('state_province', value)}
+                                            disabled={loadingLocations}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={
+                                                    loadingLocations
+                                                        ? 'Loading...'
+                                                        : `Select your ${locationLabel.toLowerCase()}`
+                                                } />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Object.entries(locations).map(([code, name]) => (
+                                                    <SelectItem key={code} value={code}>
+                                                        {name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={errors.state_province} className="mt-2" />
+                                    </div>
+                                )}
+
+                                <div>
+                                    <Label htmlFor="city">City (Optional)</Label>
+                                    <Input
+                                        id="city"
+                                        type="text"
+                                        value={data.city}
+                                        onChange={(e) => setData('city', e.target.value)}
+                                        placeholder="Enter your city"
+                                    />
+                                    <InputError message={errors.city} className="mt-2" />
+                                </div>
+                            </div>
+
+                            {/* WhatsApp Number Section */}
+                            <div className="space-y-3 border-t pt-4 mt-6">
+                                <div className="flex items-center space-x-2 mb-3">
+                                    <MessageCircle className="h-4 w-4 text-warm-brown" />
+                                    <Label className="text-base font-medium">WhatsApp Contact</Label>
+                                </div>
+                                <p className="text-sm text-muted-foreground">We'll use this to communicate about your lessons.</p>
+
+                                <div>
+                                    <Label htmlFor="whatsapp_number">WhatsApp Number *</Label>
+                                    <div className="flex">
+                                        <div className="flex items-center px-3 border border-r-0 border-input bg-muted rounded-l-md text-sm text-muted-foreground min-w-[60px] justify-center">
+                                            {loadingPhoneCode ? '...' : phoneCode}
+                                        </div>
+                                        <Input
+                                            id="whatsapp_number"
+                                            type="tel"
+                                            value={data.whatsapp_number}
+                                            onChange={(e) => setData('whatsapp_number', e.target.value)}
+                                            placeholder="Enter phone number"
+                                            className="rounded-l-none"
+                                            required
+                                        />
+                                    </div>
+                                    <InputError message={errors.whatsapp_number} className="mt-2" />
+                                </div>
+                            </div>
+
                             <div>
                                 <Label htmlFor="password">Password</Label>
                                 <Input
@@ -94,7 +269,7 @@ const Register = () => {
                                 <InputError message={errors.password} className="mt-2" />
                             </div>
                             <div>
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password_confirmation">Confirm Password</Label>
                                 <Input
                                     id="password_confirmation"
                                     type="password"
@@ -105,6 +280,7 @@ const Register = () => {
                                 />
                                 <InputError message={errors.password_confirmation} />
                             </div>
+
                             <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
                                 {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                                 Create account

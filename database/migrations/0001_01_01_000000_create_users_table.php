@@ -21,6 +21,10 @@ return new class extends Migration
             $table->string('role')->default('user')->enum('user','instructor','admin');
             $table->string('whatsapp_number')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->string('city')->nullable();
+            $table->string('state_province')->nullable();
+            $table->string('country')->nullable();
+            $table->string('timezone')->nullable();
             $table->timestamps();
         });
 

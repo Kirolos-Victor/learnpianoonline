@@ -21,8 +21,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'whatsapp_number',
         'role',
         'is_active',
+        'city',
+        'state_province',
+        'country',
+        'timezone',
     ];
 
     /**
@@ -135,5 +140,37 @@ class User extends Authenticatable
     public function activeSubscription()
     {
         return $this->subscriptions()->where('status', 'completed')->latest();
+    }
+
+    /**
+     * Get user's current time in their timezone
+     */
+    public function getCurrentTimeInTimezone(): \Carbon\Carbon
+    {
+        $timezone = $this->timezone ?? 'UTC';
+        return now()->setTimezone($timezone);
+    }
+
+    /**
+     * Convert a UTC time to user's timezone
+     */
+    public function convertToUserTimezone(\Carbon\Carbon $utcTime): \Carbon\Carbon
+    {
+        $timezone = $this->timezone ?? 'UTC';
+        return $utcTime->setTimezone($timezone);
+    }
+
+    /**
+     * Get user's full location string
+     */
+    public function getFullLocationAttribute(): string
+    {
+        $parts = array_filter([
+            $this->city,
+            $this->state_province,
+            $this->country,
+        ]);
+
+        return implode(', ', $parts);
     }
 }
