@@ -71,7 +71,7 @@ const Dashboard = () => {
 
     // Handle student selection change using Inertia
     const handleStudentChange = (studentId: string) => {
-        if (!studentId || studentId === selectedStudentId) return;
+        // if (!studentId || studentId === selectedStudentId) return;
 
         setLoading(true);
 

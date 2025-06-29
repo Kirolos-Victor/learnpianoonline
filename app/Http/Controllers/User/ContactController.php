@@ -10,6 +10,6 @@ class ContactController extends Controller
 {
     public function index(): \Inertia\Response
     {
-        return Inertia::render('user/Contact');
+        return Inertia::render('Contact');
     }
 }

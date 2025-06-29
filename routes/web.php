@@ -24,7 +24,7 @@ Route::get('test-pricing', function (App\Services\StripeService $stripeService) 
 });
 
 // Student-only routes (require authentication and student role)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','user'])->group(function () {
     Route::get('home', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('home/student/{studentId}', [DashboardController::class, 'fetchStudentData'])->name('dashboard.student-data');
     Route::get('lessons', [LessonsController::class, 'index'])->name('lessons.index');

@@ -41,17 +41,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'student', // All registered users are students
-        ]);
-
-        // Create student profile
-        Student::create([
-            'user_id' => $user->id,
-            'name' => $request->name,
-            'age' => 0, // Default age, can be updated later
-            'is_subscribed' => false,
-            'has_piano' => false,
-            'sessions_remaining' => 0,
+            'role' => 'user',
         ]);
 
         event(new Registered($user));

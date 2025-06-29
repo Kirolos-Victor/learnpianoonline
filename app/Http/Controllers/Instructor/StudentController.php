@@ -29,7 +29,7 @@ class StudentController extends Controller
                     'lessons_completed' => $student->completedLessons()->count(),
                     'lessons_pending' => $student->pendingLessons()->count(),
                     'last_lesson_date' => $student->completedLessons()->latest('completed_at')->first()?->completed_at,
-                    // 'next_lesson_date' => $student->pendingLessons()->earliest('scheduled_at')->first()?->scheduled_at,
+                    'next_lesson_date' => $student->pendingLessons()->oldest('scheduled_at')->first()?->scheduled_at,
                 ];
             });
 

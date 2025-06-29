@@ -14,74 +14,48 @@ import {
     Plus,
     Eye
 } from 'lucide-react';
-import { useState } from 'react';
+
 
 interface Student {
     id: string;
     name: string;
     email: string;
-    avatar?: string;
     subscriptionStatus: 'active' | 'inactive' | 'expired';
-    lastLessonDate: string;
+    lastLessonDate: string | null;
     nextLessonDate: string;
     lessonsCompleted: number;
     lessonsThisMonth: number;
     pendingHomework: number;
-    totalStudents: number;
 }
 
-const InstructorDashboard = () => {
-    // Mock data - in real app this would come from the backend
-    const [students] = useState<Student[]>([
-        {
-            id: '1',
-            name: 'Emma Johnson',
-            email: 'emma.johnson@email.com',
-            subscriptionStatus: 'active',
-            lastLessonDate: '2024-03-20',
-            nextLessonDate: '2024-03-27',
-            lessonsCompleted: 12,
-            lessonsThisMonth: 3,
-            pendingHomework: 2,
-            totalStudents: 8
-        },
-        {
-            id: '2',
-            name: 'Michael Chen',
-            email: 'michael.chen@email.com',
-            subscriptionStatus: 'active',
-            lastLessonDate: '2024-03-19',
-            nextLessonDate: '2024-03-26',
-            lessonsCompleted: 8,
-            lessonsThisMonth: 2,
-            pendingHomework: 1,
-            totalStudents: 8
-        },
-        {
-            id: '3',
-            name: 'Sarah Williams',
-            email: 'sarah.williams@email.com',
-            subscriptionStatus: 'active',
-            lastLessonDate: '2024-03-18',
-            nextLessonDate: '2024-03-25',
-            lessonsCompleted: 15,
-            lessonsThisMonth: 4,
-            pendingHomework: 0,
-            totalStudents: 8
-        },
-        {
-            id: '4',
-            name: 'David Brown',
-            email: 'david.brown@email.com',
-            subscriptionStatus: 'inactive',
-            lastLessonDate: '2024-02-15',
-            nextLessonDate: 'N/A',
-            lessonsCompleted: 6,
-            lessonsThisMonth: 0,
-            pendingHomework: 3,
-            totalStudents: 8
-        }
-    ]);
+interface DashboardStats {
+    totalStudents: number;
+    activeStudents: number;
+    totalLessonsThisMonth: number;
+    totalPendingHomework: number;
+    nextLesson: {
+        student_name: string;
+        scheduled_at: string;
+        formatted_date: string;
+        formatted_time: string;
+    } | null;
+}
+
+interface RecentActivity {
+    type: 'lesson_completed' | 'homework_submitted';
+    title: string;
+    student_name: string;
+    date: string;
+    timestamp: string;
+}
+
+interface Props {
+    students: Student[];
+    dashboardStats: DashboardStats;
+    recentActivities: RecentActivity[];
+}
+
+const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Props) => {
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -99,10 +73,6 @@ const InstructorDashboard = () => {
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase();
     };
-
-    const activeStudents = students.filter(s => s.subscriptionStatus === 'active');
-    const totalPendingHomework = students.reduce((sum, s) => sum + s.pendingHomework, 0);
-    const totalLessonsThisMonth = students.reduce((sum, s) => sum + s.lessonsThisMonth, 0);
 
     return (
         <InstructorLayout title="Dashboard">
@@ -122,9 +92,9 @@ const InstructorDashboard = () => {
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{students.length}</div>
+                        <div className="text-2xl font-bold">{dashboardStats.totalStudents}</div>
                         <p className="text-xs text-muted-foreground">
-                            {activeStudents.length} active
+                            {dashboardStats.activeStudents} active
                         </p>
                     </CardContent>
                 </Card>
@@ -135,7 +105,7 @@ const InstructorDashboard = () => {
                         <BookOpen className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{totalLessonsThisMonth}</div>
+                        <div className="text-2xl font-bold">{dashboardStats.totalLessonsThisMonth}</div>
                         <p className="text-xs text-muted-foreground">
                             +2 from last month
                         </p>
@@ -148,7 +118,7 @@ const InstructorDashboard = () => {
                         <Clock className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{totalPendingHomework}</div>
+                        <div className="text-2xl font-bold">{dashboardStats.totalPendingHomework}</div>
                         <p className="text-xs text-muted-foreground">
                             Needs review
                         </p>
@@ -161,9 +131,11 @@ const InstructorDashboard = () => {
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">Tomorrow</div>
+                        <div className="text-2xl font-bold">
+                            {dashboardStats.nextLesson ? dashboardStats.nextLesson.formatted_date : 'No upcoming lessons'}
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                            Emma Johnson - 2:00 PM
+                            {dashboardStats.nextLesson ? `${dashboardStats.nextLesson.student_name} - ${dashboardStats.nextLesson.formatted_time}` : 'Schedule a lesson'}
                         </p>
                     </CardContent>
                 </Card>
@@ -278,29 +250,41 @@ const InstructorDashboard = () => {
                         <CardDescription>Latest updates and notifications</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <div className="flex items-center space-x-3 p-2 rounded-lg bg-green-50">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <div>
-                                <p className="text-sm font-medium text-green-900">Lesson Completed</p>
-                                <p className="text-xs text-green-700">Emma Johnson - March 20, 2024</p>
+                        {recentActivities.length > 0 ? (
+                            recentActivities.map((activity, index) => (
+                                <div key={index} className={`flex items-center space-x-3 p-2 rounded-lg ${
+                                    activity.type === 'lesson_completed'
+                                        ? 'bg-green-50'
+                                        : 'bg-blue-50'
+                                }`}>
+                                    {activity.type === 'lesson_completed' ? (
+                                        <CheckCircle className="h-4 w-4 text-green-600" />
+                                    ) : (
+                                        <BookOpen className="h-4 w-4 text-blue-600" />
+                                    )}
+                                    <div>
+                                        <p className={`text-sm font-medium ${
+                                            activity.type === 'lesson_completed'
+                                                ? 'text-green-900'
+                                                : 'text-blue-900'
+                                        }`}>
+                                            {activity.title}
+                                        </p>
+                                        <p className={`text-xs ${
+                                            activity.type === 'lesson_completed'
+                                                ? 'text-green-700'
+                                                : 'text-blue-700'
+                                        }`}>
+                                            {activity.student_name} - {activity.date}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-4">
+                                <p className="text-sm text-gray-500">No recent activity</p>
                             </div>
-                        </div>
-
-                        <div className="flex items-center space-x-3 p-2 rounded-lg bg-blue-50">
-                            <BookOpen className="h-4 w-4 text-blue-600" />
-                            <div>
-                                <p className="text-sm font-medium text-blue-900">Homework Submitted</p>
-                                <p className="text-xs text-blue-700">Michael Chen - March 19, 2024</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center space-x-3 p-2 rounded-lg bg-yellow-50">
-                            <Clock className="h-4 w-4 text-yellow-600" />
-                            <div>
-                                <p className="text-sm font-medium text-yellow-900">Lesson Rescheduled</p>
-                                <p className="text-xs text-yellow-700">Sarah Williams - March 18, 2024</p>
-                            </div>
-                        </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

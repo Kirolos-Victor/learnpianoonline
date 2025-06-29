@@ -13,6 +13,6 @@ class PricingController extends Controller
         if (Auth()->check()) {
             return redirect()->route('user.subscription');
         }
-        return Inertia::render('user/Pricing');
+        return Inertia::render('Pricing');
     }
 }
