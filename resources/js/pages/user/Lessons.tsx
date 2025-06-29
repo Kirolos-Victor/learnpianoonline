@@ -217,29 +217,31 @@ const Lessons = () => {
                                 </p>
                             </div>
 
-                            {/* Student Selector */}
-                            <div className="mt-6 md:mt-0">
-                                <Label className="text-lg font-comic text-white mb-3 block">Choose Your Student:</Label>
-                                <Select value={selectedStudentId? selectedStudent?.id : ''} onValueChange={handleStudentChange}>
-                                    <SelectTrigger className="w-full md:w-72 bg-white/20 backdrop-blur-sm border-white/30 text-white font-comic text-lg rounded-2xl">
-                                        <SelectValue placeholder="Pick a student!" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {students.map((student) => (
-                                            <SelectItem key={student.id} value={student.id}>
-                                                <div className="flex items-center space-x-3">
-                                                    <span className="font-comic text-lg">{student.name}</span>
-                                                    {student.isSubscribed && (
-                                                        <Badge className="bg-fun-green text-white text-sm font-comic">
-                                                            ⭐ Subscribed
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            {/* Student Selector - only show if there are students */}
+                            {students.length > 0 && (
+                                <div className="mt-6 md:mt-0">
+                                    <Label className="text-lg font-comic text-white mb-3 block">Choose Your Student:</Label>
+                                    <Select value={selectedStudentId? selectedStudent?.id : ''} onValueChange={handleStudentChange}>
+                                        <SelectTrigger className="w-full md:w-72 bg-white/20 backdrop-blur-sm border-white/30 text-white font-comic text-lg rounded-2xl">
+                                            <SelectValue placeholder="Pick a student!" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {students.map((student) => (
+                                                <SelectItem key={student.id} value={student.id}>
+                                                    <div className="flex items-center space-x-3">
+                                                        <span className="font-comic text-lg">{student.name}</span>
+                                                        {student.isSubscribed && (
+                                                            <Badge className="bg-fun-green text-white text-sm font-comic">
+                                                                ⭐ Subscribed
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -252,6 +254,104 @@ const Lessons = () => {
                                     <div className="text-center">
                                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fun-purple mx-auto mb-4"></div>
                                         <p className="text-muted-foreground font-comic text-lg">Loading lessons...</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    ) : students.length === 0 ? (
+                        /* No Students - Prompt to Add Student */
+                        <div className="max-w-4xl mx-auto">
+                            <Card className="border-fun-pink/30 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10 rounded-3xl shadow-float">
+                                <CardHeader className="text-center">
+                                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-fun-pink to-fun-purple">
+                                        <Music className="h-10 w-10 text-white" />
+                                    </div>
+                                    <CardTitle className="text-fun-purple font-fredoka text-4xl mb-4">
+                                        Ready to Start Your Piano Journey! 🎹✨
+                                    </CardTitle>
+                                    <CardDescription className="text-fun-blue font-comic text-xl">
+                                        Let's get you set up so you can start having amazing piano lessons!
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="text-center space-y-8">
+                                    <div className="space-y-6">
+                                        <div className="flex items-center justify-center space-x-6 text-fun-purple">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-pink text-white font-fredoka text-xl font-bold">1</div>
+                                                <span className="font-comic text-xl font-bold">Add Student</span>
+                                            </div>
+                                            <div className="h-1 w-12 bg-gradient-to-r from-fun-pink to-fun-blue rounded"></div>
+                                            <div className="flex items-center space-x-3">
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-blue text-white font-fredoka text-xl font-bold">2</div>
+                                                <span className="font-comic text-xl font-bold">Subscribe</span>
+                                            </div>
+                                            <div className="h-1 w-12 bg-gradient-to-r from-fun-blue to-fun-green rounded"></div>
+                                            <div className="flex items-center space-x-3">
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-green text-white font-fredoka text-xl font-bold">3</div>
+                                                <span className="font-comic text-xl font-bold">Start Learning</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                                            <div className="text-center p-6 bg-white/80 rounded-3xl border-2 border-fun-pink/20 hover:shadow-float transition-all duration-300">
+                                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-pink text-white">
+                                                    <Users className="h-8 w-8" />
+                                                </div>
+                                                <h3 className="font-fredoka text-2xl text-fun-purple mb-2">Add Student Profile</h3>
+                                                <p className="font-comic text-lg text-fun-purple/80">Create a fun profile for your little pianist! 🎵</p>
+                                            </div>
+                                            <div className="text-center p-6 bg-white/80 rounded-3xl border-2 border-fun-blue/20 hover:shadow-float transition-all duration-300">
+                                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-blue text-white">
+                                                    <Crown className="h-8 w-8" />
+                                                </div>
+                                                <h3 className="font-fredoka text-2xl text-fun-purple mb-2">Choose Your Plan</h3>
+                                                <p className="font-comic text-lg text-fun-purple/80">Pick a subscription to unlock awesome lessons! 👑</p>
+                                            </div>
+                                            <div className="text-center p-6 bg-white/80 rounded-3xl border-2 border-fun-green/20 hover:shadow-float transition-all duration-300">
+                                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-green text-white">
+                                                    <Trophy className="h-8 w-8" />
+                                                </div>
+                                                <h3 className="font-fredoka text-2xl text-fun-purple mb-2">Rock Your Lessons</h3>
+                                                <p className="font-comic text-lg text-fun-purple/80">Start your amazing piano adventure! 🚀</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-gradient-to-r from-fun-yellow/20 to-fun-orange/20 rounded-3xl p-6 border-2 border-fun-yellow/30">
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                                                <div>
+                                                    <div className="text-3xl mb-2">🎹</div>
+                                                    <p className="font-comic text-lg text-fun-purple">1-on-1 Lessons</p>
+                                                </div>
+                                                <div>
+                                                    <div className="text-3xl mb-2">🎵</div>
+                                                    <p className="font-comic text-lg text-fun-purple">Fun Songs</p>
+                                                </div>
+                                                <div>
+                                                    <div className="text-3xl mb-2">⭐</div>
+                                                    <p className="font-comic text-lg text-fun-purple">Earn Rewards</p>
+                                                </div>
+                                                <div>
+                                                    <div className="text-3xl mb-2">📝</div>
+                                                    <p className="font-comic text-lg text-fun-purple">Fun Homework</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        className="bg-gradient-to-r from-fun-pink to-fun-purple hover:from-fun-pink-600 hover:to-fun-purple-600 text-white font-fredoka text-2xl px-12 py-4 rounded-full shadow-float animate-bounce-gentle"
+                                        onClick={() => router.visit(route('student.index'))}
+                                    >
+                                        <Sparkles className="mr-3 h-6 w-6" />
+                                        🎹 Add Your First Student!
+                                    </Button>
+
+                                    <div className="bg-white/60 rounded-2xl p-4 border border-fun-blue/20">
+                                        <p className="font-comic text-lg text-fun-purple">
+                                            💡 You can add multiple students and manage their lessons separately
+                                            <br />
+                                            🎉 <strong>Bonus:</strong> Enjoy 10% discount for every extra student!
+                                        </p>
                                     </div>
                                 </CardContent>
                             </Card>
