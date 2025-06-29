@@ -105,29 +105,31 @@ const Dashboard = () => {
                                 </h1>
                             </div>
 
-                            {/* Student Selector */}
-                            <div className="mt-4 md:mt-0">
-                                <Label className="text-sm font-medium text-primary mb-2 block">Select Student</Label>
-                                <Select value={ selectedStudentId? selectedStudent?.id:''} onValueChange={handleStudentChange}>
-                                    <SelectTrigger className="w-full md:w-64">
-                                        <SelectValue placeholder="Choose a student" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {students.map((student) => (
-                                            <SelectItem key={student.id} value={student.id}>
-                                                <div className="flex items-center space-x-2">
-                                                    <span>{student.name}</span>
-                                                    {student.isSubscribed && (
-                                                        <Badge className="bg-green-100 text-green-800 text-xs">
-                                                            Subscribed
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                            {/* Student Selector - only show if there are students */}
+                            {students.length > 0 && (
+                                <div className="mt-4 md:mt-0">
+                                    <Label className="text-sm font-medium text-primary mb-2 block">Select Student</Label>
+                                    <Select value={ selectedStudentId? selectedStudent?.id:''} onValueChange={handleStudentChange}>
+                                        <SelectTrigger className="w-full md:w-64">
+                                            <SelectValue placeholder="Choose a student" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {students.map((student) => (
+                                                <SelectItem key={student.id} value={student.id}>
+                                                    <div className="flex items-center space-x-2">
+                                                        <span>{student.name}</span>
+                                                        {student.isSubscribed && (
+                                                            <Badge className="bg-green-100 text-green-800 text-xs">
+                                                                Subscribed
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -141,6 +143,75 @@ const Dashboard = () => {
                                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mx-auto mb-4"></div>
                                         <p className="text-muted-foreground">Loading student data...</p>
                                     </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    ) : students.length === 0 ? (
+                        /* No Students - Prompt to Add Student */
+                        <div className="max-w-2xl mx-auto">
+                            <Card className="border-blue-200 bg-blue-50">
+                                <CardHeader className="text-center">
+                                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+                                        <Users className="h-8 w-8 text-blue-600" />
+                                    </div>
+                                    <CardTitle className="text-blue-800 text-2xl">
+                                        Welcome to Your Piano Journey! 🎹
+                                    </CardTitle>
+                                    <CardDescription className="text-blue-600 text-lg">
+                                        Let's get started by adding your first student
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="text-center space-y-6">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-center space-x-4 text-blue-700">
+                                            <div className="flex items-center space-x-2">
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200 text-blue-800 font-semibold text-sm">1</div>
+                                                <span>Add Student</span>
+                                            </div>
+                                            <div className="h-px w-8 bg-blue-300"></div>
+                                            <div className="flex items-center space-x-2">
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200 text-blue-800 font-semibold text-sm">2</div>
+                                                <span>Subscribe</span>
+                                            </div>
+                                            <div className="h-px w-8 bg-blue-300"></div>
+                                            <div className="flex items-center space-x-2">
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200 text-blue-800 font-semibold text-sm">3</div>
+                                                <span>Start Learning</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                                            <div className="text-center p-4 bg-white rounded-lg border border-blue-200">
+                                                <Users className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                                                <h3 className="font-semibold text-blue-800">Add Student Profile</h3>
+                                                <p className="text-sm text-blue-600 mt-1">Create a profile for the student who will be learning piano</p>
+                                            </div>
+                                            <div className="text-center p-4 bg-white rounded-lg border border-blue-200">
+                                                <CalendarDays className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                                                <h3 className="font-semibold text-blue-800">Choose Subscription</h3>
+                                                <p className="text-sm text-blue-600 mt-1">Select a plan to unlock private lessons</p>
+                                            </div>
+                                            <div className="text-center p-4 bg-white rounded-lg border border-blue-200">
+                                                <CheckCircle className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                                                <h3 className="font-semibold text-blue-800">Start Learning</h3>
+                                                <p className="text-sm text-blue-600 mt-1">Begin your personalized piano journey</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        className="bg-blue-600 hover:bg-blue-700 text-white w-full py-3 text-lg"
+                                        onClick={() => router.visit(route('student.index'))}
+                                    >
+                                        <Users className="mr-2 h-5 w-5" />
+                                        Add Your First Student
+                                    </Button>
+
+                                    <p className="text-sm text-blue-600">
+                                        💡 You can add multiple students and manage their lessons separately
+                                        <br />
+                                        🎉 <strong>Bonus:</strong> Enjoy 10% discount for every extra student!
+                                    </p>
                                 </CardContent>
                             </Card>
                         </div>
