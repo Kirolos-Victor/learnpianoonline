@@ -60,6 +60,7 @@ export interface PricingData {
 export interface AvailableStudent {
     id: number;
     name: string;
+    slug: string;
     age: number;
     is_subscribed: boolean;
 }
@@ -76,6 +77,6 @@ export interface SubscriptionPageProps {
         sessions_remaining: number;
     }>;
     isSingleStudent?: boolean;
-    selectedStudentId?: string;
+    selectedStudentSlug?: string;
     [key: string]: unknown;
 }

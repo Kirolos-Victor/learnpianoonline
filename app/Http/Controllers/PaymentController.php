@@ -21,7 +21,7 @@ class PaymentController extends Controller
     public function showSubscription(Request $request)
     {
         $user = $request->user();
-        $studentId = $request->query('studentId');
+        $studentSlug = $request->query('student');
 
         // Get all students for this user (not assigned students for instructors)
         $allStudents = $user->students()->get();
@@ -34,12 +34,17 @@ class PaymentController extends Controller
         $availableStudents = $unsubscribedStudents;
         $isSingleStudent = false;
 
-        // If studentId is provided, verify the student exists and is unsubscribed
-        if ($studentId) {
-            $student = $unsubscribedStudents->where('id', $studentId)->first();
+        // If student slug is provided, verify the student exists, belongs to user, and is unsubscribed
+        $selectedStudent = null;
+        if ($studentSlug) {
+            $selectedStudent = \App\Models\Student::findBySlugForUser($studentSlug, $user->id);
 
-            if (!$student) {
-                return redirect()->route('student.index')->with('error', 'Student not found or already subscribed');
+            if (!$selectedStudent) {
+                return redirect()->route('student.index')->with('error', 'Student not found or access denied');
+            }
+
+            if ($selectedStudent->is_subscribed) {
+                return redirect()->route('student.index')->with('error', 'Student is already subscribed');
             }
         }
 
@@ -61,7 +66,15 @@ class PaymentController extends Controller
 
         return Inertia::render('user/Subscription', [
             'pricingData' => $pricingData,
-            'availableStudents' => $availableStudents,
+            'availableStudents' => $availableStudents->map(function ($student) {
+                return [
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'slug' => $student->slug,
+                    'age' => $student->age,
+                    'is_subscribed' => $student->is_subscribed,
+                ];
+            }),
             'subscribedStudents' => $subscribedStudents->map(function ($student) {
                 return [
                     'id' => $student->id,
@@ -73,7 +86,7 @@ class PaymentController extends Controller
                 ];
             }),
             'isSingleStudent' => $isSingleStudent,
-            'selectedStudentId' => $studentId,
+            'selectedStudentSlug' => $studentSlug,
         ]);
     }
 

@@ -6,10 +6,10 @@ import { Award, Crown, FileText, Star, Target, Zap } from 'lucide-react';
 interface SubscriptionBenefitsProps {
     studentName: string;
     subscribePrice: number;
-    studentId: number;
+    studentSlug: string;
 }
 
-const SubscriptionBenefits = ({ studentName, subscribePrice, studentId }: SubscriptionBenefitsProps) => {
+const SubscriptionBenefits = ({ studentName, subscribePrice, studentSlug }: SubscriptionBenefitsProps) => {
     const subscriptionBenefits = [
         {
             icon: Crown,
@@ -50,7 +50,7 @@ const SubscriptionBenefits = ({ studentName, subscribePrice, studentId }: Subscr
     ];
 
     const handleSubscribe = () => {
-        router.visit(`/subscription?studentId=${studentId}`);
+        router.visit(`/subscription?student=${studentSlug}`);
     };
 
     return (

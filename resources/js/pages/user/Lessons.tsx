@@ -26,6 +26,7 @@ import { useState } from 'react';
 interface Student {
     id: string;
     name: string;
+    slug: string;
     age: number;
     hasPiano: boolean;
     isSubscribed: boolean;
@@ -518,7 +519,7 @@ const Lessons = () => {
                         <SubscriptionBenefits
                             studentName={selectedStudent?.name || 'Student'}
                             subscribePrice={Number(subscribePrice)}
-                            studentId={Number(selectedStudent?.id)}
+                            studentSlug={selectedStudent?.slug || ''}
                         />
                     )}
                 </div>

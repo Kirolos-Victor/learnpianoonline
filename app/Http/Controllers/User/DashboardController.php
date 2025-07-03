@@ -25,6 +25,7 @@ class DashboardController extends Controller
                 return [
                     'id' => $student->id,
                     'name' => $student->name,
+                    'slug' => $student->slug,
                     'age' => $student->age,
                     'hasPiano' => $student->has_piano,
                     'isSubscribed' => $student->is_subscribed,
@@ -112,6 +113,7 @@ class DashboardController extends Controller
             'student' => [
                 'id' => $student->id,
                 'name' => $student->name,
+                'slug' => $student->slug,
                 'age' => $student->age,
                 'hasPiano' => $student->has_piano,
                 'isSubscribed' => $student->is_subscribed,
@@ -146,6 +148,7 @@ class DashboardController extends Controller
                     return [
                         'id' => $student->id,
                         'name' => $student->name,
+                        'slug' => $student->slug,
                         'age' => $student->age,
                         'hasPiano' => $student->has_piano,
                         'isSubscribed' => $student->is_subscribed,

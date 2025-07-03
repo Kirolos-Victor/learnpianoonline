@@ -8,25 +8,9 @@ import { router, usePage } from '@inertiajs/react';
 import { AlertCircle, ArrowLeft, Check, CheckSquare, CreditCard, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface PricingData {
-    student_count: number;
-    amount: number;
-    students: Array<{
-        id: number;
-        name: string;
-    }>;
-}
-
-interface AvailableStudent {
-    id: number;
-    name: string;
-    age: number;
-    is_subscribed: boolean;
-}
-
 interface SubscriptionPageData extends SubscriptionPageProps {
     isSingleStudent?: boolean;
-    selectedStudentId?: string;
+    selectedStudentSlug?: string;
     subscribedStudents?: Array<{
         id: number;
         name: string;
@@ -39,27 +23,26 @@ interface SubscriptionPageData extends SubscriptionPageProps {
 
 const Subscription = () => {
     const { monthlySubscribePrice, yearlySubscribePrice, discountPercentage } = usePage<SharedData>().props;
-    const { pricingData, availableStudents, subscribedStudents, isSingleStudent, selectedStudentId } = usePage<SubscriptionPageData>().props;
+    const { pricingData, availableStudents, subscribedStudents, isSingleStudent, selectedStudentSlug } = usePage<SubscriptionPageData>().props;
 
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
     const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Pre-select student if it's a single student subscription or if selectedStudentId is provided
+    // Pre-select student if it's a single student subscription or if selectedStudentSlug is provided
     useEffect(() => {
         if (isSingleStudent && availableStudents.length > 0) {
             setSelectedStudents([availableStudents[0].id]);
-        } else if (selectedStudentId && availableStudents.length > 0) {
-            // Pre-select the specific student if selectedStudentId is provided
-            const studentId = parseInt(selectedStudentId, 10);
-            const studentExists = availableStudents.find((student) => student.id === studentId);
+        } else if (selectedStudentSlug && availableStudents.length > 0) {
+            // Pre-select the specific student if selectedStudentSlug is provided
+            const studentExists = availableStudents.find((student) => student.slug === selectedStudentSlug);
             if (studentExists) {
-                setSelectedStudents([studentId]);
+                setSelectedStudents([studentExists.id]);
             }
         } else {
             setSelectedStudents([]);
         }
-    }, [isSingleStudent, selectedStudentId, availableStudents]);
+    }, [isSingleStudent, selectedStudentSlug, availableStudents]);
 
     const handleStudentToggle = (studentId: number) => {
         if (isSingleStudent) {
@@ -156,14 +139,14 @@ const Subscription = () => {
                             <div>
                                 <h1 className="font-playfair mb-2 text-3xl font-bold text-primary md:text-4xl">Subscription</h1>
                                 <p className="text-muted-foreground">
-                                    {selectedStudentId
-                                        ? `Subscribe ${availableStudents.find((s) => s.id === parseInt(selectedStudentId, 10))?.name || 'your student'} and get a `
+                                    {selectedStudentSlug
+                                        ? `Subscribe ${availableStudents.find((s) => s.slug === selectedStudentSlug)?.name || 'your student'} and get a `
                                         : 'Subscribe your students and get a '}
                                     <span className="font-bold text-green-700">10% discount</span> for each additional student you add to your
                                     subscription.
                                 </p>
                             </div>
-                            {selectedStudentId && (
+                            {selectedStudentSlug && (
                                 <Button
                                     variant="outline"
                                     onClick={handleBackToStudents}
@@ -503,23 +486,6 @@ const Subscription = () => {
                         </div>
                     </div>
                 </div>
-
-                {/* Debug Output (DEV ONLY) */}
-                {process.env.NODE_ENV === 'development' && (
-                    <div className="mt-8 rounded border border-yellow-300 bg-yellow-50 p-4 text-xs text-yellow-900">
-                        <div>
-                            <b>Debug Info:</b>
-                        </div>
-                        <div>
-                            availableStudents: <pre>{JSON.stringify(availableStudents, null, 2)}</pre>
-                        </div>
-                        <div>
-                            selectedStudents: <pre>{JSON.stringify(selectedStudents, null, 2)}</pre>
-                        </div>
-                        <div>isSingleStudent: {String(isSingleStudent)}</div>
-                        <div>selectedStudentId: {String(selectedStudentId)}</div>
-                    </div>
-                )}
             </div>
         </AppLayout>
     );

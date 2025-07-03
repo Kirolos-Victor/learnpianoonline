@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Student extends Model
 {
@@ -12,6 +13,7 @@ class Student extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'slug',
         'age',
         'is_subscribed',
         'has_piano',
@@ -25,6 +27,59 @@ class Student extends Model
         'has_piano' => 'boolean',
         'subscription_expires_at' => 'datetime',
     ];
+
+    /**
+     * Boot the model to generate slug on creation
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($student) {
+            if (empty($student->slug)) {
+                $student->slug = $student->generateUniqueSlug($student->name);
+            }
+        });
+
+        static::updating(function ($student) {
+            if ($student->isDirty('name') && empty($student->slug)) {
+                $student->slug = $student->generateUniqueSlug($student->name);
+            }
+        });
+    }
+
+    /**
+     * Generate a unique slug for the student
+     */
+    private function generateUniqueSlug(string $name): string
+    {
+        $slug = Str::slug($name);
+        $count = 1;
+        $originalSlug = $slug;
+
+        while (static::where('slug', $slug)->where('id', '!=', $this->id ?? 0)->exists()) {
+            $slug = $originalSlug . '-' . $count;
+            $count++;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Find student by slug and ensure it belongs to the given user
+     */
+    public static function findBySlugForUser(string $slug, int $userId): ?self
+    {
+        return static::where('slug', $slug)->where('user_id', $userId)->first();
+    }
+
+    /**
+     * Get route key name for model binding
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     /**
      * Get the user that owns this student profile
