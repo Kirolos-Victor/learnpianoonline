@@ -1,8 +1,7 @@
+import StudentSelector from '@/components/StudentSelector';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -226,28 +225,15 @@ const Lessons = () => {
                             </div>
 
                             {/* Student Selector - only show if there are students */}
-                            {students.length > 0 && (
-                                <div className="mt-6 md:mt-0">
-                                    <Label className="mb-3 block font-comic text-lg text-white">Choose Your Student:</Label>
-                                    <Select value={selectedStudentId ? selectedStudent?.id : ''} onValueChange={handleStudentChange}>
-                                        <SelectTrigger className="w-full rounded-2xl border-white/30 bg-white/20 font-comic text-lg text-white backdrop-blur-sm md:w-72">
-                                            <SelectValue placeholder="Pick a student!" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {students.map((student) => (
-                                                <SelectItem key={student.id} value={student.id}>
-                                                    <div className="flex items-center space-x-3">
-                                                        <span className="font-comic text-lg">{student.name}</span>
-                                                        {student.isSubscribed && (
-                                                            <Badge className="bg-fun-green font-comic text-sm text-white">⭐ Subscribed</Badge>
-                                                        )}
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            )}
+                            <StudentSelector
+                                students={students}
+                                selectedStudentId={selectedStudentId}
+                                selectedStudent={selectedStudent}
+                                onStudentChange={handleStudentChange}
+                                label="Choose Your Student:"
+                                placeholder="Pick a student!"
+                                showAvatar={true}
+                            />
                         </div>
                     </div>
                 </div>

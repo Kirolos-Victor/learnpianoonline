@@ -1,8 +1,7 @@
+import StudentSelector from '@/components/StudentSelector';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -116,29 +115,15 @@ const Dashboard = () => {
                             </div>
 
                             {/* Student Selector - only show if there are students */}
-                            {students.length > 0 && (
-                                <div className="mt-6 md:mt-0">
-                                    <Label className="mb-3 block font-comic text-lg font-bold text-white">Choose Your Student 🌟</Label>
-                                    <Select value={selectedStudentId ? selectedStudent?.id : ''} onValueChange={handleStudentChange}>
-                                        <SelectTrigger className="w-full rounded-2xl border-2 border-white/50 bg-white/90 backdrop-blur-sm md:w-72">
-                                            <SelectValue placeholder="Pick a piano star! ⭐" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-2xl">
-                                            {students.map((student) => (
-                                                <SelectItem key={student.id} value={student.id} className="rounded-xl">
-                                                    <div className="flex items-center space-x-3">
-                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-fun-purple font-comic text-sm text-white">
-                                                            {student.name.charAt(0).toUpperCase()}
-                                                        </div>
-                                                        <span className="font-comic">{student.name}</span>
-                                                        {student.isSubscribed && <Badge className="bg-fun-green text-xs text-white">🎵 Active</Badge>}
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            )}
+                            <StudentSelector
+                                students={students}
+                                selectedStudentId={selectedStudentId}
+                                selectedStudent={selectedStudent}
+                                onStudentChange={handleStudentChange}
+                                label="Choose Your Student 🌟"
+                                placeholder="Pick a piano star! ⭐"
+                                showAvatar={true}
+                            />
                         </div>
                     </div>
                 </div>
