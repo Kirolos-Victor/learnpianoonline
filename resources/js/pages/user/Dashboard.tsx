@@ -380,7 +380,11 @@ const Dashboard = () => {
                         </div>
                     ) : (
                         /* Subscription Benefits for Non-Subscribed Students */
-                        <SubscriptionBenefits studentName={selectedStudent?.name || 'Student'} subscribePrice={Number(subscribePrice)} />
+                        <SubscriptionBenefits
+                            studentName={selectedStudent?.name || 'Student'}
+                            subscribePrice={Number(subscribePrice)}
+                            studentId={Number(selectedStudent?.id)}
+                        />
                     )}
                 </div>
             </div>

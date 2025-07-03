@@ -24,6 +24,7 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
+    subscribePrice: string; // For backward compatibility
     monthlySubscribePrice: string;
     yearlySubscribePrice: string;
     discountPercentage: number;

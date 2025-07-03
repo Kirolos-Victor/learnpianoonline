@@ -45,14 +45,21 @@ const Subscription = () => {
     const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Pre-select student if it's a single student subscription
+    // Pre-select student if it's a single student subscription or if selectedStudentId is provided
     useEffect(() => {
         if (isSingleStudent && availableStudents.length > 0) {
             setSelectedStudents([availableStudents[0].id]);
+        } else if (selectedStudentId && availableStudents.length > 0) {
+            // Pre-select the specific student if selectedStudentId is provided
+            const studentId = parseInt(selectedStudentId, 10);
+            const studentExists = availableStudents.find((student) => student.id === studentId);
+            if (studentExists) {
+                setSelectedStudents([studentId]);
+            }
         } else {
             setSelectedStudents([]);
         }
-    }, [isSingleStudent, availableStudents]);
+    }, [isSingleStudent, selectedStudentId, availableStudents]);
 
     const handleStudentToggle = (studentId: number) => {
         if (isSingleStudent) {
@@ -149,11 +156,14 @@ const Subscription = () => {
                             <div>
                                 <h1 className="font-playfair mb-2 text-3xl font-bold text-primary md:text-4xl">Subscription</h1>
                                 <p className="text-muted-foreground">
-                                    Subscribe your students and get a <span className="font-bold text-green-700">10% discount</span> for each
-                                    additional student you add to your subscription.
+                                    {selectedStudentId
+                                        ? `Subscribe ${availableStudents.find((s) => s.id === parseInt(selectedStudentId, 10))?.name || 'your student'} and get a `
+                                        : 'Subscribe your students and get a '}
+                                    <span className="font-bold text-green-700">10% discount</span> for each additional student you add to your
+                                    subscription.
                                 </p>
                             </div>
-                            {isSingleStudent && (
+                            {selectedStudentId && (
                                 <Button
                                     variant="outline"
                                     onClick={handleBackToStudents}

@@ -30,50 +30,33 @@ class PaymentController extends Controller
         $unsubscribedStudents = $allStudents->where('is_subscribed', false);
         $subscribedStudents = $allStudents->where('is_subscribed', true);
 
+        // Always show all unsubscribed students for bulk subscription capability
+        $availableStudents = $unsubscribedStudents;
+        $isSingleStudent = false;
+
+        // If studentId is provided, verify the student exists and is unsubscribed
         if ($studentId) {
-            // Single student subscription - verify the student exists and is unsubscribed
             $student = $unsubscribedStudents->where('id', $studentId)->first();
 
             if (!$student) {
                 return redirect()->route('student.index')->with('error', 'Student not found or already subscribed');
             }
+        }
 
-            $pricingData = [
-                [
-                    'student_count' => 1,
-                    'monthly_amount' => $this->stripeService->calculateSubscriptionAmount(1, 'monthly'),
-                    'yearly_amount' => $this->stripeService->calculateSubscriptionAmount(1, 'yearly'),
-                    'students' => [
-                        [
-                            'id' => $student->id,
-                            'name' => $student->name,
-                        ]
-                    ],
-                ]
+        // Generate pricing data for all possible combinations (1 to 5 students)
+        $pricingData = [];
+        for ($i = 1; $i <= min(count($availableStudents), 5); $i++) {
+            $pricingData[] = [
+                'student_count' => $i,
+                'monthly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'monthly'),
+                'yearly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'yearly'),
+                'students' => $availableStudents->take($i)->map(function ($student) {
+                    return [
+                        'id' => $student->id,
+                        'name' => $student->name,
+                    ];
+                }),
             ];
-
-            $availableStudents = collect([$student]);
-            $isSingleStudent = true;
-        } else {
-            // Multiple student subscription - show all unsubscribed students
-            $availableStudents = $unsubscribedStudents;
-            $isSingleStudent = false;
-
-            // Generate pricing data for all possible combinations (1 to 5 students)
-            $pricingData = [];
-            for ($i = 1; $i <= min(count($availableStudents), 5); $i++) {
-                $pricingData[] = [
-                    'student_count' => $i,
-                    'monthly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'monthly'),
-                    'yearly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'yearly'),
-                    'students' => $availableStudents->take($i)->map(function ($student) {
-                        return [
-                            'id' => $student->id,
-                            'name' => $student->name,
-                        ];
-                    }),
-                ];
-            }
         }
 
         return Inertia::render('user/Subscription', [
