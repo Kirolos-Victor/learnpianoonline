@@ -1,4 +1,5 @@
 import StudentSelector from '@/components/StudentSelector';
+import SubscriptionBenefits from '@/components/SubscriptionBenefits';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -378,22 +379,8 @@ const Dashboard = () => {
                             )}
                         </div>
                     ) : (
-                        /* Simple Subscription Prompt for Non-Subscribed Students */
-                        <div className="mx-auto max-w-2xl">
-                            <Card className="border-orange-200 bg-orange-50">
-                                <CardHeader>
-                                    <CardTitle className="text-orange-800">{selectedStudent?.name} needs a subscription</CardTitle>
-                                    <CardDescription className="text-orange-600">
-                                        Subscribe to access private piano lessons and homework assignments
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <Button className="w-full bg-orange-600 text-white hover:bg-orange-700">
-                                        Subscribe Now - ${subscribePrice}/month
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </div>
+                        /* Subscription Benefits for Non-Subscribed Students */
+                        <SubscriptionBenefits studentName={selectedStudent?.name || 'Student'} subscribePrice={Number(subscribePrice)} />
                     )}
                 </div>
             </div>
