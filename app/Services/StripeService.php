@@ -17,9 +17,12 @@ class StripeService
     /**
      * Calculate subscription amount with discounts
      */
-    public function calculateSubscriptionAmount(int $studentCount): float
+    public function calculateSubscriptionAmount(int $studentCount, string $subscriptionType = 'monthly'): float
     {
-        $basePrice = (float) env('SUBSCRIBE_PRICE', 100);
+        $basePrice = $subscriptionType === 'yearly'
+            ? (float) env('YEARLY_SUBSCRIBE_PRICE', 1200)
+            : (float) env('MONTHLY_SUBSCRIBE_PRICE', env('SUBSCRIBE_PRICE', 100));
+
         $discountPercentage = (float) env('DISCOUNT_PERCENTAGE', 10);
         $totalAmount = 0;
 
@@ -38,21 +41,42 @@ class StripeService
     }
 
     /**
+     * Calculate monthly subscription amount with discounts (legacy method)
+     */
+    public function calculateMonthlySubscriptionAmount(int $studentCount): float
+    {
+        return $this->calculateSubscriptionAmount($studentCount, 'monthly');
+    }
+
+    /**
+     * Calculate yearly subscription amount with discounts
+     */
+    public function calculateYearlySubscriptionAmount(int $studentCount): float
+    {
+        return $this->calculateSubscriptionAmount($studentCount, 'yearly');
+    }
+
+    /**
      * Create Stripe checkout session
      */
-    public function createCheckoutSession(User $user, array $studentIds): Session
+    public function createCheckoutSession(User $user, array $studentIds, string $subscriptionType = 'monthly'): Session
     {
         $studentCount = count($studentIds);
-        $amount = $this->calculateSubscriptionAmount($studentCount);
+        $amount = $this->calculateSubscriptionAmount($studentCount, $subscriptionType);
 
         // Create subscription record
         $subscription = Subscription::create([
             'user_id' => $user->id,
             'amount' => $amount,
             'student_count' => $studentCount,
+            'subscription_type' => $subscriptionType,
             'status' => 'pending',
             'student_ids' => $studentIds,
         ]);
+
+        $planDescription = $subscriptionType === 'yearly'
+            ? "Yearly subscription for {$studentCount} student(s) with progressive discounts"
+            : "Monthly subscription for {$studentCount} student(s) with progressive discounts";
 
         $session = Session::create([
             'payment_method_types' => ['card'],
@@ -61,8 +85,8 @@ class StripeService
                     'price_data' => [
                         'currency' => 'usd',
                         'product_data' => [
-                            'name' => "Piano Lessons Subscription - {$studentCount} Student(s)",
-                            'description' => "Subscription for {$studentCount} student(s) with progressive discounts",
+                            'name' => "Piano Lessons " . ucfirst($subscriptionType) . " Subscription - {$studentCount} Student(s)",
+                            'description' => $planDescription,
                         ],
                         'unit_amount' => (int) ($amount * 100), // Convert to cents
                     ],
@@ -76,6 +100,7 @@ class StripeService
                 'subscription_id' => $subscription->id,
                 'user_id' => $user->id,
                 'student_count' => $studentCount,
+                'subscription_type' => $subscriptionType,
             ],
         ]);
 
@@ -107,10 +132,12 @@ class StripeService
             foreach ($subscription->student_ids as $studentId) {
                 $student = \App\Models\Student::find($studentId);
                 if ($student) {
+                    $isYearly = $subscription->subscription_type === 'yearly';
+
                     $student->update([
                         'is_subscribed' => true,
-                        'subscription_expires_at' => now()->addYear(), // 1 year subscription
-                        'sessions_remaining' => 12, // 12 sessions per year
+                        'subscription_expires_at' => $isYearly ? now()->addYear() : now()->addMonth(),
+                        'sessions_remaining' => $isYearly ? 48 : 4, // 48 sessions per year (4 per month) or 4 per month
                     ]);
 
                     // Attach student to subscription
@@ -148,8 +175,10 @@ class StripeService
         for ($i = 1; $i <= 5; $i++) {
             $results[] = [
                 'student_count' => $i,
-                'amount' => $this->calculateSubscriptionAmount($i),
-                'base_price' => env('SUBSCRIBE_PRICE', 100),
+                'monthly_amount' => $this->calculateSubscriptionAmount($i, 'monthly'),
+                'yearly_amount' => $this->calculateSubscriptionAmount($i, 'yearly'),
+                'monthly_base_price' => env('MONTHLY_SUBSCRIBE_PRICE', env('SUBSCRIBE_PRICE', 100)),
+                'yearly_base_price' => env('YEARLY_SUBSCRIBE_PRICE', 1200),
                 'discount_percentage' => $discountPercentage,
             ];
         }

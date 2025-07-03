@@ -42,13 +42,14 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'subscribePrice' => env('SUBSCRIBE_PRICE'),
+            'monthlySubscribePrice' => env('MONTHLY_SUBSCRIBE_PRICE', env('SUBSCRIBE_PRICE')),
+            'yearlySubscribePrice' => env('YEARLY_SUBSCRIBE_PRICE'),
             'discountPercentage' => env('DISCOUNT_PERCENTAGE', 10),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
             ],
-            'ziggy' => fn (): array => [
+            'ziggy' => fn(): array => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],

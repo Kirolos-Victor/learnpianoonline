@@ -7,7 +7,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Check } from 'lucide-react';
 
 const Pricing = () => {
-    const { subscribePrice } = usePage<SharedData>().props;
+    const { monthlySubscribePrice } = usePage<SharedData>().props;
 
     const features = [
         '4 Live 1-on-1 piano lessons per month (45 min each)',
@@ -73,7 +73,7 @@ const Pricing = () => {
                 <title>Piano Lessons Pricing - Learn Piano Online</title>
                 <meta
                     name="description"
-                    content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum, homework assignments, and expert feedback.`}
+                    content={`Affordable piano lessons starting at $${monthlySubscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum, homework assignments, and expert feedback.`}
                 />
                 <meta
                     name="keywords"
@@ -82,14 +82,14 @@ const Pricing = () => {
                 <meta property="og:title" content="Piano Lessons Pricing - Learn Piano Online" />
                 <meta
                     property="og:description"
-                    content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum.`}
+                    content={`Affordable piano lessons starting at $${monthlySubscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum.`}
                 />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary" />
                 <meta name="twitter:title" content="Piano Lessons Pricing - Learn Piano Online" />
                 <meta
                     name="twitter:description"
-                    content={`Affordable piano lessons starting at $${subscribePrice}/month. Get 4 live 1-on-1 piano lessons per month.`}
+                    content={`Affordable piano lessons starting at $${monthlySubscribePrice}/month. Get 4 live 1-on-1 piano lessons per month.`}
                 />
             </Head>
             <div className="min-h-screen bg-background">
@@ -115,11 +115,11 @@ const Pricing = () => {
                                 <CardTitle className="font-playfair mb-2 text-3xl">Monthly Piano Lessons</CardTitle>
                                 <CardDescription className="text-lg">Complete piano education with personal instructor guidance</CardDescription>
                                 <div className="mt-6">
-                                    <span className="text-5xl font-bold text-primary">${subscribePrice}</span>
+                                    <span className="text-5xl font-bold text-primary">${monthlySubscribePrice}</span>
                                     <span className="text-xl text-muted-foreground">/month</span>
                                 </div>
                                 <p className="mt-2 text-sm text-muted-foreground">
-                                    That's just ${(parseFloat(subscribePrice) / 4).toFixed(2)} per lesson!
+                                    That's just ${(parseFloat(monthlySubscribePrice) / 4).toFixed(2)} per lesson!
                                 </p>
                                 <div className="mt-4 flex justify-center">
                                     <Badge className="border border-green-300 bg-green-100 px-4 py-2 text-sm text-green-800">
@@ -259,7 +259,7 @@ const Pricing = () => {
                                 </p>
                                 <Link href="/auth/register" className="cursor-pointer">
                                     <Button size="lg" className="bg-gold hover:bg-gold/90 text-warm-brown font-semibold">
-                                        Get Started Now - ${subscribePrice}/month
+                                        Get Started Now - ${monthlySubscribePrice}/month
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </Link>

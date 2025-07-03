@@ -24,7 +24,8 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
-    subscribePrice: string;
+    monthlySubscribePrice: string;
+    yearlySubscribePrice: string;
     discountPercentage: number;
     quote: { message: string; author: string };
     auth: Auth;
@@ -47,7 +48,8 @@ export interface User {
 
 export interface PricingData {
     student_count: number;
-    amount: number;
+    monthly_amount: number;
+    yearly_amount: number;
     students: Array<{
         id: number;
         name: string;

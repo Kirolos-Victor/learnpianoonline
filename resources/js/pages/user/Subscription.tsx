@@ -38,10 +38,11 @@ interface SubscriptionPageData extends SubscriptionPageProps {
 }
 
 const Subscription = () => {
-    const { subscribePrice, discountPercentage } = usePage<SharedData>().props;
+    const { monthlySubscribePrice, yearlySubscribePrice, discountPercentage } = usePage<SharedData>().props;
     const { pricingData, availableStudents, subscribedStudents, isSingleStudent, selectedStudentId } = usePage<SubscriptionPageData>().props;
 
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
+    const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
     const [isLoading, setIsLoading] = useState(false);
 
     // Pre-select student if it's a single student subscription
@@ -85,6 +86,7 @@ const Subscription = () => {
                 },
                 body: JSON.stringify({
                     student_ids: selectedStudents,
+                    subscription_type: selectedPlan,
                 }),
             });
 
@@ -113,12 +115,28 @@ const Subscription = () => {
         router.visit('/student');
     };
 
+    const getCurrentAmount = () => {
+        return selectedPlan === 'yearly' ? selectedPricing?.yearly_amount || 0 : selectedPricing?.monthly_amount || 0;
+    };
+
+    const getCurrentBasePrice = () => {
+        return selectedPlan === 'yearly' ? parseFloat(yearlySubscribePrice) : parseFloat(monthlySubscribePrice);
+    };
+
     const calculateDiscount = () => {
         if (selectedStudents.length <= 1) return 0;
-        const basePrice = parseFloat(subscribePrice);
+        const basePrice = getCurrentBasePrice();
         const totalWithoutDiscount = basePrice * selectedStudents.length;
-        const totalWithDiscount = selectedPricing?.amount || 0;
+        const totalWithDiscount = getCurrentAmount();
         return totalWithoutDiscount - totalWithDiscount;
+    };
+
+    const calculateMonthlySavings = () => {
+        if (selectedPlan === 'monthly') return 0;
+        const monthlyTotal = selectedPricing?.monthly_amount || 0;
+        const yearlyTotal = selectedPricing?.yearly_amount || 0;
+        const monthlyEquivalent = yearlyTotal / 12;
+        return monthlyTotal - monthlyEquivalent;
     };
 
     return (
@@ -153,20 +171,95 @@ const Subscription = () => {
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* Main Content */}
                         <div className="space-y-8 lg:col-span-2">
+                            {/* Plan Selection */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center">
+                                        <CreditCard className="mr-2 h-5 w-5" />
+                                        Choose Your Plan
+                                    </CardTitle>
+                                    <CardDescription>Select between monthly and yearly billing. Save more with yearly subscription!</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        {/* Monthly Plan */}
+                                        <div
+                                            className={`cursor-pointer rounded-lg border-2 p-4 transition-all ${
+                                                selectedPlan === 'monthly' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'
+                                            }`}
+                                            onClick={() => setSelectedPlan('monthly')}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h3 className="font-semibold">Monthly Plan</h3>
+                                                    <p className="text-2xl font-bold text-primary">${monthlySubscribePrice}</p>
+                                                    <p className="text-sm text-muted-foreground">per student / month</p>
+                                                </div>
+                                                <div
+                                                    className={`h-4 w-4 rounded-full border-2 ${
+                                                        selectedPlan === 'monthly' ? 'border-primary bg-primary' : 'border-gray-300'
+                                                    }`}
+                                                >
+                                                    {selectedPlan === 'monthly' && (
+                                                        <div className="h-full w-full scale-50 rounded-full bg-white"></div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="mt-3 text-sm text-muted-foreground">Perfect for trying out our service</div>
+                                        </div>
+
+                                        {/* Yearly Plan */}
+                                        <div
+                                            className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all ${
+                                                selectedPlan === 'yearly' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'
+                                            }`}
+                                            onClick={() => setSelectedPlan('yearly')}
+                                        >
+                                            <div className="absolute -top-2 -right-2 rounded-full bg-green-500 px-2 py-1 text-xs text-white">
+                                                Best Value
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h3 className="font-semibold">Yearly Plan</h3>
+                                                    <p className="text-2xl font-bold text-primary">${yearlySubscribePrice}</p>
+                                                    <p className="text-sm text-muted-foreground">per student / year</p>
+                                                    <p className="text-sm font-medium text-green-600">
+                                                        ${(parseFloat(yearlySubscribePrice) / 12).toFixed(2)}/month
+                                                    </p>
+                                                </div>
+                                                <div
+                                                    className={`h-4 w-4 rounded-full border-2 ${
+                                                        selectedPlan === 'yearly' ? 'border-primary bg-primary' : 'border-gray-300'
+                                                    }`}
+                                                >
+                                                    {selectedPlan === 'yearly' && (
+                                                        <div className="h-full w-full scale-50 rounded-full bg-white"></div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="mt-3 text-sm font-medium text-green-600">
+                                                Save ${(parseFloat(monthlySubscribePrice) * 12 - parseFloat(yearlySubscribePrice)).toFixed(2)} per
+                                                year!
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
                             {/* Pricing & Benefits */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center">
                                         <CreditCard className="mr-2 h-5 w-5" />
-                                        Subscription Pricing & Benefits
+                                        Subscription Benefits
                                     </CardTitle>
                                     <CardDescription>
                                         <span className="mb-2 block">
-                                            Base price: <b>${subscribePrice}</b> per student. For every additional student, you get a{' '}
-                                            <b>10% discount</b> off their price.
+                                            Base price: <b>${getCurrentBasePrice()}</b> per student ({selectedPlan}). For every additional student,
+                                            you get a <b>10% discount</b> off their price.
                                         </span>
                                         <span className="block">
-                                            Example: 2 students = ${subscribePrice} + ${subscribePrice} × 0.9
+                                            Example: 2 students = ${getCurrentBasePrice()} + ${getCurrentBasePrice()} × 0.9
                                         </span>
                                     </CardDescription>
                                 </CardHeader>
@@ -174,7 +267,10 @@ const Subscription = () => {
                                     <div className="space-y-2 text-sm text-blue-700">
                                         <div className="flex items-center space-x-2">
                                             <Check className="h-4 w-4" />
-                                            <span>4 private piano lessons per month</span>
+                                            <span>
+                                                {selectedPlan === 'yearly' ? '48' : '4'} private piano lessons per{' '}
+                                                {selectedPlan === 'yearly' ? 'year' : 'month'}
+                                            </span>
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             <Check className="h-4 w-4" />
@@ -192,6 +288,12 @@ const Subscription = () => {
                                             <Check className="h-4 w-4" />
                                             <span>Cancel anytime</span>
                                         </div>
+                                        {selectedPlan === 'yearly' && (
+                                            <div className="flex items-center space-x-2">
+                                                <Check className="h-4 w-4" />
+                                                <span className="font-medium text-green-600">Save up to 2 months of lessons with yearly plan!</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -301,7 +403,7 @@ const Subscription = () => {
                                         <div className="space-y-2 text-sm text-green-700">
                                             <div className="flex items-center space-x-2">
                                                 <Check className="h-4 w-4" />
-                                                <span>1st student: Full price (${subscribePrice})</span>
+                                                <span>1st student: Full price (${getCurrentBasePrice()})</span>
                                             </div>
                                             <div className="flex items-center space-x-2">
                                                 <Check className="h-4 w-4" />
@@ -331,19 +433,33 @@ const Subscription = () => {
                                             <span>{selectedStudents.length}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span>Monthly Price</span>
-                                            <span className="font-semibold">${selectedPricing?.amount || 0}</span>
+                                            <span>{selectedPlan === 'yearly' ? 'Yearly' : 'Monthly'} Price</span>
+                                            <span className="font-semibold">${getCurrentAmount()}</span>
                                         </div>
+                                        {selectedPlan === 'yearly' && (
+                                            <div className="flex justify-between text-blue-600">
+                                                <span>Monthly Equivalent</span>
+                                                <span>${(getCurrentAmount() / 12).toFixed(2)}/month</span>
+                                            </div>
+                                        )}
                                         {selectedPricing && selectedPricing.student_count > 1 && (
                                             <div className="flex justify-between text-green-600">
-                                                <span>Discount</span>
+                                                <span>Multi-Student Discount</span>
                                                 <span>-${calculateDiscount().toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                        {selectedPlan === 'yearly' && (
+                                            <div className="flex justify-between text-green-600">
+                                                <span>Yearly Savings</span>
+                                                <span>Save ${calculateMonthlySavings().toFixed(2)}/month</span>
                                             </div>
                                         )}
                                         <div className="border-t pt-4">
                                             <div className="flex justify-between font-semibold">
                                                 <span>Total</span>
-                                                <span>${selectedPricing?.amount || 0}/month</span>
+                                                <span>
+                                                    ${getCurrentAmount()}/{selectedPlan === 'yearly' ? 'year' : 'month'}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>

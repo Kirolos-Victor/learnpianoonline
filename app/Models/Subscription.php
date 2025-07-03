@@ -15,8 +15,9 @@ class Subscription extends Model
         'stripe_payment_intent_id',
         'amount',
         'student_count',
+        'subscription_type',
         'status',
-        'student_id',
+        'student_ids',
         'paid_at',
     ];
 

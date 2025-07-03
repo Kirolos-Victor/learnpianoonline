@@ -41,7 +41,8 @@ class PaymentController extends Controller
             $pricingData = [
                 [
                     'student_count' => 1,
-                    'amount' => $this->stripeService->calculateSubscriptionAmount(1),
+                    'monthly_amount' => $this->stripeService->calculateSubscriptionAmount(1, 'monthly'),
+                    'yearly_amount' => $this->stripeService->calculateSubscriptionAmount(1, 'yearly'),
                     'students' => [
                         [
                             'id' => $student->id,
@@ -63,7 +64,8 @@ class PaymentController extends Controller
             for ($i = 1; $i <= min(count($availableStudents), 5); $i++) {
                 $pricingData[] = [
                     'student_count' => $i,
-                    'amount' => $this->stripeService->calculateSubscriptionAmount($i),
+                    'monthly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'monthly'),
+                    'yearly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'yearly'),
                     'students' => $availableStudents->take($i)->map(function ($student) {
                         return [
                             'id' => $student->id,
@@ -100,12 +102,14 @@ class PaymentController extends Controller
         $request->validate([
             'student_ids' => 'required|array|min:1',
             'student_ids.*' => 'exists:students,id',
+            'subscription_type' => 'required|string|in:monthly,yearly',
         ]);
 
         $user = $request->user();
 
         // Verify that all students belong to this user
         $studentIds = $request->input('student_ids');
+        $subscriptionType = $request->input('subscription_type', 'monthly');
         $userStudents = $user->assignedStudents()->whereIn('id', $studentIds)->pluck('id')->toArray();
 
         if (count($userStudents) !== count($studentIds)) {
@@ -113,7 +117,7 @@ class PaymentController extends Controller
         }
 
         try {
-            $session = $this->stripeService->createCheckoutSession($user, $userStudents);
+            $session = $this->stripeService->createCheckoutSession($user, $userStudents, $subscriptionType);
 
             return response()->json([
                 'session_id' => $session->id,
