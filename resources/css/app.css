@@ -102,51 +102,43 @@
         @apply font-fredoka;
     }
 
-    /* Fun animations */
-    @keyframes bounce-gentle {
-        0%,
-        100% {
+    /* Optimized animations - removed continuous heavy animations */
+    @keyframes gentle-bounce {
+        0%, 100% {
             transform: translateY(0);
         }
         50% {
-            transform: translateY(-10px);
+            transform: translateY(-3px);
         }
     }
 
-    @keyframes wiggle {
-        0%,
-        100% {
+    @keyframes simple-wiggle {
+        0%, 100% {
             transform: rotate(0deg);
         }
-        25% {
-            transform: rotate(5deg);
-        }
-        75% {
-            transform: rotate(-5deg);
-        }
-    }
-
-    @keyframes rainbow {
-        0% {
-            background-position: 0% 50%;
-        }
         50% {
-            background-position: 100% 50%;
-        }
-        100% {
-            background-position: 0% 50%;
+            transform: rotate(2deg);
         }
     }
 
     @keyframes sparkle {
-        0%,
-        100% {
+        0%, 100% {
             opacity: 0;
             transform: scale(0);
         }
         50% {
             opacity: 1;
             transform: scale(1);
+        }
+    }
+
+    /* Static colorful gradient - no animation for performance */
+    @keyframes pulse-gentle {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.8;
         }
     }
 
@@ -182,12 +174,13 @@
         font-family: 'Comic Neue', cursive;
     }
 
+    /* Static rainbow gradient - no animation for better performance */
     .bg-rainbow-gradient {
         background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
-        background-size: 400% 400%;
-        animation: rainbow 3s ease-in-out infinite;
+        background-size: 100% 100%;
     }
 
+    /* Kid-friendly gradients */
     .bg-fun-gradient {
         background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
     }
@@ -200,35 +193,58 @@
         background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
     }
 
-    .animate-bounce-gentle {
-        animation: bounce-gentle 2s ease-in-out infinite;
+    .bg-piano-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
-    .animate-wiggle {
-        animation: wiggle 0.5s ease-in-out;
+    /* Gentle animations that won't cause lag */
+    .animate-gentle-bounce {
+        animation: gentle-bounce 2s ease-in-out;
+    }
+
+    .animate-simple-wiggle {
+        animation: simple-wiggle 1s ease-in-out;
     }
 
     .animate-sparkle {
-        animation: sparkle 1.5s ease-in-out infinite;
+        animation: sparkle 2s ease-in-out infinite;
     }
 
+    .animate-pulse-gentle {
+        animation: pulse-gentle 2s ease-in-out infinite;
+    }
+
+    /* Reduced shadow effects for better performance */
     .shadow-fun {
         box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.1),
-            0 4px 16px rgba(0, 0, 0, 0.05);
+            0 4px 6px -1px rgba(0, 0, 0, 0.1),
+            0 2px 4px -1px rgba(0, 0, 0, 0.06),
+            0 0 0 3px rgba(168, 85, 247, 0.4);
     }
 
     .shadow-float {
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.2s ease;
     }
 
     .shadow-float:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.15);
     }
 
-    /* RTL-aware utilities */
+    /* Kid-friendly colors for text */
+    .text-kid-primary {
+        @apply text-fun-purple;
+    }
+
+    .text-kid-secondary {
+        @apply text-fun-pink;
+    }
+
+    .text-kid-accent {
+        @apply text-fun-green;
+    }
+
+    /* RTL text utilities */
     .rtl\:text-right {
         text-align: right;
     }

@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import AppLayout from '@/layouts/app-layout';
 import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { AlertTriangle, CalendarDays, CheckCircle, Clock, Upload, Users } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, Heart, Star, Upload, Users } from 'lucide-react';
 import { useState } from 'react';
 
 interface Student {
@@ -85,32 +85,53 @@ const Dashboard = () => {
     return (
         <AppLayout>
             <div className="min-h-screen bg-background">
-                <Head title={'Dashboard'}></Head>
+                <Head title={'My Piano Home'}></Head>
 
-                {/* Header */}
-                <div className="bg-piano-gradient px-6 py-8">
-                    <div className="container mx-auto">
+                {/* Kid-friendly Header */}
+                <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
+                    {/* Decorative musical notes */}
+                    <div className="pointer-events-none absolute inset-0">
+                        <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
+                        <div className="animate-gentle-bounce absolute top-8 right-1/3 text-xl text-white/20" style={{ animationDelay: '0.5s' }}>
+                            ♫
+                        </div>
+                        <div className="animate-gentle-bounce absolute bottom-4 left-1/3 text-2xl text-white/20" style={{ animationDelay: '1s' }}>
+                            ♪
+                        </div>
+                        <div className="animate-gentle-bounce absolute right-1/4 bottom-8 text-xl text-white/20" style={{ animationDelay: '1.5s' }}>
+                            ♫
+                        </div>
+                    </div>
+
+                    <div className="relative container mx-auto">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <h1 className="font-playfair mb-2 text-3xl font-bold text-primary md:text-4xl">Welcome back, {auth.user.name}! 🎹</h1>
+                            <div className="text-center md:text-left">
+                                <h1 className="mb-4 font-fredoka text-4xl font-bold text-white md:text-5xl">🎹 Welcome back, {auth.user.name}!</h1>
+                                <p className="mb-2 font-comic text-xl text-white/90">Ready to make beautiful music today? 🎵</p>
+                                <div className="flex items-center justify-center space-x-2 text-white/80 md:justify-start">
+                                    <Star className="h-5 w-5" />
+                                    <span className="font-comic">Your Piano Learning Adventure</span>
+                                    <Star className="h-5 w-5" />
+                                </div>
                             </div>
 
                             {/* Student Selector - only show if there are students */}
                             {students.length > 0 && (
-                                <div className="mt-4 md:mt-0">
-                                    <Label className="mb-2 block text-sm font-medium text-primary">Select Student</Label>
+                                <div className="mt-6 md:mt-0">
+                                    <Label className="mb-3 block font-comic text-lg font-bold text-white">Choose Your Student 🌟</Label>
                                     <Select value={selectedStudentId ? selectedStudent?.id : ''} onValueChange={handleStudentChange}>
-                                        <SelectTrigger className="w-full md:w-64">
-                                            <SelectValue placeholder="Choose a student" />
+                                        <SelectTrigger className="w-full rounded-2xl border-2 border-white/50 bg-white/90 backdrop-blur-sm md:w-72">
+                                            <SelectValue placeholder="Pick a piano star! ⭐" />
                                         </SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="rounded-2xl">
                                             {students.map((student) => (
-                                                <SelectItem key={student.id} value={student.id}>
-                                                    <div className="flex items-center space-x-2">
-                                                        <span>{student.name}</span>
-                                                        {student.isSubscribed && (
-                                                            <Badge className="bg-green-100 text-xs text-green-800">Subscribed</Badge>
-                                                        )}
+                                                <SelectItem key={student.id} value={student.id} className="rounded-xl">
+                                                    <div className="flex items-center space-x-3">
+                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-fun-purple font-comic text-sm text-white">
+                                                            {student.name.charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <span className="font-comic">{student.name}</span>
+                                                        {student.isSubscribed && <Badge className="bg-fun-green text-xs text-white">🎵 Active</Badge>}
                                                     </div>
                                                 </SelectItem>
                                             ))}
@@ -125,87 +146,109 @@ const Dashboard = () => {
                 <div className="container mx-auto px-6 py-8">
                     {loading ? (
                         <div className="mx-auto max-w-4xl">
-                            <Card className="border-gold/20">
-                                <CardContent className="flex items-center justify-center py-12">
+                            <Card className="bg-fun-gradient rounded-3xl border-fun-purple/20">
+                                <CardContent className="flex items-center justify-center py-16">
                                     <div className="text-center">
-                                        <div className="border-gold mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-                                        <p className="text-muted-foreground">Loading student data...</p>
+                                        <div className="mx-auto mb-6 h-12 w-12 animate-spin rounded-full border-4 border-fun-purple border-b-transparent"></div>
+                                        <p className="font-comic text-lg text-fun-purple">Loading your piano world... 🎹</p>
                                     </div>
                                 </CardContent>
                             </Card>
                         </div>
                     ) : students.length === 0 ? (
-                        /* No Students - Prompt to Add Student */
-                        <div className="mx-auto max-w-2xl">
-                            <Card className="border-blue-200 bg-blue-50">
-                                <CardHeader className="text-center">
-                                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-                                        <Users className="h-8 w-8 text-blue-600" />
+                        /* No Students - Kid-friendly Prompt */
+                        <div className="mx-auto max-w-3xl">
+                            <Card className="shadow-fun rounded-3xl border-fun-pink/30 bg-gradient-to-br from-fun-pink/10 to-fun-purple/10">
+                                <CardHeader className="pb-6 text-center">
+                                    <div className="animate-gentle-bounce mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-fun-pink">
+                                        <Users className="h-10 w-10 text-white" />
                                     </div>
-                                    <CardTitle className="text-2xl text-blue-800">Welcome to Your Piano Journey! 🎹</CardTitle>
-                                    <CardDescription className="text-lg text-blue-600">
-                                        Let's get started by adding your first student
+                                    <CardTitle className="mb-3 font-fredoka text-3xl text-fun-purple">
+                                        🎹 Let's Start Your Piano Adventure! 🌟
+                                    </CardTitle>
+                                    <CardDescription className="font-comic text-xl text-fun-purple/80">
+                                        Time to add your young musician and begin their musical journey!
                                     </CardDescription>
                                 </CardHeader>
-                                <CardContent className="space-y-6 text-center">
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-center space-x-4 text-blue-700">
-                                            <div className="flex items-center space-x-2">
-                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200 text-sm font-semibold text-blue-800">
+                                <CardContent className="space-y-8 text-center">
+                                    <div className="space-y-6">
+                                        <div className="flex flex-col items-center justify-center space-y-4 text-fun-purple md:flex-row md:space-y-0 md:space-x-6">
+                                            <div className="flex flex-col items-center space-y-2">
+                                                <div className="animate-gentle-bounce flex h-12 w-12 items-center justify-center rounded-full bg-fun-pink font-fredoka text-lg text-white">
                                                     1
                                                 </div>
-                                                <span>Add Student</span>
+                                                <span className="font-comic font-bold">Add Student</span>
                                             </div>
-                                            <div className="h-px w-8 bg-blue-300"></div>
-                                            <div className="flex items-center space-x-2">
-                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200 text-sm font-semibold text-blue-800">
+                                            <div className="hidden h-px w-12 bg-fun-purple/30 md:block"></div>
+                                            <div className="flex flex-col items-center space-y-2">
+                                                <div
+                                                    className="animate-gentle-bounce flex h-12 w-12 items-center justify-center rounded-full bg-fun-purple font-fredoka text-lg text-white"
+                                                    style={{ animationDelay: '0.5s' }}
+                                                >
                                                     2
                                                 </div>
-                                                <span>Subscribe</span>
+                                                <span className="font-comic font-bold">Choose Plan</span>
                                             </div>
-                                            <div className="h-px w-8 bg-blue-300"></div>
-                                            <div className="flex items-center space-x-2">
-                                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-200 text-sm font-semibold text-blue-800">
+                                            <div className="hidden h-px w-12 bg-fun-purple/30 md:block"></div>
+                                            <div className="flex flex-col items-center space-y-2">
+                                                <div
+                                                    className="animate-gentle-bounce flex h-12 w-12 items-center justify-center rounded-full bg-fun-green font-fredoka text-lg text-white"
+                                                    style={{ animationDelay: '1s' }}
+                                                >
                                                     3
                                                 </div>
-                                                <span>Start Learning</span>
+                                                <span className="font-comic font-bold">Start Playing!</span>
                                             </div>
                                         </div>
 
-                                        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                                            <div className="rounded-lg border border-blue-200 bg-white p-4 text-center">
-                                                <Users className="mx-auto mb-2 h-6 w-6 text-blue-600" />
-                                                <h3 className="font-semibold text-blue-800">Add Student Profile</h3>
-                                                <p className="mt-1 text-sm text-blue-600">
-                                                    Create a profile for the student who will be learning piano
+                                        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+                                            <div className="shadow-float rounded-2xl border-2 border-fun-pink/20 bg-white p-6 text-center transition-transform duration-200 hover:scale-105">
+                                                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-fun-pink/20">
+                                                    <Users className="h-6 w-6 text-fun-pink" />
+                                                </div>
+                                                <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-pink">Create Student Profile</h3>
+                                                <p className="font-comic text-sm text-fun-purple/70">
+                                                    Tell us about your young pianist - their age, name, and musical dreams! 🎵
                                                 </p>
                                             </div>
-                                            <div className="rounded-lg border border-blue-200 bg-white p-4 text-center">
-                                                <CalendarDays className="mx-auto mb-2 h-6 w-6 text-blue-600" />
-                                                <h3 className="font-semibold text-blue-800">Choose Subscription</h3>
-                                                <p className="mt-1 text-sm text-blue-600">Select a plan to unlock private lessons</p>
+                                            <div className="shadow-float rounded-2xl border-2 border-fun-purple/20 bg-white p-6 text-center transition-transform duration-200 hover:scale-105">
+                                                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-fun-purple/20">
+                                                    <Star className="h-6 w-6 text-fun-purple" />
+                                                </div>
+                                                <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-purple">Pick Your Plan</h3>
+                                                <p className="font-comic text-sm text-fun-purple/70">
+                                                    Choose the perfect plan for 1-on-1 lessons with expert teachers! ⭐
+                                                </p>
                                             </div>
-                                            <div className="rounded-lg border border-blue-200 bg-white p-4 text-center">
-                                                <CheckCircle className="mx-auto mb-2 h-6 w-6 text-blue-600" />
-                                                <h3 className="font-semibold text-blue-800">Start Learning</h3>
-                                                <p className="mt-1 text-sm text-blue-600">Begin your personalized piano journey</p>
+                                            <div className="shadow-float rounded-2xl border-2 border-fun-green/20 bg-white p-6 text-center transition-transform duration-200 hover:scale-105">
+                                                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-fun-green/20">
+                                                    <Heart className="h-6 w-6 text-fun-green" />
+                                                </div>
+                                                <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-green">Begin Learning!</h3>
+                                                <p className="font-comic text-sm text-fun-purple/70">
+                                                    Start your personalized piano journey with fun lessons! 🎹
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <Button
-                                        className="w-full bg-blue-600 py-3 text-lg text-white hover:bg-blue-700"
+                                        className="shadow-float w-full rounded-2xl bg-fun-pink px-8 py-4 font-comic text-xl text-white transition-all duration-200 hover:scale-105 hover:bg-fun-pink/90 md:w-auto"
                                         onClick={() => router.visit(route('student.index'))}
                                     >
-                                        <Users className="mr-2 h-5 w-5" />
-                                        Add Your First Student
+                                        <Users className="mr-3 h-6 w-6" />
+                                        🌟 Add Your First Piano Student!
                                     </Button>
 
-                                    <p className="text-sm text-blue-600">
-                                        💡 You can add multiple students and manage their lessons separately
-                                        <br />
-                                        🎉 <strong>Bonus:</strong> Enjoy 10% discount for every extra student!
-                                    </p>
+                                    <div className="rounded-2xl border-2 border-fun-yellow/30 bg-fun-yellow/20 p-6">
+                                        <p className="font-comic text-lg leading-relaxed text-fun-purple">
+                                            🎉 <strong>Perfect for kids aged 5+!</strong>
+                                            <br />
+                                            💡 Add multiple students and manage their lessons separately
+                                            <br />
+                                            🎁 <strong>Family Bonus:</strong> Save 10% for every additional student!
+                                        </p>
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>

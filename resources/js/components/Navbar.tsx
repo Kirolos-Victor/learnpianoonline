@@ -15,13 +15,13 @@ const Navbar = () => {
         post(route('logout'));
     };
 
-    // Student navigation items
+    // Student navigation items with kid-friendly labels
     const studentNavItems = [
-        { name: 'dashboard.index', label: 'Home', icon: Home },
-        { name: 'lessons.index', label: 'Lessons', icon: Music },
-        { name: 'student.index', label: 'Students', icon: Users },
-        { name: 'user.subscription', label: 'Subscriptions', icon: CreditCard },
-        { name: 'contact.index', label: 'Contact', icon: MessageCircle },
+        { name: 'dashboard.index', label: 'My Piano Home', icon: Home },
+        { name: 'lessons.index', label: 'Piano Lessons', icon: Music },
+        { name: 'student.index', label: 'My Students', icon: Users },
+        { name: 'user.subscription', label: 'My Plan', icon: CreditCard },
+        { name: 'contact.index', label: 'Get Help', icon: MessageCircle },
     ];
 
     // Instructor navigation items
@@ -36,11 +36,11 @@ const Navbar = () => {
         { name: 'admin.users', label: 'Users', icon: Users },
     ];
 
-    // Guest navigation items
+    // Guest navigation items with kid-friendly labels
     const guestNavItems = [
         { name: 'home.index', label: 'Home', icon: Home },
-        { name: 'pricing.index', label: 'Pricing', icon: Star },
-        { name: 'contact.index', label: 'Contact', icon: MessageCircle },
+        { name: 'pricing.index', label: 'Plans & Pricing', icon: Star },
+        { name: 'contact.index', label: 'Contact Us', icon: MessageCircle },
     ];
 
     // Get navigation items based on user role
@@ -65,22 +65,24 @@ const Navbar = () => {
         <nav className="bg-rainbow-gradient shadow-fun border-b-4 border-fun-purple">
             <div className="container mx-auto px-6">
                 <div className="flex h-20 items-center justify-between">
-                    {/* Logo */}
-                    <Link href={route('home.index')} className="animate-bounce-gentle">
-                        <Logo className="text-white drop-shadow-lg" />
+                    {/* Logo with subtle hover animation */}
+                    <Link href={route('home.index')} className="group">
+                        <div className="transition-transform duration-200 hover:scale-105">
+                            <Logo className="text-white drop-shadow-lg" />
+                        </div>
                     </Link>
 
                     {/* Desktop Navigation */}
                     {auth.user ? (
                         <>
-                            <div className="hidden items-center space-x-6 md:flex">
+                            <div className="hidden items-center space-x-4 md:flex">
                                 {navItems.map((item) => {
                                     const Icon = item.icon;
                                     return (
                                         <Link
                                             key={item.name}
                                             href={route(item.name)}
-                                            className={`group flex items-center space-x-2 rounded-full px-4 py-3 font-comic text-lg transition-all duration-300 hover:scale-110 ${
+                                            className={`group flex items-center space-x-2 rounded-full px-4 py-3 font-comic text-lg transition-all duration-200 hover:scale-105 ${
                                                 isActive(item.name) ? 'shadow-float bg-white text-fun-purple' : 'text-white hover:bg-white/20'
                                             }`}
                                         >
@@ -96,14 +98,14 @@ const Navbar = () => {
                         </>
                     ) : (
                         <>
-                            <div className="hidden items-center space-x-6 md:flex">
+                            <div className="hidden items-center space-x-4 md:flex">
                                 {guestNavItems.map((item) => {
                                     const Icon = item.icon;
                                     return (
                                         <Link
                                             key={item.name}
                                             href={route(item.name)}
-                                            className={`group flex items-center space-x-2 rounded-full px-4 py-3 font-comic text-lg transition-all duration-300 hover:scale-110 ${
+                                            className={`group flex items-center space-x-2 rounded-full px-4 py-3 font-comic text-lg transition-all duration-200 hover:scale-105 ${
                                                 isActive(item.name) ? 'shadow-float bg-white text-fun-purple' : 'text-white hover:bg-white/20'
                                             }`}
                                         >
@@ -118,7 +120,7 @@ const Navbar = () => {
                                     <Button
                                         variant="ghost"
                                         size="lg"
-                                        className="rounded-full bg-white/20 px-6 py-3 font-comic text-lg text-white transition-all duration-300 hover:scale-105 hover:bg-white hover:text-fun-purple"
+                                        className="rounded-full bg-white/20 px-6 py-3 font-comic text-lg text-white transition-all duration-200 hover:scale-105 hover:bg-white hover:text-fun-purple"
                                     >
                                         Login
                                     </Button>
@@ -126,9 +128,9 @@ const Navbar = () => {
                                 <Link href={route('register')}>
                                     <Button
                                         size="lg"
-                                        className="shadow-float animate-bounce-gentle rounded-full bg-fun-green px-8 py-3 font-comic text-lg text-white transition-all duration-300 hover:scale-105 hover:bg-fun-green-600"
+                                        className="shadow-float rounded-full bg-fun-green px-8 py-3 font-comic text-lg text-white transition-all duration-200 hover:scale-105 hover:bg-fun-green-600"
                                     >
-                                        🎹 Start Learning!
+                                        🎹 Start Learning Piano!
                                     </Button>
                                 </Link>
                             </div>
@@ -137,7 +139,7 @@ const Navbar = () => {
 
                     {/* Mobile menu button */}
                     <button
-                        className="rounded-full bg-white/20 p-3 text-white transition-all duration-300 hover:bg-white hover:text-fun-purple md:hidden"
+                        className="rounded-full bg-white/20 p-3 text-white transition-all duration-200 hover:bg-white hover:text-fun-purple md:hidden"
                         onClick={() => setIsOpen(!isOpen)}
                     >
                         {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -166,7 +168,7 @@ const Navbar = () => {
                                                 <Link
                                                     key={item.name}
                                                     href={route(item.name)}
-                                                    className={`flex items-center space-x-3 rounded-2xl px-4 py-3 font-comic text-lg transition-all duration-300 ${
+                                                    className={`flex items-center space-x-3 rounded-2xl px-4 py-3 font-comic text-lg transition-all duration-200 ${
                                                         isActive(item.name) ? 'bg-white text-fun-purple' : 'text-white hover:bg-white/20'
                                                     }`}
                                                     onClick={() => setIsOpen(false)}
@@ -180,7 +182,7 @@ const Navbar = () => {
                                     <div className="pt-4">
                                         <button
                                             onClick={logout}
-                                            className="w-full rounded-2xl bg-fun-red px-6 py-3 font-comic text-lg text-white transition-all duration-300 hover:bg-fun-red-600"
+                                            className="w-full rounded-2xl bg-fun-red px-6 py-3 font-comic text-lg text-white transition-all duration-200 hover:bg-fun-red-600"
                                         >
                                             Logout
                                         </button>
@@ -195,7 +197,7 @@ const Navbar = () => {
                                                 <Link
                                                     key={item.name}
                                                     href={route(item.name)}
-                                                    className={`flex items-center space-x-3 rounded-2xl px-4 py-3 font-comic text-lg transition-all duration-300 ${
+                                                    className={`flex items-center space-x-3 rounded-2xl px-4 py-3 font-comic text-lg transition-all duration-200 ${
                                                         isActive(item.name) ? 'bg-white text-fun-purple' : 'text-white hover:bg-white/20'
                                                     }`}
                                                     onClick={() => setIsOpen(false)}
@@ -206,22 +208,18 @@ const Navbar = () => {
                                             );
                                         })}
                                     </div>
-                                    <div className="flex flex-col space-y-3 pt-4">
-                                        <Link href={route('login')} onClick={() => setIsOpen(false)}>
+                                    <div className="space-y-3 pt-4">
+                                        <Link href={route('login')}>
                                             <Button
                                                 variant="ghost"
-                                                size="lg"
-                                                className="w-full rounded-2xl bg-white/20 py-3 font-comic text-lg text-white hover:bg-white hover:text-fun-purple"
+                                                className="w-full rounded-2xl bg-white/20 px-6 py-3 font-comic text-lg text-white transition-all duration-200 hover:bg-white hover:text-fun-purple"
                                             >
                                                 Login
                                             </Button>
                                         </Link>
-                                        <Link href={route('register')} onClick={() => setIsOpen(false)}>
-                                            <Button
-                                                size="lg"
-                                                className="w-full animate-bounce-gentle rounded-2xl bg-fun-green py-3 font-comic text-lg text-white hover:bg-fun-green-600"
-                                            >
-                                                🎹 Start Learning!
+                                        <Link href={route('register')}>
+                                            <Button className="w-full rounded-2xl bg-fun-green px-6 py-3 font-comic text-lg text-white transition-all duration-200 hover:bg-fun-green-600">
+                                                🎹 Start Learning Piano!
                                             </Button>
                                         </Link>
                                     </div>
