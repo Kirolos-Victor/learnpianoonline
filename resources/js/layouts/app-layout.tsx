@@ -15,27 +15,8 @@ export default ({ children, breadcrumbs }: AppLayoutProps) => (
             {/* Kid-friendly visual separator */}
             <div className="h-1 bg-gradient-to-r from-fun-pink via-fun-purple to-fun-blue"></div>
 
-            {/* Main content area with subtle background pattern */}
-            <div className="relative">
-                {/* Subtle decorative elements for kids */}
-                <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                    <div className="animate-pulse-gentle absolute top-10 left-10 h-4 w-4 rounded-full bg-fun-yellow opacity-20"></div>
-                    <div
-                        className="animate-pulse-gentle absolute top-20 right-20 h-3 w-3 rounded-full bg-fun-pink opacity-20"
-                        style={{ animationDelay: '1s' }}
-                    ></div>
-                    <div
-                        className="animate-pulse-gentle absolute top-40 left-1/4 h-2 w-2 rounded-full bg-fun-green opacity-20"
-                        style={{ animationDelay: '2s' }}
-                    ></div>
-                    <div
-                        className="animate-pulse-gentle absolute top-60 right-1/3 h-3 w-3 rounded-full bg-fun-blue opacity-20"
-                        style={{ animationDelay: '0.5s' }}
-                    ></div>
-                </div>
-
-                {children}
-            </div>
+            {/* Main content area */}
+            <div className="relative">{children}</div>
         </main>
         <Footer></Footer>
     </div>
