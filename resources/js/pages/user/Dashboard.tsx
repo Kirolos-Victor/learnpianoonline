@@ -56,19 +56,19 @@ interface StudentData {
 interface DashboardSharedData extends SharedData {
     students: Student[];
     selectedStudentData: StudentData | null;
-    selectedStudentId?: string;
+    selectedStudentSlug?: string;
 }
 
 const Dashboard = () => {
-    const { auth, subscribePrice, students, selectedStudentData, selectedStudentId } = usePage<DashboardSharedData>().props;
+    const { auth, subscribePrice, students, selectedStudentData, selectedStudentSlug } = usePage<DashboardSharedData>().props;
     const [loading, setLoading] = useState(false);
 
     // Handle student selection change using Inertia
-    const handleStudentChange = (studentId: string) => {
+    const handleStudentChange = (studentSlug: string) => {
         setLoading(true);
-        console.log(selectedStudent, selectedStudentId);
+        console.log(selectedStudent, selectedStudentSlug);
 
-        router.visit(`/home/student/${studentId}`, {
+        router.visit(`/home/student/${studentSlug}`, {
             method: 'get',
             preserveState: true,
             preserveScroll: true,
@@ -119,7 +119,7 @@ const Dashboard = () => {
                             {/* Student Selector - only show if there are students */}
                             <StudentSelector
                                 students={students}
-                                selectedStudentId={selectedStudentId}
+                                selectedStudentSlug={selectedStudentSlug}
                                 selectedStudent={selectedStudent}
                                 onStudentChange={handleStudentChange}
                                 label="Choose Your Student 🌟"

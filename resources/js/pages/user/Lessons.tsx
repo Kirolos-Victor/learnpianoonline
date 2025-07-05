@@ -60,29 +60,28 @@ interface StudentData {
 interface LessonsSharedData extends SharedData {
     students: Student[];
     selectedStudentData: StudentData | null;
-    selectedStudentId?: string;
+    selectedStudentSlug?: string;
     selectedMonth: string;
     availableMonths: string[];
 }
 
 const Lessons = () => {
-    const { subscribePrice, students, selectedStudentData, selectedStudentId, selectedMonth, availableMonths } = usePage<LessonsSharedData>().props;
+    const { subscribePrice, students, selectedStudentData, selectedStudentSlug, selectedMonth, availableMonths } = usePage<LessonsSharedData>().props;
     const [loading, setLoading] = useState(false);
 
     const selectedStudent = selectedStudentData?.student;
-    const numericSelectedStudentId = Number(selectedStudentId);
     const currentLessons = selectedStudentData?.lessons || [];
     const completedLessons = currentLessons.filter((lesson) => lesson.status === 'completed');
     // const pendingLessons = currentLessons.filter(lesson => lesson.status === 'pending');
     const pendingHomework = currentLessons.filter((lesson) => lesson.hasHomework && lesson.homeworkStatus === 'pending');
 
     // Handle student selection change using Inertia
-    const handleStudentChange = (studentId: string) => {
-        if (!studentId || studentId === selectedStudentId) return;
+    const handleStudentChange = (studentSlug: string) => {
+        if (!studentSlug || studentSlug === selectedStudentSlug) return;
 
         setLoading(true);
 
-        router.visit(`/lessons/student/${studentId}`, {
+        router.visit(`/lessons/student/${studentSlug}`, {
             method: 'get',
             data: { month: selectedMonth },
             preserveState: true,
@@ -107,7 +106,7 @@ const Lessons = () => {
         if (newIndex !== currentIndex) {
             setLoading(true);
 
-            router.visit(`/lessons/student/${selectedStudentId}`, {
+            router.visit(`/lessons/student/${selectedStudentSlug}`, {
                 method: 'get',
                 data: { month: availableMonths[newIndex] },
                 preserveState: true,
@@ -147,7 +146,7 @@ const Lessons = () => {
 
     const handleSubmitHomework = (lessonId: string) => {
         // Redirect to homework page with student and lesson info
-        router.visit(`/homework/${selectedStudent?.id}/${lessonId}`, {
+        router.visit(`/homework/${selectedStudent?.slug}/${lessonId}`, {
             data: {
                 studentName: selectedStudent?.name,
                 lessonNumber: currentLessons.find((l) => l.id === lessonId)?.lessonNumber,
@@ -186,7 +185,7 @@ const Lessons = () => {
                             {/* Student Selector - only show if there are students */}
                             <StudentSelector
                                 students={students}
-                                selectedStudentId={selectedStudentId}
+                                selectedStudentSlug={selectedStudentSlug}
                                 selectedStudent={selectedStudent}
                                 onStudentChange={handleStudentChange}
                                 label="Choose Your Student:"

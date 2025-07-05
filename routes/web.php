@@ -24,16 +24,16 @@ Route::get('test-pricing', function (App\Services\StripeService $stripeService) 
 });
 
 // Student-only routes (require authentication and student role)
-Route::middleware(['auth','user'])->group(function () {
+Route::middleware(['auth', 'user'])->group(function () {
     Route::get('home', [DashboardController::class, 'index'])->name('dashboard.index');
-    Route::get('home/student/{studentId}', [DashboardController::class, 'fetchStudentData'])->name('dashboard.student-data');
+    Route::get('home/student/{student:slug}', [DashboardController::class, 'fetchStudentData'])->name('dashboard.student-data');
     Route::get('lessons', [LessonsController::class, 'index'])->name('lessons.index');
-    Route::get('lessons/student/{studentId}', [LessonsController::class, 'fetchStudentLessons'])->name('lessons.student-data');
+    Route::get('lessons/student/{student:slug}', [LessonsController::class, 'fetchStudentLessons'])->name('lessons.student-data');
     Route::get('student', [StudentController::class, 'index'])->name('student.index');
     Route::post('student', [StudentController::class, 'store'])->name('student.store');
     Route::put('student/{student}', [StudentController::class, 'update'])->name('student.update');
     Route::delete('student/{student}', [StudentController::class, 'destroy'])->name('student.destroy');
-    Route::get('homework/{studentId}/{lessonId}', [LessonsController::class, 'homework'])->name('homework.submission');
+    Route::get('homework/{student:slug}/{lessonId}', [LessonsController::class, 'homework'])->name('homework.submission');
 
     // Payment routes for authenticated users
     Route::get('subscription', [PaymentController::class, 'showSubscription'])->name('user.subscription');
@@ -42,6 +42,6 @@ Route::middleware(['auth','user'])->group(function () {
     Route::get('payment/failed', [PaymentController::class, 'failed'])->name('payment.failed');
 });
 
-require __DIR__.'/auth.php';
-require __DIR__.'/instructor.php';
-require __DIR__.'/admin.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/instructor.php';
+require __DIR__ . '/admin.php';

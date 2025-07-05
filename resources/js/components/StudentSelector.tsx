@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface Student {
     id: string;
     name: string;
+    slug: string;
     age: number;
     hasPiano: boolean;
     isSubscribed: boolean;
@@ -19,9 +20,9 @@ interface Student {
 
 interface StudentSelectorProps {
     students: Student[];
-    selectedStudentId?: string;
+    selectedStudentSlug?: string;
     selectedStudent?: Student;
-    onStudentChange: (studentId: string) => void;
+    onStudentChange: (studentSlug: string) => void;
     label?: string;
     placeholder?: string;
     showAvatar?: boolean;
@@ -29,7 +30,7 @@ interface StudentSelectorProps {
 
 const StudentSelector = ({
     students,
-    selectedStudentId,
+    selectedStudentSlug,
     selectedStudent,
     onStudentChange,
     label = 'Choose Your Student:',
@@ -43,13 +44,13 @@ const StudentSelector = ({
     return (
         <div className="mt-6 md:mt-0">
             <Label className="mb-3 block font-comic text-lg font-bold text-white">{label}</Label>
-            <Select value={selectedStudentId ? selectedStudent?.id : ''} onValueChange={onStudentChange}>
+            <Select value={selectedStudentSlug ? selectedStudent?.slug : ''} onValueChange={onStudentChange}>
                 <SelectTrigger className="w-full rounded-2xl border-2 border-white/50 bg-white/90 backdrop-blur-sm md:w-72">
                     <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl">
                     {students.map((student) => (
-                        <SelectItem key={student.id} value={student.id} className="rounded-xl">
+                        <SelectItem key={student.id} value={student.slug} className="rounded-xl">
                             <div className="flex items-center space-x-3">
                                 {showAvatar && (
                                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-fun-purple font-comic text-sm text-white">

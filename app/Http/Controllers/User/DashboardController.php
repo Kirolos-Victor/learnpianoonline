@@ -15,7 +15,7 @@ class DashboardController extends Controller
     public function index(Request $request): \Inertia\Response
     {
         $user = Auth::user();
-        $selectedStudentId = $request->query('studentId');
+        $selectedStudentSlug = $request->query('studentSlug');
 
         // Get only basic student information for the dropdown
         $students = Student::where('user_id', $user->id)
@@ -42,37 +42,45 @@ class DashboardController extends Controller
 
         // Get data for selected student or first student
         $selectedStudentData = null;
-        $currentStudentId = null;
+        $currentStudentSlug = null;
 
-        if ($selectedStudentId && $students->where('id', $selectedStudentId)->count() > 0) {
-            $currentStudentId = $selectedStudentId;
-            $selectedStudentData = $this->getStudentData($selectedStudentId);
+        if ($selectedStudentSlug && $students->where('slug', $selectedStudentSlug)->count() > 0) {
+            $currentStudentSlug = $selectedStudentSlug;
+            $selectedStudentData = $this->getStudentDataBySlug($selectedStudentSlug);
         } elseif ($students->count() > 0) {
             $firstStudent = $students->first();
-            $currentStudentId = $firstStudent['id'];
-            $selectedStudentData = $this->getStudentData($currentStudentId);
+            $currentStudentSlug = $firstStudent['slug'];
+            $selectedStudentData = $this->getStudentDataBySlug($currentStudentSlug);
         }
 
         return Inertia::render('user/Dashboard', [
             'students' => $students,
             'selectedStudentData' => $selectedStudentData,
-            'selectedStudentId' => $currentStudentId,
+            'selectedStudentSlug' => $currentStudentSlug,
         ]);
+    }
+
+    /**
+     * Get detailed data for a specific student by slug
+     */
+    public function getStudentDataBySlug(string $studentSlug)
+    {
+        $user = Auth::user();
+
+        // Verify the student belongs to the authenticated user
+        $student = Student::where('slug', $studentSlug)
+            ->where('user_id', $user->id)
+            ->with(['instructor'])
+            ->firstOrFail();
+
+        return $this->getStudentData($student);
     }
 
     /**
      * Get detailed data for a specific student
      */
-    public function getStudentData(string $studentId)
+    public function getStudentData(Student $student)
     {
-        $user = Auth::user();
-
-        // Verify the student belongs to the authenticated user
-        $student = Student::where('id', $studentId)
-            ->where('user_id', $user->id)
-            ->with(['instructor'])
-            ->firstOrFail();
-
         // Get lessons for this student
         $lessons = Lesson::where('student_id', $student->id)
             ->with(['instructor'])
@@ -134,10 +142,16 @@ class DashboardController extends Controller
     /**
      * Handle student data requests via Inertia
      */
-    public function fetchStudentData(Request $request, string $studentId)
+    public function fetchStudentData(Request $request, Student $student)
     {
         $user = Auth::user();
-        $selectedStudentData = $this->getStudentData($studentId);
+
+        // Verify the student belongs to the authenticated user
+        if ($student->user_id !== $user->id) {
+            abort(403, 'Unauthorized access to student data');
+        }
+
+        $selectedStudentData = $this->getStudentData($student);
 
         // Return the same page structure with updated student data
         return Inertia::render('user/Dashboard', [
@@ -163,7 +177,7 @@ class DashboardController extends Controller
                     ];
                 }),
             'selectedStudentData' => $selectedStudentData,
-            'selectedStudentId' => $studentId,
+            'selectedStudentSlug' => $student->slug,
         ]);
     }
 

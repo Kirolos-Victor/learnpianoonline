@@ -16,7 +16,7 @@ class LessonsController extends Controller
     public function index(Request $request): \Inertia\Response
     {
         $user = Auth::user();
-        $selectedStudentId = $request->query('studentId');
+        $selectedStudentSlug = $request->query('studentSlug');
         $selectedMonth = $request->query('month', Carbon::now()->format('F Y'));
 
         // Get students for the current user
@@ -44,15 +44,15 @@ class LessonsController extends Controller
 
         // Get data for selected student or first student
         $selectedStudentData = null;
-        $currentStudentId = null;
+        $currentStudentSlug = null;
 
-        if ($selectedStudentId && $students->where('id', $selectedStudentId)->count() > 0) {
-            $currentStudentId = $selectedStudentId;
-            $selectedStudentData = $this->getStudentLessonsData($selectedStudentId, $selectedMonth);
+        if ($selectedStudentSlug && $students->where('slug', $selectedStudentSlug)->count() > 0) {
+            $currentStudentSlug = $selectedStudentSlug;
+            $selectedStudentData = $this->getStudentLessonsDataBySlug($selectedStudentSlug, $selectedMonth);
         } elseif ($students->count() > 0) {
             $firstStudent = $students->first();
-            $currentStudentId = $firstStudent['id'];
-            $selectedStudentData = $this->getStudentLessonsData($currentStudentId, $selectedMonth);
+            $currentStudentSlug = $firstStudent['slug'];
+            $selectedStudentData = $this->getStudentLessonsDataBySlug($currentStudentSlug, $selectedMonth);
         }
 
         // Generate available months (last 6 months and next 2 months)
@@ -61,25 +61,33 @@ class LessonsController extends Controller
         return Inertia::render('user/Lessons', [
             'students' => $students,
             'selectedStudentData' => $selectedStudentData,
-            'selectedStudentId' => $currentStudentId,
+            'selectedStudentSlug' => $currentStudentSlug,
             'selectedMonth' => $selectedMonth,
             'availableMonths' => $availableMonths,
         ]);
     }
 
     /**
-     * Get lessons data for a specific student and month
+     * Get lessons data for a specific student and month by slug
      */
-    public function getStudentLessonsData(string $studentId, string $month): array
+    public function getStudentLessonsDataBySlug(string $studentSlug, string $month): array
     {
         $user = Auth::user();
 
         // Verify the student belongs to the authenticated user
-        $student = Student::where('id', $studentId)
+        $student = Student::where('slug', $studentSlug)
             ->where('user_id', $user->id)
             ->with(['instructor'])
             ->firstOrFail();
 
+        return $this->getStudentLessonsData($student, $month);
+    }
+
+    /**
+     * Get lessons data for a specific student and month
+     */
+    public function getStudentLessonsData(Student $student, string $month): array
+    {
         // Parse the month string to get start and end dates
         $monthDate = Carbon::createFromFormat('F Y', $month);
         $startOfMonth = $monthDate->copy()->startOfMonth();
@@ -130,11 +138,17 @@ class LessonsController extends Controller
     /**
      * Handle student data requests via Inertia
      */
-    public function fetchStudentLessons(Request $request, string $studentId)
+    public function fetchStudentLessons(Request $request, Student $student)
     {
         $user = Auth::user();
+
+        // Verify the student belongs to the authenticated user
+        if ($student->user_id !== $user->id) {
+            abort(403, 'Unauthorized access to student data');
+        }
+
         $selectedMonth = $request->query('month', Carbon::now()->format('F Y'));
-        $selectedStudentData = $this->getStudentLessonsData($studentId, $selectedMonth);
+        $selectedStudentData = $this->getStudentLessonsData($student, $selectedMonth);
 
         // Return the same page structure with updated student data
         return Inertia::render('user/Lessons', [
@@ -160,25 +174,25 @@ class LessonsController extends Controller
                     ];
                 }),
             'selectedStudentData' => $selectedStudentData,
-            'selectedStudentId' => $studentId,
+            'selectedStudentSlug' => $student->slug,
             'selectedMonth' => $selectedMonth,
             'availableMonths' => $this->generateAvailableMonths(),
         ]);
     }
 
-    public function homework(Request $request, string $studentId, string $lessonId): \Inertia\Response
+    public function homework(Request $request, Student $student, string $lessonId): \Inertia\Response
     {
-        // Get student and lesson data from the database
-        $student = Student::where('id', $studentId)
-            ->where('user_id', Auth::user()->id)
-            ->firstOrFail();
+        // Verify the student belongs to the authenticated user
+        if ($student->user_id !== Auth::user()->id) {
+            abort(403, 'Unauthorized access to student data');
+        }
 
         $lesson = Lesson::where('id', $lessonId)
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->firstOrFail();
 
         return Inertia::render('user/HomeworkSubmission', [
-            'studentId' => $studentId,
+            'studentId' => $student->id,
             'lessonId' => $lessonId,
             'studentName' => $student->name,
             'lessonNumber' => $lesson->id, // Using lesson ID as lesson number
