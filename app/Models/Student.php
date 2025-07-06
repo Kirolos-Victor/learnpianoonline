@@ -74,14 +74,6 @@ class Student extends Model
     }
 
     /**
-     * Get route key name for model binding
-     */
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
-    /**
      * Get the user that owns this student profile
      */
     public function user()

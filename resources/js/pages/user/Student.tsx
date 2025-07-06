@@ -31,7 +31,7 @@ interface StudentSharedData extends SharedData {
 }
 
 const Student = () => {
-    const { students } = usePage<StudentSharedData>().props;
+    const { students, errors } = usePage<StudentSharedData>().props;
     const [isAddingStudent, setIsAddingStudent] = useState(false);
     const [editingStudent, setEditingStudent] = useState<string | null>(null);
     const [formData, setFormData] = useState({
@@ -41,33 +41,21 @@ const Student = () => {
     });
 
     const handleAddStudent = () => {
-        if (students.length >= 10) {
-            alert('You can only add up to 10 students.');
-            return;
-        }
-
-        if (!formData.name.trim() || !formData.age) {
-            alert('Please fill in all required fields.');
-            return;
-        }
-
-        const age = parseInt(formData.age);
-        if (age < 5 || age > 100) {
-            alert('Please enter a valid age between 5 and 100.');
-            return;
-        }
-
         router.post(
             '/student',
             {
-                name: formData.name.trim(),
-                age: age,
+                name: formData.name,
+                age: formData.age,
                 hasPiano: formData.hasPiano,
             },
             {
+                preserveScroll: true,
                 onSuccess: () => {
                     setFormData({ name: '', age: '', hasPiano: false });
                     setIsAddingStudent(false);
+                },
+                onError: () => {
+                    // Keep form open on validation errors
                 },
             },
         );
@@ -87,40 +75,31 @@ const Student = () => {
     };
 
     const handleUpdateStudent = () => {
-        if (!editingStudent) return;
-
-        if (!formData.name.trim() || !formData.age) {
-            alert('Please fill in all required fields.');
-            return;
-        }
-
-        const age = parseInt(formData.age);
-        if (age < 5 || age > 100) {
-            alert('Please enter a valid age between 5 and 100.');
-            return;
-        }
-
         router.put(
             `/student/${editingStudent}`,
             {
-                name: formData.name.trim(),
-                age: age,
+                name: formData.name,
+                age: formData.age,
                 hasPiano: formData.hasPiano,
             },
             {
+                preserveScroll: true,
                 onSuccess: () => {
                     setFormData({ name: '', age: '', hasPiano: false });
                     setEditingStudent(null);
                     setIsAddingStudent(false);
+                },
+                onError: () => {
+                    // Keep form open on validation errors
                 },
             },
         );
     };
 
     const handleDeleteStudent = (studentId: string) => {
-        if (confirm('Are you sure you want to delete this student? This action cannot be undone.')) {
-            router.delete(`/student/${studentId}`);
-        }
+        router.delete(`/student/${studentId}`, {
+            preserveScroll: true,
+        });
     };
 
     const handleCancel = () => {
@@ -166,18 +145,27 @@ const Student = () => {
                                         {editingStudent ? 'Edit Student' : 'Add New Student'}
                                     </CardTitle>
                                     <CardDescription>
-                                        {editingStudent
-                                            ? 'Update student information below'
-                                            : `Add a new student to your account (${students.length}/10 students)`}
+                                        {editingStudent ? 'Update student information below' : 'Add a new student to your account'}
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
+                                    {/* Display validation errors */}
+                                    {Object.keys(errors).length > 0 && (
+                                        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+                                            <div className="flex items-center">
+                                                <AlertCircle className="mr-2 h-5 w-5 text-red-600" />
+                                                <h3 className="font-medium text-red-800">Please fix the following errors:</h3>
+                                            </div>
+                                            <ul className="mt-2 list-inside list-disc text-red-700">
+                                                {Object.entries(errors).map(([field, messages]) => (
+                                                    <li key={field}>{Array.isArray(messages) ? messages[0] : messages}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
                                     {!isAddingStudent && !editingStudent ? (
-                                        <Button
-                                            onClick={() => setIsAddingStudent(true)}
-                                            className="bg-gold hover:bg-gold/90 text-warm-brown w-full"
-                                            disabled={students.length >= 10}
-                                        >
+                                        <Button onClick={() => setIsAddingStudent(true)} className="bg-gold hover:bg-gold/90 text-warm-brown w-full">
                                             <Plus className="mr-2 h-4 w-4" />
                                             Add Student
                                         </Button>
@@ -185,26 +173,24 @@ const Student = () => {
                                         <form className="space-y-4">
                                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                                 <div>
-                                                    <Label htmlFor="name">Student Name *</Label>
+                                                    <Label htmlFor="name">Student Name</Label>
                                                     <Input
                                                         id="name"
                                                         value={formData.name}
                                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                                         placeholder="Enter student's full name"
-                                                        required
+                                                        className={errors.name ? 'border-red-500' : ''}
                                                     />
                                                 </div>
                                                 <div>
-                                                    <Label htmlFor="age">Age *</Label>
+                                                    <Label htmlFor="age">Age</Label>
                                                     <Input
                                                         id="age"
                                                         type="number"
                                                         value={formData.age}
                                                         onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                                                         placeholder="Enter age"
-                                                        min="5"
-                                                        max="100"
-                                                        required
+                                                        className={errors.age ? 'border-red-500' : ''}
                                                     />
                                                 </div>
                                             </div>
@@ -240,7 +226,7 @@ const Student = () => {
                                 <CardHeader>
                                     <CardTitle className="flex items-center">
                                         <Users className="text-gold mr-2 h-5 w-5" />
-                                        Your Students ({students.length}/10)
+                                        Your Students ({students.length})
                                     </CardTitle>
                                     <CardDescription>Manage your students and their learning progress</CardDescription>
                                 </CardHeader>
@@ -336,7 +322,7 @@ const Student = () => {
                                     <div className="space-y-4">
                                         <div className="flex justify-between">
                                             <span className="text-sm">Total Students</span>
-                                            <span className="font-semibold">{students.length}/10</span>
+                                            <span className="font-semibold">{students.length}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-sm">Subscribed</span>

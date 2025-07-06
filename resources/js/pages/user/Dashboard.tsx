@@ -66,7 +66,6 @@ const Dashboard = () => {
     // Handle student selection change using Inertia
     const handleStudentChange = (studentSlug: string) => {
         setLoading(true);
-        console.log(selectedStudent, selectedStudentSlug);
 
         router.visit(`/home/student/${studentSlug}`, {
             method: 'get',

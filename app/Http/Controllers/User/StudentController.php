@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class StudentController extends Controller
@@ -59,21 +58,41 @@ class StudentController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|min:2',
             'age' => 'required|integer|min:5|max:100',
             'hasPiano' => 'boolean',
+        ], [
+            'name.required' => 'Student name is required.',
+            'name.string' => 'Student name must be a valid text.',
+            'name.max' => 'Student name cannot exceed 255 characters.',
+            'name.min' => 'Student name must be at least 2 characters.',
+            'age.required' => 'Student age is required.',
+            'age.integer' => 'Student age must be a valid number.',
+            'age.min' => 'Student age must be at least 5 years old.',
+            'age.max' => 'Student age cannot exceed 100 years old.',
+            'hasPiano.boolean' => 'Piano access must be yes or no.',
         ]);
+
+        // Additional validation for duplicate names
+        $existingStudent = Student::where('user_id', $user->id)
+            ->where('name', trim($validated['name']))
+            ->first();
+
+        if ($existingStudent) {
+            return redirect()->route('student.index')->withErrors(['name' => 'A student with this name already exists.']);
+        }
 
         $student = Student::create([
             'user_id' => $user->id,
-            'name' => $validated['name'],
+            'name' => trim($validated['name']),
             'age' => $validated['age'],
-            'has_piano' => $validated['hasPiano'],
+            'has_piano' => $validated['hasPiano'] ?? false,
             'is_subscribed' => false, // Always start as not subscribed
             'sessions_remaining' => 0,
         ]);
 
-        return back()->with('success', 'Student added successfully!');
+        // Return updated students list via Inertia
+        return redirect()->route('student.index');
     }
 
     /**
@@ -87,19 +106,40 @@ class StudentController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|min:2',
             'age' => 'required|integer|min:5|max:100',
             'hasPiano' => 'boolean',
+        ], [
+            'name.required' => 'Student name is required.',
+            'name.string' => 'Student name must be a valid text.',
+            'name.max' => 'Student name cannot exceed 255 characters.',
+            'name.min' => 'Student name must be at least 2 characters.',
+            'age.required' => 'Student age is required.',
+            'age.integer' => 'Student age must be a valid number.',
+            'age.min' => 'Student age must be at least 5 years old.',
+            'age.max' => 'Student age cannot exceed 100 years old.',
+            'hasPiano.boolean' => 'Piano access must be yes or no.',
         ]);
 
+        // Additional validation for duplicate names (excluding current student)
+        $existingStudent = Student::where('user_id', Auth::id())
+            ->where('name', trim($validated['name']))
+            ->where('id', '!=', $student->id)
+            ->first();
+
+        if ($existingStudent) {
+            return redirect()->route('student.index')->withErrors(['name' => 'A student with this name already exists.']);
+        }
+
         $student->update([
-            'name' => $validated['name'],
+            'name' => trim($validated['name']),
             'age' => $validated['age'],
-            'has_piano' => $validated['hasPiano'],
+            'has_piano' => $validated['hasPiano'] ?? false,
             // Note: is_subscribed is not updated here - it's managed through payments
         ]);
 
-        return back()->with('success', 'Student updated successfully!');
+        // Return updated students list via Inertia
+        return redirect()->route('student.index');
     }
 
     /**
@@ -114,6 +154,7 @@ class StudentController extends Controller
 
         $student->delete();
 
-        return back()->with('success', 'Student deleted successfully!');
+        // Return updated students list via Inertia
+        return redirect()->route('student.index');
     }
 }
