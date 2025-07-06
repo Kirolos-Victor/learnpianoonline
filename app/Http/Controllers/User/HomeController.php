@@ -12,7 +12,7 @@ class HomeController extends Controller
     {
         $user = $request->user();
         if ($user) {
-            return redirect()->route('dashboard.index');
+            return redirect()->route('parent.dashboard');
         }
 
         return Inertia::render('Home');

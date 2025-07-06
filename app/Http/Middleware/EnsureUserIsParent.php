@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsureUserIsUser
+class EnsureUserIsParent
 {
     /**
      * Handle an incoming request.
@@ -15,8 +15,8 @@ class EnsureUserIsUser
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || $request->user()->role !== 'user' || !$request->user()->is_active) {
-            abort(403, 'Access denied. User privileges required.');
+        if (! $request->user() || $request->user()->role !== 'parent' || !$request->user()->is_active) {
+            abort(403, 'Access denied. Parent privileges required.');
         }
 
         return $next($request);

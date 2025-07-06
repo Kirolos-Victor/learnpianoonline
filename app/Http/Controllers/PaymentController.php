@@ -40,11 +40,11 @@ class PaymentController extends Controller
             $selectedStudent = \App\Models\Student::findBySlugForUser($studentSlug, $user->id);
 
             if (!$selectedStudent) {
-                return redirect()->route('student.index')->with('error', 'Student not found or access denied');
+                return redirect()->route('parent.students')->with('error', 'Student not found or access denied');
             }
 
             if ($selectedStudent->is_subscribed) {
-                return redirect()->route('student.index')->with('error', 'Student is already subscribed');
+                return redirect()->route('parent.students')->with('error', 'Student is already subscribed');
             }
         }
 
@@ -53,8 +53,8 @@ class PaymentController extends Controller
         for ($i = 1; $i <= min(count($availableStudents), 5); $i++) {
             $pricingData[] = [
                 'student_count' => $i,
-                'monthly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'monthly'),
-                'yearly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'yearly'),
+                'monthly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'monthly') / 100,
+                'yearly_amount' => $this->stripeService->calculateSubscriptionAmount($i, 'yearly') / 100,
                 'students' => $availableStudents->take($i)->map(function ($student) {
                     return [
                         'id' => $student->id,
@@ -64,7 +64,7 @@ class PaymentController extends Controller
             ];
         }
 
-        return Inertia::render('user/Subscription', [
+        return Inertia::render('parent/Subscription', [
             'pricingData' => $pricingData,
             'availableStudents' => $availableStudents->map(function ($student) {
                 return [
@@ -106,14 +106,14 @@ class PaymentController extends Controller
         // Verify that all students belong to this user
         $studentIds = $request->input('student_ids');
         $subscriptionType = $request->input('subscription_type', 'monthly');
-        $userStudents = $user->assignedStudents()->whereIn('id', $studentIds)->pluck('id')->toArray();
+        $userStudents = $user->students()->whereIn('id', $studentIds)->pluck('id')->toArray();
 
         if (count($userStudents) !== count($studentIds)) {
             return response()->json(['error' => 'Invalid student selection'], 400);
         }
 
         try {
-            $session = $this->stripeService->createCheckoutSession($user, $userStudents, $subscriptionType);
+            $session = $this->stripeService->createCheckoutSession($user, $studentIds, $subscriptionType);
 
             return response()->json([
                 'session_id' => $session->id,
@@ -132,13 +132,13 @@ class PaymentController extends Controller
         $sessionId = $request->query('session_id');
 
         if (!$sessionId) {
-            return redirect()->route('user.dashboard')->with('error', 'Invalid payment session');
+            return redirect()->route('parent.dashboard')->with('error', 'Invalid payment session');
         }
 
         try {
             $subscription = $this->stripeService->handleSuccessfulPayment($sessionId);
 
-            return Inertia::render('user/PaymentSuccess', [
+            return Inertia::render('parent/PaymentSuccess', [
                 'subscription' => [
                     'id' => $subscription->id,
                     'amount' => $subscription->amount,
@@ -147,7 +147,7 @@ class PaymentController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
-            return redirect()->route('user.dashboard')->with('error', 'Payment verification failed');
+            return redirect()->route('parent.dashboard')->with('error', 'Payment verification failed');
         }
     }
 
@@ -166,7 +166,7 @@ class PaymentController extends Controller
             }
         }
 
-        return Inertia::render('user/PaymentFailed');
+        return Inertia::render('parent/PaymentFailed');
     }
 
     /**

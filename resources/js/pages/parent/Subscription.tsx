@@ -2,7 +2,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import AppLayout from '@/layouts/app-layout';
+import ParentLayout from '@/layouts/parent-layout';
 import { SharedData, SubscriptionPageProps } from '@/types';
 import { router, usePage } from '@inertiajs/react';
 import { AlertCircle, ArrowLeft, Check, CheckSquare, CreditCard, Users } from 'lucide-react';
@@ -68,7 +68,7 @@ const Subscription = () => {
 
         setIsLoading(true);
         try {
-            const response = await fetch('/payment/create-session', {
+            const response = await fetch('/parent/payment/create-session', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ const Subscription = () => {
     };
 
     return (
-        <AppLayout>
+        <ParentLayout>
             <div className="min-h-screen bg-background">
                 {/* Header */}
                 <div className="bg-piano-gradient px-6 py-8">
@@ -487,7 +487,7 @@ const Subscription = () => {
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </ParentLayout>
     );
 };
 

@@ -49,6 +49,14 @@ class Student extends Model
     }
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
      * Generate a unique slug for the student
      */
     private function generateUniqueSlug(string $name): string

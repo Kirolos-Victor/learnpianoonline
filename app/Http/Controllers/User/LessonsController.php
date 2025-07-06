@@ -58,7 +58,7 @@ class LessonsController extends Controller
         // Generate available months (last 6 months and next 2 months)
         $availableMonths = $this->generateAvailableMonths();
 
-        return Inertia::render('user/Lessons', [
+        return Inertia::render('student/Lessons', [
             'students' => $students,
             'selectedStudentData' => $selectedStudentData,
             'selectedStudentSlug' => $currentStudentSlug,
@@ -151,7 +151,7 @@ class LessonsController extends Controller
         $selectedStudentData = $this->getStudentLessonsData($student, $selectedMonth);
 
         // Return the same page structure with updated student data
-        return Inertia::render('user/Lessons', [
+        return Inertia::render('student/Lessons', [
             'students' => Student::where('user_id', $user->id)
                 ->with(['instructor'])
                 ->get()
@@ -191,7 +191,7 @@ class LessonsController extends Controller
             ->where('student_id', $student->id)
             ->firstOrFail();
 
-        return Inertia::render('user/HomeworkSubmission', [
+        return Inertia::render('student/HomeworkSubmission', [
             'studentId' => $student->id,
             'lessonId' => $lessonId,
             'studentName' => $student->name,

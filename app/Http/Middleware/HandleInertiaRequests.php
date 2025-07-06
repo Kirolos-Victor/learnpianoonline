@@ -42,8 +42,8 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'monthlySubscribePrice' => env('MONTHLY_SUBSCRIBE_PRICE'),
-            'yearlySubscribePrice' => env('YEARLY_SUBSCRIBE_PRICE'),
+            'monthlySubscribePrice' => env('MONTHLY_SUBSCRIBE_PRICE', 29.99),
+            'yearlySubscribePrice' => env('YEARLY_SUBSCRIBE_PRICE', 299.99),
             'discountPercentage' => env('DISCOUNT_PERCENTAGE', 10),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [

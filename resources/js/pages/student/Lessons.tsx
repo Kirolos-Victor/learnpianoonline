@@ -1,26 +1,11 @@
-import StudentSelector from '@/components/StudentSelector';
 import SubscriptionBenefits from '@/components/SubscriptionBenefits';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import AppLayout from '@/layouts/app-layout';
+import StudentLayout from '@/layouts/student-layout';
 import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import {
-    AlertTriangle,
-    Calendar,
-    CheckCircle,
-    ChevronLeft,
-    ChevronRight,
-    Clock,
-    Crown,
-    FileText,
-    Music,
-    Sparkles,
-    Trophy,
-    Upload,
-    Users,
-} from 'lucide-react';
+import { AlertTriangle, Calendar, CheckCircle, ChevronLeft, ChevronRight, Clock, FileText, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 interface Student {
@@ -52,45 +37,20 @@ interface Lesson {
     homeworkStatus?: 'submitted' | 'pending' | 'overdue' | 'none';
 }
 
-interface StudentData {
+interface LessonsSharedData extends Omit<SharedData, 'subscribePrice'> {
     student: Student;
     lessons: Lesson[];
-}
-
-interface LessonsSharedData extends SharedData {
-    students: Student[];
-    selectedStudentData: StudentData | null;
-    selectedStudentSlug?: string;
     selectedMonth: string;
     availableMonths: string[];
+    subscribePrice: number;
 }
 
 const Lessons = () => {
-    const { subscribePrice, students, selectedStudentData, selectedStudentSlug, selectedMonth, availableMonths } = usePage<LessonsSharedData>().props;
+    const { student, lessons, selectedMonth, availableMonths, subscribePrice } = usePage<LessonsSharedData>().props;
     const [loading, setLoading] = useState(false);
 
-    const selectedStudent = selectedStudentData?.student;
-    const currentLessons = selectedStudentData?.lessons || [];
-    const completedLessons = currentLessons.filter((lesson) => lesson.status === 'completed');
-    // const pendingLessons = currentLessons.filter(lesson => lesson.status === 'pending');
-    const pendingHomework = currentLessons.filter((lesson) => lesson.hasHomework && lesson.homeworkStatus === 'pending');
-
-    // Handle student selection change using Inertia
-    const handleStudentChange = (studentSlug: string) => {
-        if (!studentSlug || studentSlug === selectedStudentSlug) return;
-
-        setLoading(true);
-
-        router.visit(`/lessons/student/${studentSlug}`, {
-            method: 'get',
-            data: { month: selectedMonth },
-            preserveState: true,
-            preserveScroll: true,
-            onFinish: () => {
-                setLoading(false);
-            },
-        });
-    };
+    const completedLessons = lessons.filter((lesson) => lesson.status === 'completed');
+    const pendingHomework = lessons.filter((lesson) => lesson.hasHomework && lesson.homeworkStatus === 'pending');
 
     // Handle month change
     const handleMonthChange = (direction: 'prev' | 'next') => {
@@ -106,7 +66,7 @@ const Lessons = () => {
         if (newIndex !== currentIndex) {
             setLoading(true);
 
-            router.visit(`/lessons/student/${selectedStudentSlug}`, {
+            router.visit(route('student.lessons', student.slug), {
                 method: 'get',
                 data: { month: availableMonths[newIndex] },
                 preserveState: true,
@@ -146,18 +106,58 @@ const Lessons = () => {
 
     const handleSubmitHomework = (lessonId: string) => {
         // Redirect to homework page with student and lesson info
-        router.visit(`/homework/${selectedStudent?.slug}/${lessonId}`, {
+        router.visit(route('student.homework', { student: student.slug, lessonId }), {
             data: {
-                studentName: selectedStudent?.name,
-                lessonNumber: currentLessons.find((l) => l.id === lessonId)?.lessonNumber,
+                studentName: student.name,
+                lessonNumber: lessons.find((l) => l.id === lessonId)?.lessonNumber,
             },
         });
     };
 
+    // If student is not subscribed, show subscription benefits
+    if (!student.isSubscribed) {
+        return (
+            <StudentLayout>
+                <div className="min-h-screen bg-background">
+                    <Head title={`${student.name}'s Lessons`} />
+
+                    {/* Header */}
+                    <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
+                        <div className="pointer-events-none absolute inset-0">
+                            <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
+                            <div className="animate-gentle-bounce absolute top-8 right-1/3 text-xl text-white/20" style={{ animationDelay: '0.5s' }}>
+                                ♫
+                            </div>
+                            <div className="animate-gentle-bounce absolute bottom-4 left-1/3 text-2xl text-white/20" style={{ animationDelay: '1s' }}>
+                                ♪
+                            </div>
+                            <div
+                                className="animate-gentle-bounce absolute right-1/4 bottom-8 text-xl text-white/20"
+                                style={{ animationDelay: '1.5s' }}
+                            >
+                                ♫
+                            </div>
+                        </div>
+
+                        <div className="relative container mx-auto text-center">
+                            <h1 className="mb-4 font-fredoka text-4xl font-bold text-white md:text-5xl">🎹 {student.name}'s Lessons</h1>
+                            <p className="mb-2 font-comic text-xl text-white/90">Subscribe to unlock amazing piano lessons! 🎵</p>
+                        </div>
+                    </div>
+
+                    {/* Subscription Benefits */}
+                    <div className="container mx-auto px-6 py-8">
+                        <SubscriptionBenefits studentName={student.name} subscribePrice={subscribePrice} studentSlug={student.slug} />
+                    </div>
+                </div>
+            </StudentLayout>
+        );
+    }
+
     return (
-        <AppLayout>
+        <StudentLayout>
             <div className="min-h-screen bg-background">
-                <Head title="Lessons" />
+                <Head title={`${student.name}'s Lessons`} />
 
                 {/* Header */}
                 <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
@@ -175,24 +175,11 @@ const Lessons = () => {
                         </div>
                     </div>
 
-                    <div className="relative z-10 container mx-auto">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <h1 className="mb-3 font-fredoka text-4xl font-bold text-white drop-shadow-lg md:text-5xl">My Piano Lessons! 🎹</h1>
-                                <p className="font-comic text-xl text-white/90">Track your learning progress and have fun with homework!</p>
-                            </div>
-
-                            {/* Student Selector - only show if there are students */}
-                            <StudentSelector
-                                students={students}
-                                selectedStudentSlug={selectedStudentSlug}
-                                selectedStudent={selectedStudent}
-                                onStudentChange={handleStudentChange}
-                                label="Choose Your Student:"
-                                placeholder="Pick a student!"
-                                showAvatar={true}
-                            />
-                        </div>
+                    <div className="relative z-10 container mx-auto text-center">
+                        <h1 className="mb-3 font-fredoka text-4xl font-bold text-white drop-shadow-lg md:text-5xl">
+                            {student.name}'s Piano Lessons! 🎹
+                        </h1>
+                        <p className="font-comic text-xl text-white/90">Track your learning progress and have fun with homework!</p>
                     </div>
                 </div>
 
@@ -208,115 +195,7 @@ const Lessons = () => {
                                 </CardContent>
                             </Card>
                         </div>
-                    ) : students.length === 0 ? (
-                        /* No Students - Prompt to Add Student */
-                        <div className="mx-auto max-w-4xl">
-                            <Card className="shadow-float rounded-3xl border-fun-pink/30 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10">
-                                <CardHeader className="text-center">
-                                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-fun-pink to-fun-purple">
-                                        <Music className="h-10 w-10 text-white" />
-                                    </div>
-                                    <CardTitle className="mb-4 font-fredoka text-4xl text-fun-purple">
-                                        Ready to Start Your Piano Journey! 🎹✨
-                                    </CardTitle>
-                                    <CardDescription className="font-comic text-xl text-fun-blue">
-                                        Let's get you set up so you can start having amazing piano lessons!
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-8 text-center">
-                                    <div className="space-y-6">
-                                        <div className="flex items-center justify-center space-x-6 text-fun-purple">
-                                            <div className="flex items-center space-x-3">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-pink font-fredoka text-xl font-bold text-white">
-                                                    1
-                                                </div>
-                                                <span className="font-comic text-xl font-bold">Add Student</span>
-                                            </div>
-                                            <div className="h-1 w-12 rounded bg-gradient-to-r from-fun-pink to-fun-blue"></div>
-                                            <div className="flex items-center space-x-3">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-blue font-fredoka text-xl font-bold text-white">
-                                                    2
-                                                </div>
-                                                <span className="font-comic text-xl font-bold">Subscribe</span>
-                                            </div>
-                                            <div className="h-1 w-12 rounded bg-gradient-to-r from-fun-blue to-fun-green"></div>
-                                            <div className="flex items-center space-x-3">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fun-green font-fredoka text-xl font-bold text-white">
-                                                    3
-                                                </div>
-                                                <span className="font-comic text-xl font-bold">Start Learning</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-                                            <div className="hover:shadow-float rounded-3xl border-2 border-fun-pink/20 bg-white/80 p-6 text-center transition-all duration-300">
-                                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-pink text-white">
-                                                    <Users className="h-8 w-8" />
-                                                </div>
-                                                <h3 className="mb-2 font-fredoka text-2xl text-fun-purple">Add Student Profile</h3>
-                                                <p className="font-comic text-lg text-fun-purple/80">
-                                                    Create a fun profile for your little pianist! 🎵
-                                                </p>
-                                            </div>
-                                            <div className="hover:shadow-float rounded-3xl border-2 border-fun-blue/20 bg-white/80 p-6 text-center transition-all duration-300">
-                                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-blue text-white">
-                                                    <Crown className="h-8 w-8" />
-                                                </div>
-                                                <h3 className="mb-2 font-fredoka text-2xl text-fun-purple">Choose Your Plan</h3>
-                                                <p className="font-comic text-lg text-fun-purple/80">
-                                                    Pick a subscription to unlock awesome lessons! 👑
-                                                </p>
-                                            </div>
-                                            <div className="hover:shadow-float rounded-3xl border-2 border-fun-green/20 bg-white/80 p-6 text-center transition-all duration-300">
-                                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-green text-white">
-                                                    <Trophy className="h-8 w-8" />
-                                                </div>
-                                                <h3 className="mb-2 font-fredoka text-2xl text-fun-purple">Rock Your Lessons</h3>
-                                                <p className="font-comic text-lg text-fun-purple/80">Start your amazing piano adventure! 🚀</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="rounded-3xl border-2 border-fun-yellow/30 bg-gradient-to-r from-fun-yellow/20 to-fun-orange/20 p-6">
-                                            <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-4">
-                                                <div>
-                                                    <div className="mb-2 text-3xl">🎹</div>
-                                                    <p className="font-comic text-lg text-fun-purple">1-on-1 Lessons</p>
-                                                </div>
-                                                <div>
-                                                    <div className="mb-2 text-3xl">🎵</div>
-                                                    <p className="font-comic text-lg text-fun-purple">Fun Songs</p>
-                                                </div>
-                                                <div>
-                                                    <div className="mb-2 text-3xl">⭐</div>
-                                                    <p className="font-comic text-lg text-fun-purple">Earn Rewards</p>
-                                                </div>
-                                                <div>
-                                                    <div className="mb-2 text-3xl">📝</div>
-                                                    <p className="font-comic text-lg text-fun-purple">Fun Homework</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <Button
-                                        className="shadow-float animate-bounce-gentle rounded-full bg-gradient-to-r from-fun-pink to-fun-purple px-12 py-4 font-fredoka text-2xl text-white hover:from-fun-pink-600 hover:to-fun-purple-600"
-                                        onClick={() => router.visit(route('student.index'))}
-                                    >
-                                        <Sparkles className="mr-3 h-6 w-6" />
-                                        🎹 Add Your First Student!
-                                    </Button>
-
-                                    <div className="rounded-2xl border border-fun-blue/20 bg-white/60 p-4">
-                                        <p className="font-comic text-lg text-fun-purple">
-                                            💡 You can add multiple students and manage their lessons separately
-                                            <br />
-                                            🎉 <strong>Bonus:</strong> Enjoy 10% discount for every extra student!
-                                        </p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    ) : selectedStudent?.isSubscribed ? (
+                    ) : (
                         <div className="mx-auto max-w-6xl space-y-8">
                             {/* Student Info */}
                             <Card className="shadow-float rounded-3xl border-fun-purple/20 bg-gradient-to-r from-fun-pink/10 to-fun-blue/10">
@@ -324,11 +203,10 @@ const Lessons = () => {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <CardTitle className="flex items-center font-fredoka text-3xl text-fun-purple">
-                                                <Users className="mr-3 h-8 w-8 text-fun-pink" />
-                                                {selectedStudent.name}'s Lessons
+                                                🎹 {student.name}'s Lessons
                                             </CardTitle>
                                             <CardDescription className="font-comic text-lg text-gray-600">
-                                                {selectedMonth} • {completedLessons.length}/{currentLessons.length} lessons completed! 🎉
+                                                {selectedMonth} • {completedLessons.length}/{lessons.length} lessons completed! 🎉
                                             </CardDescription>
                                         </div>
                                         <Badge className="bg-fun-green px-4 py-2 font-comic text-lg text-white">
@@ -359,7 +237,7 @@ const Lessons = () => {
                                         <div className="text-center">
                                             <h3 className="font-fredoka text-2xl text-fun-purple">{selectedMonth}</h3>
                                             <p className="font-comic text-lg text-gray-600">
-                                                {currentLessons.length} lessons • {completedLessons.length} completed! 🎉
+                                                {lessons.length} lessons • {completedLessons.length} completed! 🎉
                                             </p>
                                         </div>
                                         <Button
@@ -426,8 +304,8 @@ const Lessons = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-6">
-                                        {currentLessons.length > 0 ? (
-                                            currentLessons.map((lesson) => (
+                                        {lessons.length > 0 ? (
+                                            lessons.map((lesson) => (
                                                 <div
                                                     key={lesson.id}
                                                     className="hover:shadow-float rounded-3xl border-2 border-fun-purple/20 bg-gradient-to-r from-white to-fun-purple/5 p-6 transition-all duration-300"
@@ -479,7 +357,7 @@ const Lessons = () => {
                                                                     className={`rounded-full px-3 py-1 font-comic text-lg ${getHomeworkStatusColor(lesson.homeworkStatus || 'pending')}`}
                                                                 >
                                                                     {getHomeworkStatusIcon(lesson.homeworkStatus || 'pending')}
-                                                                    <span className="ml-2">{lesson.homeworkStatus}</span>
+                                                                    <span className="ml-2 capitalize">{lesson.homeworkStatus}</span>
                                                                 </Badge>
                                                             </div>
                                                             {lesson.homeworkStatus === 'pending' && (
@@ -513,17 +391,10 @@ const Lessons = () => {
                                 </CardContent>
                             </Card>
                         </div>
-                    ) : (
-                        /* Subscription Benefits for Non-Subscribed Students */
-                        <SubscriptionBenefits
-                            studentName={selectedStudent?.name || 'Student'}
-                            subscribePrice={Number(subscribePrice)}
-                            studentSlug={selectedStudent?.slug || ''}
-                        />
                     )}
                 </div>
             </div>
-        </AppLayout>
+        </StudentLayout>
     );
 };
 

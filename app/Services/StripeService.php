@@ -17,11 +17,11 @@ class StripeService
     /**
      * Calculate subscription amount with discounts
      */
-    public function calculateSubscriptionAmount(int $studentCount, string $subscriptionType = 'monthly'): float
+    public function calculateSubscriptionAmount(int $studentCount, string $subscriptionType = 'monthly'): int
     {
         $basePrice = $subscriptionType === 'yearly'
-            ? (float) env('YEARLY_SUBSCRIBE_PRICE', 1200)
-            : (float) env('MONTHLY_SUBSCRIBE_PRICE', env('SUBSCRIBE_PRICE', 100));
+            ? (float) env('YEARLY_SUBSCRIBE_PRICE', 299.99)
+            : (float) env('MONTHLY_SUBSCRIBE_PRICE', env('SUBSCRIBE_PRICE', 29.99));
 
         $discountPercentage = (float) env('DISCOUNT_PERCENTAGE', 10);
         $totalAmount = 0;
@@ -37,7 +37,8 @@ class StripeService
             }
         }
 
-        return round($totalAmount, 2);
+        // Return amount in cents
+        return round($totalAmount * 100);
     }
 
     /**
@@ -62,12 +63,12 @@ class StripeService
     public function createCheckoutSession(User $user, array $studentIds, string $subscriptionType = 'monthly'): Session
     {
         $studentCount = count($studentIds);
-        $amount = $this->calculateSubscriptionAmount($studentCount, $subscriptionType);
+        $amountInCents = $this->calculateSubscriptionAmount($studentCount, $subscriptionType);
 
-        // Create subscription record
+        // Create subscription record (store amount in dollars)
         $subscription = Subscription::create([
             'user_id' => $user->id,
-            'amount' => $amount,
+            'amount' => $amountInCents / 100,
             'student_count' => $studentCount,
             'subscription_type' => $subscriptionType,
             'status' => 'pending',
@@ -88,14 +89,14 @@ class StripeService
                             'name' => "Piano Lessons " . ucfirst($subscriptionType) . " Subscription - {$studentCount} Student(s)",
                             'description' => $planDescription,
                         ],
-                        'unit_amount' => (int) ($amount * 100), // Convert to cents
+                        'unit_amount' => $amountInCents, // Already in cents
                     ],
                     'quantity' => 1,
                 ],
             ],
             'mode' => 'payment',
-            'success_url' => route('payment.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('payment.failed') . '?session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => route('parent.payment.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('parent.payment.failed') . '?session_id={CHECKOUT_SESSION_ID}',
             'metadata' => [
                 'subscription_id' => $subscription->id,
                 'user_id' => $user->id,
@@ -177,8 +178,8 @@ class StripeService
                 'student_count' => $i,
                 'monthly_amount' => $this->calculateSubscriptionAmount($i, 'monthly'),
                 'yearly_amount' => $this->calculateSubscriptionAmount($i, 'yearly'),
-                'monthly_base_price' => env('MONTHLY_SUBSCRIBE_PRICE', env('SUBSCRIBE_PRICE', 100)),
-                'yearly_base_price' => env('YEARLY_SUBSCRIBE_PRICE', 1200),
+                'monthly_base_price' => env('MONTHLY_SUBSCRIBE_PRICE', env('SUBSCRIBE_PRICE', 29.99)),
+                'yearly_base_price' => env('YEARLY_SUBSCRIBE_PRICE', 299.99),
                 'discount_percentage' => $discountPercentage,
             ];
         }

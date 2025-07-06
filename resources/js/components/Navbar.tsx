@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import UserNavbarDropdown from '@/components/user-navbar-dropdown';
 import { SharedData } from '@/types';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { CreditCard, Home, Menu, MessageCircle, Music, Star, Users, X } from 'lucide-react';
+import { BookOpen, CreditCard, Home, Menu, MessageCircle, Star, Users, X } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 const Navbar = () => {
@@ -15,13 +15,23 @@ const Navbar = () => {
         post(route('logout'));
     };
 
-    // Student navigation items with kid-friendly labels
-    const studentNavItems = [
-        { name: 'dashboard.index', label: 'My Piano Home', icon: Home },
-        { name: 'lessons.index', label: 'Piano Lessons', icon: Music },
-        { name: 'student.index', label: 'My Students', icon: Users },
-        { name: 'user.subscription', label: 'My Plan', icon: CreditCard },
-        { name: 'contact.index', label: 'Get Help', icon: MessageCircle },
+    // Check if we're on a student page
+    const isStudentPage = () => {
+        return window.location.pathname.includes('/student/');
+    };
+
+    // Student interface navigation items (only 2 pages as requested)
+    const studentInterfaceNavItems = [
+        { name: 'student.dashboard', label: 'My Piano Home', icon: Home },
+        { name: 'student.lessons', label: 'Lessons', icon: BookOpen },
+    ];
+
+    // Parent navigation items
+    const parentNavItems = [
+        { name: 'parent.dashboard', label: 'My Piano Home', icon: Home },
+        { name: 'parent.students', label: 'My Students', icon: Users },
+        { name: 'parent.subscription', label: 'My Plan', icon: CreditCard },
+        { name: 'parent.contact', label: 'Get Help', icon: MessageCircle },
     ];
 
     // Instructor navigation items
@@ -43,7 +53,7 @@ const Navbar = () => {
         { name: 'contact.index', label: 'Contact Us', icon: MessageCircle },
     ];
 
-    // Get navigation items based on user role
+    // Get navigation items based on user role and current page
     const getNavItems = () => {
         if (!auth.user) return guestNavItems;
 
@@ -55,7 +65,15 @@ const Navbar = () => {
             return instructorNavItems;
         }
 
-        return studentNavItems;
+        // For parent role, check if we're on a student page
+        if (auth.user.role === 'parent') {
+            if (isStudentPage()) {
+                return studentInterfaceNavItems;
+            }
+            return parentNavItems;
+        }
+
+        return parentNavItems;
     };
 
     const navItems = getNavItems();
@@ -78,10 +96,25 @@ const Navbar = () => {
                             <div className="hidden items-center space-x-4 md:flex">
                                 {navItems.map((item) => {
                                     const Icon = item.icon;
+                                    // For student interface, we need to handle the route differently
+                                    const getHref = () => {
+                                        if (isStudentPage() && item.name === 'student.dashboard') {
+                                            // Get current student slug from URL
+                                            const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
+                                            return route('student.dashboard', { student: studentSlug });
+                                        }
+                                        if (isStudentPage() && item.name === 'student.lessons') {
+                                            // Get current student slug from URL
+                                            const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
+                                            return route('student.lessons', { student: studentSlug });
+                                        }
+                                        return route(item.name);
+                                    };
+
                                     return (
                                         <Link
                                             key={item.name}
-                                            href={route(item.name)}
+                                            href={getHref()}
                                             className={`group flex items-center space-x-2 rounded-full px-4 py-3 font-comic text-lg transition-all duration-200 hover:scale-105 ${
                                                 isActive(item.name) ? 'shadow-float bg-white text-fun-purple' : 'text-white hover:bg-white/20'
                                             }`}
@@ -164,10 +197,25 @@ const Navbar = () => {
                                     <div className="space-y-2">
                                         {navItems.map((item) => {
                                             const Icon = item.icon;
+                                            // For student interface, we need to handle the route differently
+                                            const getHref = () => {
+                                                if (isStudentPage() && item.name === 'student.dashboard') {
+                                                    // Get current student slug from URL
+                                                    const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
+                                                    return route('student.dashboard', { student: studentSlug });
+                                                }
+                                                if (isStudentPage() && item.name === 'student.lessons') {
+                                                    // Get current student slug from URL
+                                                    const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
+                                                    return route('student.lessons', { student: studentSlug });
+                                                }
+                                                return route(item.name);
+                                            };
+
                                             return (
                                                 <Link
                                                     key={item.name}
-                                                    href={route(item.name)}
+                                                    href={getHref()}
                                                     className={`flex items-center space-x-3 rounded-2xl px-4 py-3 font-comic text-lg transition-all duration-200 ${
                                                         isActive(item.name) ? 'bg-white text-fun-purple' : 'text-white hover:bg-white/20'
                                                     }`}
@@ -208,17 +256,21 @@ const Navbar = () => {
                                             );
                                         })}
                                     </div>
-                                    <div className="space-y-3 pt-4">
+                                    <div className="pt-4">
                                         <Link href={route('login')}>
                                             <Button
                                                 variant="ghost"
-                                                className="w-full rounded-2xl bg-white/20 px-6 py-3 font-comic text-lg text-white transition-all duration-200 hover:bg-white hover:text-fun-purple"
+                                                size="lg"
+                                                className="mb-2 w-full rounded-2xl bg-white/20 px-6 py-3 font-comic text-lg text-white transition-all duration-200 hover:bg-white hover:text-fun-purple"
                                             >
                                                 Login
                                             </Button>
                                         </Link>
                                         <Link href={route('register')}>
-                                            <Button className="w-full rounded-2xl bg-fun-green px-6 py-3 font-comic text-lg text-white transition-all duration-200 hover:bg-fun-green-600">
+                                            <Button
+                                                size="lg"
+                                                className="shadow-float w-full rounded-2xl bg-fun-green px-8 py-3 font-comic text-lg text-white transition-all duration-200 hover:bg-fun-green-600"
+                                            >
                                                 🎹 Start Learning Piano!
                                             </Button>
                                         </Link>

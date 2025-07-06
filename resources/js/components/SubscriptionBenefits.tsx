@@ -50,7 +50,7 @@ const SubscriptionBenefits = ({ studentName, subscribePrice, studentSlug }: Subs
     ];
 
     const handleSubscribe = () => {
-        router.visit(`/subscription?student=${studentSlug}`);
+        router.visit(route('parent.subscription', { student: studentSlug }));
     };
 
     return (

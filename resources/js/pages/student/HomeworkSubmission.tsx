@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import AppLayout from '@/layouts/app-layout';
+import StudentLayout from '@/layouts/student-layout';
 import { Head, router } from '@inertiajs/react';
 import { ArrowLeft, CheckCircle, Clock, FileText, Mic, MicOff, Pause, Play, Trash2, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -107,7 +107,7 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
     };
 
     return (
-        <AppLayout>
+        <StudentLayout>
             <div className="min-h-screen bg-background">
                 <Head title="Homework Submission" />
 
@@ -319,7 +319,7 @@ const HomeworkSubmission = ({ studentId, lessonId, studentName, lessonNumber }: 
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </StudentLayout>
     );
 };
 

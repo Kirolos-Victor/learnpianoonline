@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import AppLayout from '@/layouts/app-layout';
+import ParentLayout from '@/layouts/parent-layout';
 import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import { AlertCircle, CheckCircle, Clock, Crown, Edit, Music, Plus, Trash2, UserPlus, Users } from 'lucide-react';
@@ -13,6 +13,7 @@ import { useState } from 'react';
 interface Student {
     id: string;
     name: string;
+    slug: string;
     age: number;
     hasPiano: boolean;
     isSubscribed: boolean;
@@ -42,7 +43,7 @@ const Student = () => {
 
     const handleAddStudent = () => {
         router.post(
-            '/student',
+            '/parent/students',
             {
                 name: formData.name,
                 age: formData.age,
@@ -76,7 +77,7 @@ const Student = () => {
 
     const handleUpdateStudent = () => {
         router.put(
-            `/student/${editingStudent}`,
+            `/parent/students/${editingStudent}`,
             {
                 name: formData.name,
                 age: formData.age,
@@ -97,7 +98,7 @@ const Student = () => {
     };
 
     const handleDeleteStudent = (studentId: string) => {
-        router.delete(`/student/${studentId}`, {
+        router.delete(`/parent/students/${studentId}`, {
             preserveScroll: true,
         });
     };
@@ -109,8 +110,12 @@ const Student = () => {
     };
 
     const handleSubscribeStudent = (studentId: string) => {
-        // Redirect to subscription page for this student
-        router.visit(`/subscription?studentId=${studentId}`);
+        // Find student slug by ID
+        const student = students.find((s) => s.id === studentId);
+        if (student) {
+            // Redirect to subscription page for this student using slug
+            router.visit(`/parent/subscription?student=${student.slug}`);
+        }
     };
 
     const getAgeGroup = (age: number) => {
@@ -121,7 +126,7 @@ const Student = () => {
     };
 
     return (
-        <AppLayout>
+        <ParentLayout>
             <div className="min-h-screen bg-background">
                 <Head title="Student Management" />
 
@@ -430,7 +435,7 @@ const Student = () => {
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </ParentLayout>
     );
 };
 

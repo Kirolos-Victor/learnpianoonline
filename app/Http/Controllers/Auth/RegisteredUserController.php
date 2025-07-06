@@ -36,7 +36,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'whatsapp_number' => 'required|string|max:20',
             'city' => 'nullable|string|max:255',
@@ -56,7 +56,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'whatsapp_number' => $request->whatsapp_number,
-            'role' => 'user',
+            'role' => 'parent',
             'city' => $request->city,
             'state_province' => $request->state_province,
             'country' => $request->country,
@@ -67,7 +67,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->intended(route('student.index', absolute: false));
+        return redirect()->intended(route('parent.dashboard', absolute: false));
     }
 
     /**

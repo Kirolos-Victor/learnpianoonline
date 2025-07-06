@@ -30,7 +30,7 @@ class InstructorStudentSeeder extends Seeder
             'name' => 'Alice Student',
             'email' => 'alice@example.com',
             'password' => Hash::make('password'),
-            'role' => 'user',
+            'role' => 'parent',
             'is_active' => true,
         ]);
 
@@ -38,8 +38,24 @@ class InstructorStudentSeeder extends Seeder
             'name' => 'Bob Student',
             'email' => 'bob@example.com',
             'password' => Hash::make('password'),
-            'role' => 'user',
+            'role' => 'parent',
             'is_active' => true,
+        ]);
+
+        $parent1 = User::create([
+            'name' => 'Parent One',
+            'email' => 'parent1@example.com',
+            'password' => Hash::make('password'),
+            'is_active' => true,
+            'role' => 'parent',
+        ]);
+
+        $parent2 = User::create([
+            'name' => 'Parent Two',
+            'email' => 'parent2@example.com',
+            'password' => Hash::make('password'),
+            'is_active' => true,
+            'role' => 'parent',
         ]);
 
         // Create student profiles

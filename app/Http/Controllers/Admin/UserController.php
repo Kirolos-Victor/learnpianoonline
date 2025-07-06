@@ -15,13 +15,13 @@ class UserController extends Controller
         $search = $request->get('search', '');
         $status = $request->get('status', 'all'); // all, active, inactive
 
-        $query = User::where('role', '=', 'user');
+        $query = User::where('role', '=', 'parent');
 
         // Apply search filter
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -34,15 +34,15 @@ class UserController extends Controller
 
         // Get paginated results
         $users = $query->select(['id', 'name', 'email', 'is_active', 'created_at'])
-                      ->orderBy('created_at', 'desc')
-                      ->paginate($perPage)
-                      ->withQueryString(); // Preserve query parameters in pagination links
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->withQueryString(); // Preserve query parameters in pagination links
 
         // Get summary statistics
         $stats = [
-            'total' => User::where('role', 'user')->count(),
-            'active' => User::where('role', 'user')->where('is_active', true)->count(),
-            'inactive' => User::where('role', 'user')->where('is_active', false)->count(),
+            'total' => User::where('role', 'parent')->count(),
+            'active' => User::where('role', 'parent')->where('is_active', true)->count(),
+            'inactive' => User::where('role', 'parent')->where('is_active', false)->count(),
         ];
 
         return Inertia::render('admin/Users', [

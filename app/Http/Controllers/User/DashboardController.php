@@ -53,7 +53,7 @@ class DashboardController extends Controller
             $selectedStudentData = $this->getStudentDataBySlug($currentStudentSlug);
         }
 
-        return Inertia::render('user/Dashboard', [
+        return Inertia::render('parent/Home', [
             'students' => $students,
             'selectedStudentData' => $selectedStudentData,
             'selectedStudentSlug' => $currentStudentSlug,
@@ -154,7 +154,7 @@ class DashboardController extends Controller
         $selectedStudentData = $this->getStudentData($student);
 
         // Return the same page structure with updated student data
-        return Inertia::render('user/Dashboard', [
+        return Inertia::render('parent/Home', [
             'students' => Student::where('user_id', $user->id)
                 ->with(['instructor'])
                 ->get()

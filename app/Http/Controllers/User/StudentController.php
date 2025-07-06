@@ -39,7 +39,7 @@ class StudentController extends Controller
                 ];
             });
 
-        return Inertia::render('user/Student', [
+        return Inertia::render('parent/Students', [
             'students' => $students,
         ]);
     }
@@ -79,7 +79,7 @@ class StudentController extends Controller
             ->first();
 
         if ($existingStudent) {
-            return redirect()->route('student.index')->withErrors(['name' => 'A student with this name already exists.']);
+            return redirect()->route('parent.students')->withErrors(['name' => 'A student with this name already exists.']);
         }
 
         $student = Student::create([
@@ -92,7 +92,7 @@ class StudentController extends Controller
         ]);
 
         // Return updated students list via Inertia
-        return redirect()->route('student.index');
+        return redirect()->route('parent.students');
     }
 
     /**
@@ -128,7 +128,7 @@ class StudentController extends Controller
             ->first();
 
         if ($existingStudent) {
-            return redirect()->route('student.index')->withErrors(['name' => 'A student with this name already exists.']);
+            return redirect()->route('parent.students')->withErrors(['name' => 'A student with this name already exists.']);
         }
 
         $student->update([
@@ -139,7 +139,7 @@ class StudentController extends Controller
         ]);
 
         // Return updated students list via Inertia
-        return redirect()->route('student.index');
+        return redirect()->route('parent.students');
     }
 
     /**
@@ -155,6 +155,6 @@ class StudentController extends Controller
         $student->delete();
 
         // Return updated students list via Inertia
-        return redirect()->route('student.index');
+        return redirect()->route('parent.students');
     }
 }

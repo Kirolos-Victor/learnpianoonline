@@ -23,19 +23,18 @@ class DashboardController extends Controller
         $startDateTime = Carbon::parse($startDate)->startOfDay();
         $endDateTime = Carbon::parse($endDate)->endOfDay();
 
-                // Get ALL statistics with date filtering applied
+        // Get ALL statistics with date filtering applied
         $stats = [
             // Users (filtered by creation date or last activity in period)
-            'total_users' => User::where('role', 'user')
-                ->whereBetween('created_at', [$startDateTime, $endDateTime])
+            'total_users' => User::where('role', 'parent')
+                ->orWhere('role', 'instructor')
+                ->orWhere('role', 'admin')
                 ->count(),
-            'active_users' => User::where('role', 'user')
+            'active_users' => User::where('role', 'parent')
                 ->where('is_active', true)
-                ->whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
-            'inactive_users' => User::where('role', 'user')
+            'inactive_users' => User::where('role', 'parent')
                 ->where('is_active', false)
-                ->whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
 
             // Instructors (filtered by creation date)
@@ -71,7 +70,7 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
-                // Get subscription statistics (also date-filtered)
+        // Get subscription statistics (also date-filtered)
         $subscriptionStats = [
             // Total subscriptions in period
             'total_subscriptions' => Subscription::whereBetween('created_at', [$startDateTime, $endDateTime])

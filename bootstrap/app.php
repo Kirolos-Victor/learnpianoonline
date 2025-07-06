@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnsureUserIsInstructor;
+use App\Http\Middleware\EnsureUserIsParent;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
-use App\Http\Middleware\EnsureUserIsInstructor;
-use App\Http\Middleware\EnsureUserIsAdmin;
-use App\Http\Middleware\EnsureUserIsUser;
 use App\Http\Middleware\RedirectBasedOnRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,24 +13,24 @@ use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        commands: __DIR__.'/../routes/console.php',
+        web: __DIR__ . '/../routes/web.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
-            HandleAppearance::class,
             HandleInertiaRequests::class,
+            HandleAppearance::class,
+            RedirectBasedOnRole::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
         $middleware->alias([
-            'instructor' => EnsureUserIsInstructor::class,
             'admin' => EnsureUserIsAdmin::class,
-            'user' => EnsureUserIsUser::class,
-            'role.redirect' => RedirectBasedOnRole::class,
+            'instructor' => EnsureUserIsInstructor::class,
+            'parent' => EnsureUserIsParent::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
