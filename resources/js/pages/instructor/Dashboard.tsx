@@ -1,21 +1,37 @@
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import InstructorLayout from '@/layouts/instructor-layout';
-import { Head } from '@inertiajs/react';
-import { AlertTriangle, BookOpen, Calendar, CheckCircle, Clock, Eye, Plus, Users } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { BookOpen, Calendar, CheckCircle, Clock, FileImage, Users } from 'lucide-react';
+import { useState } from 'react';
 
-interface Student {
+interface TodaysLesson {
     id: string;
-    name: string;
-    email: string;
-    subscriptionStatus: 'active' | 'inactive' | 'expired';
-    lastLessonDate: string | null;
-    nextLessonDate: string;
-    lessonsCompleted: number;
-    lessonsThisMonth: number;
-    pendingHomework: number;
+    scheduled_at: string;
+    formatted_time: string;
+    status: 'pending' | 'completed' | 'cancelled';
+    notes: string | null;
+    screenshot_path: string | null;
+    student: {
+        id: string;
+        name: string;
+        email: string;
+        age: number;
+        has_piano: boolean;
+        sessions_remaining: number;
+    };
+    homework: Array<{
+        id: string;
+        title: string;
+        description: string;
+        is_submitted: boolean;
+        due_date: string | null;
+    }>;
 }
 
 interface DashboardStats {
@@ -23,6 +39,7 @@ interface DashboardStats {
     activeStudents: number;
     totalLessonsThisMonth: number;
     totalPendingHomework: number;
+    todaysLessonsCount: number;
     nextLesson: {
         student_name: string;
         scheduled_at: string;
@@ -31,40 +48,36 @@ interface DashboardStats {
     } | null;
 }
 
-interface RecentActivity {
-    type: 'lesson_completed' | 'homework_submitted';
-    title: string;
-    student_name: string;
-    date: string;
-    timestamp: string;
-}
-
 interface Props {
-    students: Student[];
+    todaysLessons: TodaysLesson[];
     dashboardStats: DashboardStats;
-    recentActivities: RecentActivity[];
 }
 
-const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Props) => {
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'active':
-                return 'bg-green-100 text-green-800';
-            case 'inactive':
-                return 'bg-gray-100 text-gray-800';
-            case 'expired':
-                return 'bg-red-100 text-red-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
-        }
+const InstructorDashboard = ({ todaysLessons, dashboardStats }: Props) => {
+    const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        screenshot: null as File | null,
+        notes: '',
+    });
+
+    const handleCompleteLesson = (lessonId: string) => {
+        setSelectedLessonId(lessonId);
+        setDialogOpen(true);
     };
 
-    const getInitials = (name: string) => {
-        return name
-            .split(' ')
-            .map((n) => n[0])
-            .join('')
-            .toUpperCase();
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (selectedLessonId) {
+            post(route('instructor.dashboard.lesson.complete', selectedLessonId), {
+                onSuccess: () => {
+                    setDialogOpen(false);
+                    reset();
+                    setSelectedLessonId(null);
+                },
+            });
+        }
     };
 
     return (
@@ -74,11 +87,11 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                <p className="mt-2 text-gray-600">Overview of your students and upcoming activities</p>
+                <p className="mt-2 text-gray-600">Overview of your students and today's lessons</p>
             </div>
 
             {/* Stats Cards */}
-            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-5">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Students</CardTitle>
@@ -87,6 +100,19 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                     <CardContent>
                         <div className="text-2xl font-bold">{dashboardStats.totalStudents}</div>
                         <p className="text-xs text-muted-foreground">{dashboardStats.activeStudents} active</p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Today's Lessons</CardTitle>
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{dashboardStats.todaysLessonsCount}</div>
+                        <p className="text-xs text-muted-foreground">
+                            {todaysLessons.filter((lesson) => lesson.status === 'pending').length} pending
+                        </p>
                     </CardContent>
                 </Card>
 
@@ -130,141 +156,126 @@ const InstructorDashboard = ({ students, dashboardStats, recentActivities }: Pro
                 </Card>
             </div>
 
-            {/* Students List */}
-            <Card>
+            {/* Today's Lessons */}
+            <Card className="mb-8">
                 <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle>Your Students</CardTitle>
-                            <CardDescription>Manage your assigned students and their progress</CardDescription>
-                        </div>
-                        <Button className="flex items-center space-x-2">
-                            <Plus className="h-4 w-4" />
-                            <span>Add Student</span>
-                        </Button>
-                    </div>
+                    <CardTitle>Today's Lessons</CardTitle>
+                    <CardDescription>Your scheduled lessons for today</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
-                        {students.map((student) => (
-                            <div key={student.id} className="flex items-center justify-between rounded-lg border p-4">
-                                <div className="flex items-center space-x-4">
-                                    <Avatar>
-                                        <AvatarFallback>{getInitials(student.name)}</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900">{student.name}</h3>
-                                        <p className="text-sm text-gray-600">{student.email}</p>
-                                        <div className="mt-1 flex items-center space-x-4">
-                                            <Badge className={getStatusColor(student.subscriptionStatus)}>{student.subscriptionStatus}</Badge>
-                                            <span className="text-sm text-gray-500">{student.lessonsCompleted} lessons completed</span>
+                    {todaysLessons.length > 0 ? (
+                        <div className="space-y-4">
+                            {todaysLessons.map((lesson) => (
+                                <div key={lesson.id} className="flex items-center justify-between rounded-lg border p-4">
+                                    <div className="flex items-center space-x-4">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                                            <Clock className="h-5 w-5 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900">{lesson.student.name}</h3>
+                                            <p className="text-sm text-gray-600">{lesson.student.email}</p>
+                                            <div className="mt-1 flex items-center space-x-4">
+                                                <Badge variant={lesson.status === 'completed' ? 'default' : 'secondary'}>{lesson.status}</Badge>
+                                                <span className="text-sm text-gray-500">
+                                                    Age: {lesson.student.age} • Sessions: {lesson.student.sessions_remaining}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center space-x-4">
+                                        <div className="text-right">
+                                            <p className="text-sm text-gray-600">Time</p>
+                                            <p className="font-medium text-gray-900">{lesson.formatted_time}</p>
+                                        </div>
+
+                                        <div className="flex items-center space-x-2">
+                                            {lesson.homework.some((hw) => hw.is_submitted) && (
+                                                <Badge variant="outline" className="flex items-center space-x-1">
+                                                    <CheckCircle className="h-3 w-3" />
+                                                    <span>Homework Done</span>
+                                                </Badge>
+                                            )}
+
+                                            {lesson.status === 'pending' && (
+                                                <Button
+                                                    onClick={() => handleCompleteLesson(lesson.id)}
+                                                    size="sm"
+                                                    className="flex items-center space-x-2"
+                                                >
+                                                    <CheckCircle className="h-4 w-4" />
+                                                    <span>Mark Complete</span>
+                                                </Button>
+                                            )}
+
+                                            {lesson.status === 'completed' && lesson.screenshot_path && (
+                                                <Badge variant="outline" className="flex items-center space-x-1">
+                                                    <FileImage className="h-3 w-3" />
+                                                    <span>Screenshot</span>
+                                                </Badge>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="flex items-center space-x-4">
-                                    <div className="text-right">
-                                        <p className="text-sm text-gray-600">Next lesson</p>
-                                        <p className="font-medium text-gray-900">
-                                            {student.nextLessonDate === 'N/A'
-                                                ? 'No upcoming lessons'
-                                                : new Date(student.nextLessonDate).toLocaleDateString()}
-                                        </p>
-                                    </div>
-
-                                    <div className="flex items-center space-x-2">
-                                        {student.pendingHomework > 0 && (
-                                            <Badge variant="destructive" className="flex items-center space-x-1">
-                                                <AlertTriangle className="h-3 w-3" />
-                                                <span>{student.pendingHomework} homework</span>
-                                            </Badge>
-                                        )}
-
-                                        <Button variant="outline" size="sm">
-                                            <Eye className="mr-2 h-4 w-4" />
-                                            View Details
-                                        </Button>
-
-                                        <Button size="sm">
-                                            <BookOpen className="mr-2 h-4 w-4" />
-                                            Assign Homework
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-8 text-center">
+                            <Calendar className="mx-auto h-12 w-12 text-gray-400" />
+                            <p className="mt-4 text-gray-500">No lessons scheduled for today</p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Quick Actions</CardTitle>
-                        <CardDescription>Common tasks and shortcuts</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        <Button className="w-full justify-start">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            Schedule New Lesson
-                        </Button>
-                        <Button className="w-full justify-start" variant="outline">
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            Create Homework Assignment
-                        </Button>
-                        <Button className="w-full justify-start" variant="outline">
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Mark Lessons Complete
-                        </Button>
-                        <Button className="w-full justify-start" variant="outline">
-                            <Users className="mr-2 h-4 w-4" />
-                            View All Students
-                        </Button>
-                    </CardContent>
-                </Card>
+            {/* Complete Lesson Dialog */}
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Mark Lesson as Completed</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleFormSubmit} className="space-y-4">
+                        <div>
+                            <Label htmlFor="screenshot" className="text-sm font-medium">
+                                Upload Screenshot *
+                            </Label>
+                            <Input
+                                id="screenshot"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setData('screenshot', e.target.files?.[0] || null)}
+                                className="mt-1"
+                                required
+                            />
+                            {errors.screenshot && <p className="mt-1 text-sm text-red-600">{errors.screenshot}</p>}
+                        </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Recent Activity</CardTitle>
-                        <CardDescription>Latest updates and notifications</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        {recentActivities.length > 0 ? (
-                            recentActivities.map((activity, index) => (
-                                <div
-                                    key={index}
-                                    className={`flex items-center space-x-3 rounded-lg p-2 ${
-                                        activity.type === 'lesson_completed' ? 'bg-green-50' : 'bg-blue-50'
-                                    }`}
-                                >
-                                    {activity.type === 'lesson_completed' ? (
-                                        <CheckCircle className="h-4 w-4 text-green-600" />
-                                    ) : (
-                                        <BookOpen className="h-4 w-4 text-blue-600" />
-                                    )}
-                                    <div>
-                                        <p
-                                            className={`text-sm font-medium ${
-                                                activity.type === 'lesson_completed' ? 'text-green-900' : 'text-blue-900'
-                                            }`}
-                                        >
-                                            {activity.title}
-                                        </p>
-                                        <p className={`text-xs ${activity.type === 'lesson_completed' ? 'text-green-700' : 'text-blue-700'}`}>
-                                            {activity.student_name} - {activity.date}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="py-4 text-center">
-                                <p className="text-sm text-gray-500">No recent activity</p>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
+                        <div>
+                            <Label htmlFor="notes" className="text-sm font-medium">
+                                Notes (optional)
+                            </Label>
+                            <Textarea
+                                id="notes"
+                                value={data.notes}
+                                onChange={(e) => setData('notes', e.target.value)}
+                                placeholder="Add any notes about the lesson..."
+                                className="mt-1"
+                                rows={3}
+                            />
+                            {errors.notes && <p className="mt-1 text-sm text-red-600">{errors.notes}</p>}
+                        </div>
+
+                        <div className="flex justify-end space-x-2">
+                            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={processing}>
+                                {processing ? 'Saving...' : 'Mark Complete'}
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </InstructorLayout>
     );
 };

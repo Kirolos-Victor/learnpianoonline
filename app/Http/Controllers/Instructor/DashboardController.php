@@ -16,33 +16,63 @@ class DashboardController extends Controller
     {
         $instructor = Auth::user();
 
-        // Get students assigned to this instructor
-        $students = Student::with(['user', 'lessons', 'homework'])
+        // Get today's lessons for the instructor
+        $todaysLessons = Lesson::with(['student', 'homework'])
             ->where('instructor_id', $instructor->id)
-            ->where('is_subscribed', true)
+            ->whereBetween('scheduled_at', [
+                now()->startOfDay(),
+                now()->endOfDay()
+            ])
+            ->orderBy('scheduled_at')
             ->get()
-            ->map(function ($student) {
+            ->map(function ($lesson) {
                 return [
-                    'id' => $student->id,
-                    'name' => $student->name,
-                    'email' => $student->user->email,
-                    'subscriptionStatus' => $student->is_subscribed ? 'subscribed' : 'unsubscribed',
-                    'lastLessonDate' => $student->completedLessons()->latest('completed_at')->first()?->completed_at?->format('Y-m-d'),
-                    'nextLessonDate' => $student->pendingLessons()->oldest('scheduled_at')->first()?->scheduled_at?->format('Y-m-d') ?? 'N/A',
-                    'lessonsCompleted' => $student->completedLessons()->count(),
-                    'lessonsThisMonth' => $student->completedLessons()
-                        ->whereMonth('completed_at', now()->month)
-                        ->whereYear('completed_at', now()->year)
-                        ->count(),
-                    'pendingHomework' => $student->pendingHomework()->count(),
+                    'id' => $lesson->id,
+                    'scheduled_at' => $lesson->scheduled_at->format('Y-m-d H:i:s'),
+                    'formatted_time' => $lesson->scheduled_at->format('g:i A'),
+                    'status' => $lesson->status,
+                    'notes' => $lesson->notes,
+                    'screenshot_path' => $lesson->screenshot_path,
+                    'student' => [
+                        'id' => $lesson->student->id,
+                        'name' => $lesson->student->name,
+                        'email' => $lesson->student->user->email,
+                        'age' => $lesson->student->age,
+                        'has_piano' => $lesson->student->has_piano,
+                        'sessions_remaining' => $lesson->student->sessions_remaining,
+                    ],
+                    'homework' => $lesson->homework->map(function ($hw) {
+                        return [
+                            'id' => $hw->id,
+                            'title' => $hw->title,
+                            'description' => $hw->description,
+                            'is_submitted' => $hw->is_submitted,
+                            'due_date' => $hw->due_date?->format('Y-m-d'),
+                        ];
+                    }),
                 ];
             });
 
         // Calculate dashboard stats
-        $totalStudents = $students->count();
-        $activeStudents = $students->where('subscriptionStatus', 'active')->count();
-        $totalLessonsThisMonth = $students->sum('lessonsThisMonth');
-        $totalPendingHomework = $students->sum('pendingHomework');
+        $totalStudents = Student::where('instructor_id', $instructor->id)
+            ->where('is_subscribed', true)
+            ->count();
+
+        $activeStudents = Student::where('instructor_id', $instructor->id)
+            ->where('is_subscribed', true)
+            ->count();
+
+        $totalLessonsThisMonth = Lesson::where('instructor_id', $instructor->id)
+            ->where('status', 'completed')
+            ->whereMonth('completed_at', now()->month)
+            ->whereYear('completed_at', now()->year)
+            ->count();
+
+        $totalPendingHomework = Homework::whereHas('student', function ($query) use ($instructor) {
+            $query->where('instructor_id', $instructor->id);
+        })
+            ->where('is_submitted', false)
+            ->count();
 
         // Get next upcoming lesson
         $nextLesson = Lesson::with('student')
@@ -52,57 +82,14 @@ class DashboardController extends Controller
             ->orderBy('scheduled_at')
             ->first();
 
-        // Get recent activity (completed lessons, submitted homework)
-        $recentCompletedLessons = Lesson::with('student')
-            ->where('instructor_id', $instructor->id)
-            ->where('status', 'completed')
-            ->whereNotNull('completed_at')
-            ->orderBy('completed_at', 'desc')
-            ->limit(3)
-            ->get();
-
-        $recentSubmittedHomework = Homework::with(['student'])
-            ->whereHas('student', function ($query) use ($instructor) {
-                $query->where('instructor_id', $instructor->id);
-            })
-            ->where('is_submitted', true)
-            ->whereNotNull('submitted_at')
-            ->orderBy('submitted_at', 'desc')
-            ->limit(3)
-            ->get();
-
-        // Combine and sort recent activities
-        $recentActivities = collect();
-
-        foreach ($recentCompletedLessons as $lesson) {
-            $recentActivities->push([
-                'type' => 'lesson_completed',
-                'title' => 'Lesson Completed',
-                'student_name' => $lesson->student->name,
-                'date' => $lesson->completed_at->format('M j, Y'),
-                'timestamp' => $lesson->completed_at,
-            ]);
-        }
-
-        foreach ($recentSubmittedHomework as $homework) {
-            $recentActivities->push([
-                'type' => 'homework_submitted',
-                'title' => 'Homework Submitted',
-                'student_name' => $homework->student->name,
-                'date' => $homework->submitted_at->format('M j, Y'),
-                'timestamp' => $homework->submitted_at,
-            ]);
-        }
-
-        $recentActivities = $recentActivities->sortByDesc('timestamp')->take(3)->values();
-
         return Inertia::render('instructor/Dashboard', [
-            'students' => $students,
+            'todaysLessons' => $todaysLessons,
             'dashboardStats' => [
                 'totalStudents' => $totalStudents,
                 'activeStudents' => $activeStudents,
                 'totalLessonsThisMonth' => $totalLessonsThisMonth,
                 'totalPendingHomework' => $totalPendingHomework,
+                'todaysLessonsCount' => $todaysLessons->count(),
                 'nextLesson' => $nextLesson ? [
                     'student_name' => $nextLesson->student->name,
                     'scheduled_at' => $nextLesson->scheduled_at->format('Y-m-d H:i:s'),
@@ -110,7 +97,26 @@ class DashboardController extends Controller
                     'formatted_time' => $nextLesson->scheduled_at->format('g:i A'),
                 ] : null,
             ],
-            'recentActivities' => $recentActivities,
         ]);
+    }
+
+    public function completeLesson(Request $request, $lessonId)
+    {
+        $instructor = Auth::user();
+
+        $lesson = Lesson::where('id', $lessonId)
+            ->where('instructor_id', $instructor->id)
+            ->firstOrFail();
+
+        $request->validate([
+            'screenshot' => 'required|image|max:4096',
+            'notes' => 'nullable|string',
+        ]);
+
+        $screenshotPath = $request->file('screenshot')->store('lesson_screenshots', 'public');
+
+        $lesson->markAsCompleted($screenshotPath, $request->input('notes'));
+
+        return redirect()->back()->with('success', 'Lesson marked as completed successfully.');
     }
 }

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import InstructorLayout from '@/layouts/instructor-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { BookOpen, CheckCircle, Clock, Eye, Search, Users } from 'lucide-react';
 import { useState } from 'react';
 
@@ -199,11 +199,9 @@ const InstructorStudents = ({ students }: Props) => {
 
                                 {/* Actions */}
                                 <div className="flex space-x-2 pt-2">
-                                    <Button asChild className="flex-1">
-                                        <Link href={`/instructor/students/${student.id}/lessons`} className="cursor-pointer">
-                                            <Eye className="mr-2 h-4 w-4" />
-                                            View Lessons
-                                        </Link>
+                                    <Button variant="outline" className="flex-1" disabled>
+                                        <Eye className="mr-2 h-4 w-4" />
+                                        View Details
                                     </Button>
                                 </div>
                             </div>

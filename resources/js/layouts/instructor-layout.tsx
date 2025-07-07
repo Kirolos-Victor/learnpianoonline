@@ -20,7 +20,6 @@ const InstructorLayout = ({ children, title }: InstructorLayoutProps) => {
     const navigationItems = [
         { name: 'instructor.dashboard', label: 'Dashboard', icon: Users, href: route('instructor.dashboard') },
         { name: 'instructor.students', label: 'Students', icon: Users, href: route('instructor.students') },
-        // { name: 'instructor.lessons', label: 'Lessons', icon: BookOpen, href: route('instructor.lessons') },
         // { name: 'instructor.schedule', label: 'Schedule', icon: Calendar, href: route('instructor.schedule') },
         // { name: 'instructor.settings', label: 'Settings', icon: Settings, href: route('instructor.settings') },
     ];
