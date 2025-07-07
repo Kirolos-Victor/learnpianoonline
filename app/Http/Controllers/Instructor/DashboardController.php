@@ -33,6 +33,8 @@ class DashboardController extends Controller
                     'status' => $lesson->status,
                     'notes' => $lesson->notes,
                     'screenshot_path' => $lesson->screenshot_path,
+                    'completed_at' => $lesson->completed_at?->format('Y-m-d H:i:s'),
+                    'formatted_completed_time' => $lesson->completed_at?->format('g:i A'),
                     'student' => [
                         'id' => $lesson->student->id,
                         'name' => $lesson->student->name,

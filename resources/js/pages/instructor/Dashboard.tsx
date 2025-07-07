@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import InstructorLayout from '@/layouts/instructor-layout';
 import { Head, useForm } from '@inertiajs/react';
-import { BookOpen, Calendar, CheckCircle, Clock, FileImage, Users } from 'lucide-react';
+import { BookOpen, Calendar, CheckCircle, Clock, Users } from 'lucide-react';
 import { useState } from 'react';
 
 interface TodaysLesson {
@@ -17,6 +17,8 @@ interface TodaysLesson {
     status: 'pending' | 'completed' | 'cancelled';
     notes: string | null;
     screenshot_path: string | null;
+    completed_at: string | null;
+    formatted_completed_time: string | null;
     student: {
         id: string;
         name: string;
@@ -208,11 +210,14 @@ const InstructorDashboard = ({ todaysLessons, dashboardStats }: Props) => {
                                                 </Button>
                                             )}
 
-                                            {lesson.status === 'completed' && lesson.screenshot_path && (
-                                                <Badge variant="outline" className="flex items-center space-x-1">
-                                                    <FileImage className="h-3 w-3" />
-                                                    <span>Screenshot</span>
-                                                </Badge>
+                                            {lesson.status === 'completed' && (
+                                                <div className="flex flex-col items-end space-y-1">
+                                                    <Badge variant="default" className="flex items-center space-x-1">
+                                                        <CheckCircle className="h-3 w-3" />
+                                                        <span>Completed</span>
+                                                    </Badge>
+                                                    <p className="text-xs text-gray-500">at {lesson.formatted_completed_time}</p>
+                                                </div>
                                             )}
                                         </div>
                                     </div>

@@ -51,7 +51,7 @@ class Lesson extends Model
     /**
      * Mark lesson as completed
      */
-    public function markAsCompleted(string $screenshotPath = null, string $notes = null): void
+    public function markAsCompleted(?string $screenshotPath = null, ?string $notes = null): void
     {
         $this->update([
             'status' => 'completed',
