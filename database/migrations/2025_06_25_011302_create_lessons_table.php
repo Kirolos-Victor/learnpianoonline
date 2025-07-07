@@ -19,7 +19,7 @@ return new class extends Migration
             $table->dateTime('completed_at')->nullable();
             $table->string('screenshot_path')->nullable();
             $table->text('notes')->nullable();
-            $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'completed', 'cancelled', 'missed'])->default('pending');
             $table->timestamps();
         });
     }

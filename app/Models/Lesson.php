@@ -67,6 +67,67 @@ class Lesson extends Model
     }
 
     /**
+     * Mark lesson as missed
+     */
+    public function markAsMissed(?string $notes = null): void
+    {
+        $this->update([
+            'status' => 'missed',
+            'completed_at' => now(),
+            'notes' => $notes,
+        ]);
+
+        // Reduce student's session balance (missed lessons still count)
+        if ($this->student) {
+            $this->student->decrement('sessions_remaining');
+        }
+    }
+
+    /**
+     * Mark lesson as cancelled by instructor
+     */
+    public function markAsCancelled(string $notes): void
+    {
+        $this->update([
+            'status' => 'cancelled',
+            'completed_at' => now(),
+            'notes' => $notes,
+        ]);
+
+        // Create replacement lesson one week after the latest scheduled lesson
+        $this->scheduleReplacementLesson();
+    }
+
+    /**
+     * Schedule a replacement lesson one week after the latest scheduled lesson
+     */
+    private function scheduleReplacementLesson(): void
+    {
+        if (!$this->student || !$this->instructor) {
+            return;
+        }
+
+        // Find the latest scheduled lesson for this student
+        $latestLesson = Lesson::where('student_id', $this->student->id)
+            ->where('instructor_id', $this->instructor_id)
+            ->orderBy('scheduled_at', 'desc')
+            ->first();
+
+        // Schedule replacement lesson one week after the latest lesson
+        $replacementDateTime = $latestLesson
+            ? $latestLesson->scheduled_at->addWeek()
+            : $this->scheduled_at->addWeek();
+
+        Lesson::create([
+            'student_id' => $this->student->id,
+            'instructor_id' => $this->instructor_id,
+            'scheduled_at' => $replacementDateTime,
+            'status' => 'pending',
+            'notes' => 'Replacement lesson for cancelled lesson on ' . $this->scheduled_at->format('Y-m-d'),
+        ]);
+    }
+
+    /**
      * Get homework assigned for this lesson
      */
     public function homework()

@@ -56,48 +56,53 @@ class DashboardController extends Controller
             });
 
         // Calculate dashboard stats
-        $totalStudents = Student::where('instructor_id', $instructor->id)
-            ->where('is_subscribed', true)
-            ->count();
-
-        $activeStudents = Student::where('instructor_id', $instructor->id)
-            ->where('is_subscribed', true)
-            ->count();
-
         $totalLessonsThisMonth = Lesson::where('instructor_id', $instructor->id)
+            ->whereMonth('scheduled_at', now()->month)
+            ->whereYear('scheduled_at', now()->year)
+            ->count();
+
+        $pendingLessons = Lesson::where('instructor_id', $instructor->id)
+            ->where('status', 'pending')
+            ->whereMonth('scheduled_at', now()->month)
+            ->whereYear('scheduled_at', now()->year)
+            ->count();
+
+        $completedLessons = Lesson::where('instructor_id', $instructor->id)
             ->where('status', 'completed')
-            ->whereMonth('completed_at', now()->month)
-            ->whereYear('completed_at', now()->year)
+            ->whereMonth('scheduled_at', now()->month)
+            ->whereYear('scheduled_at', now()->year)
+            ->count();
+
+        $cancelledLessons = Lesson::where('instructor_id', $instructor->id)
+            ->where('status', 'cancelled')
+            ->whereMonth('scheduled_at', now()->month)
+            ->whereYear('scheduled_at', now()->year)
+            ->count();
+
+        $missedLessons = Lesson::where('instructor_id', $instructor->id)
+            ->where('status', 'missed')
+            ->whereMonth('scheduled_at', now()->month)
+            ->whereYear('scheduled_at', now()->year)
             ->count();
 
         $totalPendingHomework = Homework::whereHas('student', function ($query) use ($instructor) {
             $query->where('instructor_id', $instructor->id);
         })
             ->where('is_submitted', false)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
             ->count();
-
-        // Get next upcoming lesson
-        $nextLesson = Lesson::with('student')
-            ->where('instructor_id', $instructor->id)
-            ->where('status', 'pending')
-            ->where('scheduled_at', '>', now())
-            ->orderBy('scheduled_at')
-            ->first();
 
         return Inertia::render('instructor/Dashboard', [
             'todaysLessons' => $todaysLessons,
             'dashboardStats' => [
-                'totalStudents' => $totalStudents,
-                'activeStudents' => $activeStudents,
                 'totalLessonsThisMonth' => $totalLessonsThisMonth,
+                'pendingLessons' => $pendingLessons,
+                'completedLessons' => $completedLessons,
+                'cancelledLessons' => $cancelledLessons,
+                'missedLessons' => $missedLessons,
                 'totalPendingHomework' => $totalPendingHomework,
                 'todaysLessonsCount' => $todaysLessons->count(),
-                'nextLesson' => $nextLesson ? [
-                    'student_name' => $nextLesson->student->name,
-                    'scheduled_at' => $nextLesson->scheduled_at->format('Y-m-d H:i:s'),
-                    'formatted_date' => $nextLesson->scheduled_at->format('M j'),
-                    'formatted_time' => $nextLesson->scheduled_at->format('g:i A'),
-                ] : null,
             ],
         ]);
     }
@@ -120,5 +125,42 @@ class DashboardController extends Controller
         $lesson->markAsCompleted($screenshotPath, $request->input('notes'));
 
         return redirect()->back()->with('success', 'Lesson marked as completed successfully.');
+    }
+
+    public function markLessonAsMissed(Request $request, $lessonId)
+    {
+        $instructor = Auth::user();
+
+        $lesson = Lesson::where('id', $lessonId)
+            ->where('instructor_id', $instructor->id)
+            ->firstOrFail();
+
+        $request->validate([
+            'notes' => 'nullable|string',
+        ]);
+
+        $lesson->markAsMissed($request->input('notes'));
+
+        return redirect()->back()->with('success', 'Lesson marked as missed successfully.');
+    }
+
+    public function cancelLesson(Request $request, $lessonId)
+    {
+        $instructor = Auth::user();
+
+        $lesson = Lesson::where('id', $lessonId)
+            ->where('instructor_id', $instructor->id)
+            ->firstOrFail();
+
+        $request->validate([
+            'notes' => 'required|string|min:10',
+        ], [
+            'notes.required' => 'Please provide a reason for cancelling the lesson.',
+            'notes.min' => 'Please provide a detailed reason (at least 10 characters).',
+        ]);
+
+        $lesson->markAsCancelled($request->input('notes'));
+
+        return redirect()->back()->with('success', 'Lesson cancelled successfully. A replacement lesson has been scheduled for the student.');
     }
 }

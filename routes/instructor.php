@@ -9,4 +9,8 @@ Route::group(['prefix' => 'instructor', 'middleware' => ['auth', 'instructor']],
     Route::get('students', [StudentController::class, 'index'])->name('instructor.students');
     // Complete lesson from dashboard
     Route::post('dashboard/lessons/{lesson}/complete', [DashboardController::class, 'completeLesson'])->name('instructor.dashboard.lesson.complete');
+    // Mark lesson as missed from dashboard
+    Route::post('dashboard/lessons/{lesson}/missed', [DashboardController::class, 'markLessonAsMissed'])->name('instructor.dashboard.lesson.missed');
+    // Cancel lesson from dashboard
+    Route::post('dashboard/lessons/{lesson}/cancel', [DashboardController::class, 'cancelLesson'])->name('instructor.dashboard.lesson.cancel');
 });
