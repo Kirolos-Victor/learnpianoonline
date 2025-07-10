@@ -1,13 +1,9 @@
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowRight, Check, MessageCircle, Music, Users } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowRight, BookOpen, Clock, MessageCircle, Music, Trophy, Users } from 'lucide-react';
 
 const Home = () => {
-    const { subscribePrice } = usePage<SharedData>().props;
-
     const benefits = [
         {
             icon: Users,
@@ -25,6 +21,27 @@ const Home = () => {
             icon: MessageCircle,
             title: 'Personalized Feedback',
             description: 'Get helpful tips and encouragement from your teacher after every lesson.',
+            color: 'bg-fun-green',
+        },
+    ];
+
+    const subscriptionBenefits = [
+        {
+            icon: BookOpen,
+            title: 'Structured Learning Path',
+            description: 'Follow a carefully designed curriculum that builds your skills step by step.',
+            color: 'bg-fun-purple',
+        },
+        {
+            icon: Clock,
+            title: 'Flexible Scheduling',
+            description: 'Book lessons at times that work for you with easy rescheduling options.',
+            color: 'bg-fun-orange',
+        },
+        {
+            icon: Trophy,
+            title: 'Track Your Progress',
+            description: 'See your improvement over time with detailed progress reports and achievements.',
             color: 'bg-fun-green',
         },
     ];
@@ -115,23 +132,18 @@ const Home = () => {
                                 ))}
                             </div>
                             <div className="flex flex-col justify-center gap-4 sm:flex-row">
-                                <Link href={route('register')} className="cursor-pointer">
-                                    <Button
-                                        size="lg"
-                                        className="shadow-float rounded-full bg-fun-green px-8 py-4 font-comic text-xl hover:bg-fun-green-600"
-                                    >
-                                        🎹 Start Learning Now!
-                                        <ArrowRight className="ml-2 h-5 w-5" />
-                                    </Button>
+                                <Link
+                                    href={route('register')}
+                                    className="shadow-float inline-flex items-center justify-center rounded-full bg-fun-green px-8 py-4 font-comic text-xl text-white transition-all duration-300 hover:bg-fun-green-600"
+                                >
+                                    🎹 Start Learning Now!
+                                    <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
-                                <Link href={route('pricing.index')} className="cursor-pointer">
-                                    <Button
-                                        size="lg"
-                                        variant="outline"
-                                        className="rounded-full border-white px-8 py-4 font-comic text-xl text-fun-purple hover:bg-white hover:text-fun-purple"
-                                    >
-                                        💰 See Prices
-                                    </Button>
+                                <Link
+                                    href={route('pricing.index')}
+                                    className="inline-flex items-center justify-center rounded-full border-2 border-white bg-transparent px-8 py-4 font-comic text-xl text-white transition-all duration-300 hover:bg-white hover:text-fun-purple"
+                                >
+                                    💰 View Plans
                                 </Link>
                             </div>
                         </div>
@@ -216,48 +228,47 @@ const Home = () => {
                     </div>
                 </section>
 
-                {/* Pricing Preview */}
+                {/* Subscription Benefits Overview */}
                 <section className="bg-fun-purple px-6 py-20">
-                    <div className="container mx-auto text-center">
-                        <h2 className="mb-6 font-fredoka text-4xl font-bold text-white md:text-5xl">Super Simple Pricing! 💰</h2>
-                        <div className="mx-auto max-w-md">
-                            <Card className="shadow-float rounded-3xl border-fun-green/20 bg-white">
-                                <CardContent className="p-8">
-                                    <div className="text-center">
-                                        <h3 className="mb-3 font-fredoka text-3xl font-bold text-fun-purple">Monthly Plan</h3>
-                                        <div className="mb-6 text-5xl font-bold text-fun-green">
-                                            ${subscribePrice}
-                                            <span className="text-xl text-gray-600">/month</span>
+                    <div className="container mx-auto">
+                        <div className="mb-12 text-center">
+                            <h2 className="mb-6 font-fredoka text-4xl font-bold text-white md:text-5xl">Why Choose Our Subscription? 🌟</h2>
+                            <p className="mx-auto max-w-2xl font-comic text-xl text-white/90">
+                                Join thousands of students who are making amazing progress with our structured learning approach!
+                            </p>
+                        </div>
+
+                        <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+                            {subscriptionBenefits.map((benefit, index) => (
+                                <Card
+                                    key={index}
+                                    className="shadow-float rounded-3xl border-0 bg-white/90 backdrop-blur-sm transition-all duration-300 hover:scale-105"
+                                >
+                                    <CardContent className="p-8 text-center">
+                                        <div
+                                            className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full ${benefit.color} text-white`}
+                                        >
+                                            <benefit.icon className="h-8 w-8" />
                                         </div>
-                                        <ul className="mb-8 space-y-3 text-left">
-                                            <li className="flex items-center">
-                                                <Check className="mr-3 h-5 w-5 text-fun-green" />
-                                                <span className="font-comic text-lg text-gray-700">4 Live 1-on-1 Lessons</span>
-                                            </li>
-                                            <li className="flex items-center">
-                                                <Check className="mr-3 h-5 w-5 text-fun-green" />
-                                                <span className="font-comic text-lg text-gray-700">Fun Homework Assignments</span>
-                                            </li>
-                                            <li className="flex items-center">
-                                                <Check className="mr-3 h-5 w-5 text-fun-green" />
-                                                <span className="font-comic text-lg text-gray-700">Personalized Feedback</span>
-                                            </li>
-                                            <li className="flex items-center">
-                                                <Check className="mr-3 h-5 w-5 text-fun-green" />
-                                                <span className="font-comic text-lg text-gray-700">Cancel Anytime</span>
-                                            </li>
-                                        </ul>
-                                        <Link href={route('register')} className="cursor-pointer">
-                                            <Button
-                                                size="lg"
-                                                className="shadow-float w-full cursor-pointer rounded-full bg-fun-green py-4 font-comic text-xl hover:bg-fun-green-600"
-                                            >
-                                                🎹 Start Your Journey!
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                        <h3 className="mb-3 font-fredoka text-2xl font-semibold text-fun-purple">{benefit.title}</h3>
+                                        <p className="font-comic text-lg text-gray-700">{benefit.description}</p>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+
+                        <div className="text-center">
+                            <div className="mx-auto max-w-2xl rounded-3xl bg-white/10 p-8 backdrop-blur-sm">
+                                <h3 className="mb-4 font-fredoka text-2xl font-bold text-white">Ready to Start Your Journey? 🚀</h3>
+                                <p className="mb-6 font-comic text-white/90">Begin your musical adventure today with personalized piano lessons!</p>
+                                <Link
+                                    href={route('register')}
+                                    className="shadow-float inline-flex items-center justify-center rounded-full bg-fun-green px-8 py-4 font-comic text-lg text-white transition-all duration-300 hover:bg-fun-green-600"
+                                >
+                                    🎹 Get Started Now!
+                                    <ArrowRight className="ml-2 h-5 w-5" />
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -292,22 +303,17 @@ const Home = () => {
                             Join thousands of kids making beautiful music every day!
                         </p>
                         <div className="flex flex-col justify-center gap-4 sm:flex-row">
-                            <Link href={route('register')} className="cursor-pointer">
-                                <Button
-                                    size="lg"
-                                    className="shadow-float rounded-full bg-fun-green px-10 py-6 font-comic text-2xl hover:bg-fun-green-600"
-                                >
-                                    🎹 Start Learning Today!
-                                </Button>
+                            <Link
+                                href={route('register')}
+                                className="shadow-float inline-flex items-center justify-center rounded-full bg-fun-green px-10 py-6 font-comic text-2xl text-white transition-all duration-300 hover:bg-fun-green-600"
+                            >
+                                🎹 Start Learning Today!
                             </Link>
-                            <Link href={route('contact.index')} className="cursor-pointer">
-                                <Button
-                                    size="lg"
-                                    variant="outline"
-                                    className="rounded-full border-white px-8 py-6 font-comic text-xl text-fun-purple hover:bg-white hover:text-fun-purple"
-                                >
-                                    💬 Ask Questions
-                                </Button>
+                            <Link
+                                href={route('contact.index')}
+                                className="inline-flex items-center justify-center rounded-full border-2 border-white bg-transparent px-8 py-6 font-comic text-xl text-white transition-all duration-300 hover:bg-white hover:text-fun-purple"
+                            >
+                                💬 Ask Questions
                             </Link>
                         </div>
                     </div>

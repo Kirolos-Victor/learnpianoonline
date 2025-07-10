@@ -1,15 +1,20 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, Crown, Zap } from 'lucide-react';
 
 const Pricing = () => {
-    const { monthlySubscribePrice } = usePage<SharedData>().props;
+    const { monthlySubscribePrice, yearlySubscribePrice, discountPercentage } = usePage<SharedData>().props;
 
-    const features = [
+    // Calculate yearly savings
+    const monthlyPrice = parseFloat(monthlySubscribePrice);
+    const yearlyPrice = parseFloat(yearlySubscribePrice);
+    const yearlySavings = monthlyPrice * 12 - yearlyPrice;
+    const yearlyDiscountPercentage = Math.round((yearlySavings / (monthlyPrice * 12)) * 100);
+
+    const monthlyFeatures = [
         '4 Live 1-on-1 piano lessons per month (45 min each)',
         'Personalized monthly curriculum',
         'Weekly homework assignments',
@@ -19,6 +24,20 @@ const Pricing = () => {
         'Progress tracking dashboard',
         'Email support',
         'Recording reviews & tips',
+        'Cancel anytime - no contracts',
+    ];
+
+    const yearlyFeatures = [
+        '48 Live 1-on-1 piano lessons per year (45 min each)',
+        'Personalized yearly curriculum',
+        'Weekly homework assignments',
+        'Priority instructor support',
+        'Advanced lesson scheduling',
+        'Premium practice materials & resources',
+        'Enhanced progress tracking dashboard',
+        'Priority email & phone support',
+        'Recording reviews & detailed feedback',
+        'Bonus seasonal workshops',
         'Cancel anytime - no contracts',
     ];
 
@@ -55,7 +74,7 @@ const Pricing = () => {
         },
         {
             question: 'Is there a family discount?',
-            answer: 'Yes! You get 10% off for each additional student you add to your account. Contact us for details.',
+            answer: `Yes! You get ${discountPercentage}% off for each additional student you add to your account. Contact us for details.`,
         },
         {
             question: 'What happens if I cancel?',
@@ -96,127 +115,133 @@ const Pricing = () => {
                 {/* Header */}
                 <div className="bg-piano-gradient px-6 py-16">
                     <div className="container mx-auto text-center">
-                        <h1 className="font-playfair mb-4 text-4xl font-bold text-primary md:text-5xl">Simple, Transparent Pricing</h1>
+                        <h1 className="font-playfair mb-4 text-4xl font-bold text-primary md:text-5xl">Choose Your Perfect Plan</h1>
                         <p className="mx-auto mb-8 max-w-2xl text-xl text-muted-foreground">
-                            One affordable monthly plan that includes everything you need to master the piano
+                            Flexible pricing options designed to fit your musical journey and budget
                         </p>
                         <Badge className="bg-gold text-warm-brown px-4 py-2 text-sm">No setup fees • No contracts • Cancel anytime</Badge>
                     </div>
                 </div>
 
                 <div className="container mx-auto px-6 py-16">
-                    {/* Main Pricing Card */}
-                    <div className="mx-auto max-w-4xl">
-                        <Card className="border-gold/30 mb-16 shadow-2xl">
-                            <CardHeader className="pb-8 text-center">
-                                <div className="mb-4">
-                                    <Badge className="bg-gold text-warm-brown">Most Popular</Badge>
-                                </div>
-                                <CardTitle className="font-playfair mb-2 text-3xl">Monthly Piano Lessons</CardTitle>
-                                <CardDescription className="text-lg">Complete piano education with personal instructor guidance</CardDescription>
-                                <div className="mt-6">
-                                    <span className="text-5xl font-bold text-primary">${monthlySubscribePrice}</span>
-                                    <span className="text-xl text-muted-foreground">/month</span>
-                                </div>
-                                <p className="mt-2 text-sm text-muted-foreground">
-                                    That's just ${(parseFloat(monthlySubscribePrice) / 4).toFixed(2)} per lesson!
-                                </p>
-                                <div className="mt-4 flex justify-center">
-                                    <Badge className="border border-green-300 bg-green-100 px-4 py-2 text-sm text-green-800">
-                                        Enjoy 10% off for each additional student you add!
+                    {/* Main Pricing Cards - Side by Side */}
+                    <div className="mx-auto max-w-6xl">
+                        <div className="mb-16 grid grid-cols-1 gap-8 lg:grid-cols-2">
+                            {/* Monthly Plan */}
+                            <Card className="border-gold/30 relative shadow-xl">
+                                <div className="absolute -top-3 left-6">
+                                    <Badge className="flex items-center bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+                                        <Zap className="mr-1 h-3 w-3" />
+                                        Most Popular
                                     </Badge>
                                 </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-                                    <div className="space-y-3">
-                                        {features.slice(0, 5).map((feature, index) => (
-                                            <div key={index} className="flex items-center space-x-3">
-                                                <Check className="h-5 w-5 flex-shrink-0 text-green-500" />
-                                                <span className="text-sm">{feature}</span>
-                                            </div>
-                                        ))}
+                                <CardHeader className="pb-6 text-center">
+                                    <CardTitle className="font-playfair mb-2 text-2xl">Monthly Plan</CardTitle>
+                                    <CardDescription className="text-base">Perfect for getting started with piano</CardDescription>
+                                    <div className="mt-4">
+                                        <span className="text-4xl font-bold text-primary">${monthlySubscribePrice}</span>
+                                        <span className="text-lg text-muted-foreground">/month</span>
                                     </div>
-                                    <div className="space-y-3">
-                                        {features.slice(5).map((feature, index) => (
-                                            <div key={index + 5} className="flex items-center space-x-3">
-                                                <Check className="h-5 w-5 flex-shrink-0 text-green-500" />
-                                                <span className="text-sm">{feature}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="text-center">
-                                    <Link href="/auth/register" className="cursor-pointer">
-                                        <Button size="lg" className="bg-gold hover:bg-gold/90 text-warm-brown px-8 font-semibold">
-                                            Start Learning Today
-                                            <ArrowRight className="ml-2 h-4 w-4" />
-                                        </Button>
-                                    </Link>
-                                    <p className="mt-3 text-sm text-muted-foreground">
-                                        🔒 Secure payment • Start immediately • No long-term commitment
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        That's just ${(parseFloat(monthlySubscribePrice) / 4).toFixed(2)} per lesson!
                                     </p>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="mb-4">
+                                        <h4 className="mb-4 text-center font-semibold">What's Included:</h4>
+                                        <div className="space-y-3">
+                                            {monthlyFeatures.map((feature, index) => (
+                                                <div key={index} className="flex items-start space-x-3">
+                                                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
+                                                    <span className="text-sm">{feature}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Yearly Plan */}
+                            <Card className="border-gold from-gold/5 to-warm-brown/5 relative bg-gradient-to-br shadow-2xl">
+                                <div className="absolute -top-3 left-6">
+                                    <Badge className="flex animate-pulse items-center bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg">
+                                        <Crown className="mr-1 h-3 w-3" />
+                                        Best Value
+                                    </Badge>
                                 </div>
-                            </CardContent>
-                        </Card>
+                                <div className="absolute -top-2 -right-2">
+                                    <div className="rotate-12 animate-bounce rounded-full bg-gradient-to-r from-green-400 to-green-600 px-3 py-1 text-sm font-bold text-white shadow-lg">
+                                        Save {yearlyDiscountPercentage}%!
+                                    </div>
+                                </div>
+                                <CardHeader className="pb-6 text-center">
+                                    <CardTitle className="font-playfair mb-2 text-2xl">Yearly Plan</CardTitle>
+                                    <CardDescription className="text-base">Best value for serious learners</CardDescription>
+                                    <div className="mt-4">
+                                        <span className="text-4xl font-bold text-primary">${yearlySubscribePrice}</span>
+                                        <span className="text-lg text-muted-foreground">/year</span>
+                                    </div>
+                                    <div className="mt-2">
+                                        <span className="rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 px-3 py-1 text-sm font-semibold text-white shadow-md">
+                                            Save ${yearlySavings.toFixed(2)} compared to monthly
+                                        </span>
+                                    </div>
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        That's just ${(parseFloat(yearlySubscribePrice) / 48).toFixed(2)} per lesson!
+                                    </p>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="mb-4">
+                                        <h4 className="mb-4 text-center font-semibold">Everything in Monthly, Plus:</h4>
+                                        <div className="space-y-3">
+                                            {yearlyFeatures.map((feature, index) => (
+                                                <div key={index} className="flex items-start space-x-3">
+                                                    <Check
+                                                        className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
+                                                            feature.includes('Priority') ||
+                                                            feature.includes('Premium') ||
+                                                            feature.includes('Enhanced') ||
+                                                            feature.includes('Bonus')
+                                                                ? 'text-gold'
+                                                                : 'text-green-500'
+                                                        }`}
+                                                    />
+                                                    <span
+                                                        className={`text-sm ${
+                                                            feature.includes('Priority') ||
+                                                            feature.includes('Premium') ||
+                                                            feature.includes('Enhanced') ||
+                                                            feature.includes('Bonus')
+                                                                ? 'text-gold font-medium'
+                                                                : ''
+                                                        }`}
+                                                    >
+                                                        {feature}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
 
-                        {/* Value Comparison */}
-                        {/*<div className="mb-16">*/}
-                        {/*    <h2 className="mb-8 text-center font-playfair text-3xl font-bold">Compare the Value</h2>*/}
-                        {/*    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">*/}
-                        {/*        <Card className="border-2">*/}
-                        {/*            <CardHeader className="text-center">*/}
-                        {/*                <CardTitle className="text-xl">Traditional In-Person</CardTitle>*/}
-                        {/*                <div className="text-2xl font-bold text-muted-foreground">$80-120</div>*/}
-                        {/*                <p className="text-sm text-muted-foreground">per lesson</p>*/}
-                        {/*            </CardHeader>*/}
-                        {/*            <CardContent>*/}
-                        {/*                <ul className="space-y-2 text-sm">*/}
-                        {/*                    <li>✗ Travel time required</li>*/}
-                        {/*                    <li>✗ Limited scheduling</li>*/}
-                        {/*                    <li>✗ No homework tracking</li>*/}
-                        {/*                    <li>✗ $320-480/month</li>*/}
-                        {/*                </ul>*/}
-                        {/*            </CardContent>*/}
-                        {/*        </Card>*/}
-
-                        {/*        <Card className="border-gold bg-gold/5 relative border-2">*/}
-                        {/*            <div className="absolute -top-3 left-1/2 -translate-x-1/2 transform">*/}
-                        {/*                <Badge className="bg-gold text-warm-brown">Best Value</Badge>*/}
-                        {/*            </div>*/}
-                        {/*            <CardHeader className="text-center">*/}
-                        {/*                <CardTitle className="text-xl">mypianoclass.net</CardTitle>*/}
-                        {/*                <div className="text-gold text-2xl font-bold">$49</div>*/}
-                        {/*                <p className="text-sm text-muted-foreground">per month</p>*/}
-                        {/*            </CardHeader>*/}
-                        {/*            <CardContent>*/}
-                        {/*                <ul className="space-y-2 text-sm">*/}
-                        {/*                    <li>✓ Learn from home</li>*/}
-                        {/*                    <li>✓ Flexible scheduling</li>*/}
-                        {/*                    <li>✓ Homework & feedback</li>*/}
-                        {/*                    <li>✓ Only $49/month</li>*/}
-                        {/*                </ul>*/}
-                        {/*            </CardContent>*/}
-                        {/*        </Card>*/}
-
-                        {/*        <Card className="border-2">*/}
-                        {/*            <CardHeader className="text-center">*/}
-                        {/*                <CardTitle className="text-xl">Online Apps</CardTitle>*/}
-                        {/*                <div className="text-2xl font-bold text-muted-foreground">$10-30</div>*/}
-                        {/*                <p className="text-sm text-muted-foreground">per month</p>*/}
-                        {/*            </CardHeader>*/}
-                        {/*            <CardContent>*/}
-                        {/*                <ul className="space-y-2 text-sm">*/}
-                        {/*                    <li>✗ No personal instructor</li>*/}
-                        {/*                    <li>✗ Generic curriculum</li>*/}
-                        {/*                    <li>✗ No feedback</li>*/}
-                        {/*                    <li>✗ Limited progress</li>*/}
-                        {/*                </ul>*/}
-                        {/*            </CardContent>*/}
-                        {/*        </Card>*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
+                        {/* Start Your Journey Button */}
+                        <div className="mb-16 text-center">
+                            <div className="shadow-float mx-auto max-w-2xl rounded-3xl bg-gradient-to-r from-fun-pink/10 to-fun-blue/10 p-8">
+                                <h3 className="font-playfair mb-4 text-2xl font-bold text-primary">Ready to Begin Your Musical Journey? 🎹</h3>
+                                <p className="mx-auto mb-6 max-w-lg text-muted-foreground">
+                                    Choose your perfect plan and start learning piano with personalized instruction tailored just for you.
+                                </p>
+                                <Link
+                                    href={route('register')}
+                                    className="shadow-float bg-gold hover:bg-gold/90 text-warm-brown inline-flex items-center justify-center rounded-full px-10 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105"
+                                >
+                                    🚀 Start Your Journey
+                                    <ArrowRight className="ml-2 h-5 w-5" />
+                                </Link>
+                            </div>
+                        </div>
 
                         {/* Testimonials */}
                         <div className="mb-16">
@@ -252,17 +277,26 @@ const Pricing = () => {
                         {/* Final CTA */}
                         <Card className="bg-warm-brown text-piano-white text-center">
                             <CardContent className="p-8">
-                                <h2 className="font-playfair mb-4 text-3xl font-bold">Ready to Start Your Musical Journey?</h2>
+                                <h2 className="font-playfair mb-4 text-3xl font-bold">Transform Your Musical Dreams Into Reality</h2>
                                 <p className="text-piano-white/80 mx-auto mb-6 max-w-2xl">
                                     Join hundreds of students who have transformed their piano skills with our personalized approach. Start your first
-                                    lesson within 48 hours.
+                                    lesson within 48 hours and begin your musical journey today.
                                 </p>
-                                <Link href="/auth/register" className="cursor-pointer">
-                                    <Button size="lg" className="bg-gold hover:bg-gold/90 text-warm-brown font-semibold">
-                                        Get Started Now - ${monthlySubscribePrice}/month
+                                <div className="flex flex-col justify-center gap-4 sm:flex-row">
+                                    <Link
+                                        href={route('register')}
+                                        className="shadow-float bg-gold hover:bg-gold/90 text-warm-brown inline-flex items-center justify-center rounded-full px-8 py-3 font-semibold transition-all duration-300 hover:scale-105"
+                                    >
+                                        🎹 Start Your Journey
                                         <ArrowRight className="ml-2 h-4 w-4" />
-                                    </Button>
-                                </Link>
+                                    </Link>
+                                    <Link
+                                        href={route('contact.index')}
+                                        className="border-piano-white text-piano-white hover:bg-piano-white hover:text-warm-brown inline-flex items-center justify-center rounded-full border-2 bg-transparent px-8 py-3 transition-all duration-300"
+                                    >
+                                        💬 Have Questions?
+                                    </Link>
+                                </div>
                                 <p className="text-piano-white/60 mt-4 text-sm">Cancel anytime • No setup fees • Start immediately</p>
                             </CardContent>
                         </Card>
