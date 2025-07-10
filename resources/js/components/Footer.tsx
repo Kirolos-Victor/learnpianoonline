@@ -1,8 +1,67 @@
 import Logo from '@/components/Logo';
-import { Link } from '@inertiajs/react';
+import { SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { Heart, Music, Star } from 'lucide-react';
 
 const Footer = () => {
+    const { auth } = usePage<SharedData>().props;
+
+    // Check if we're on a student page
+    const isStudentPage = () => {
+        return window.location.pathname.includes('/student/');
+    };
+
+    // Get navigation items based on user role
+    const getQuickLinks = () => {
+        if (!auth.user) {
+            // Guest navigation items
+            return [
+                { name: 'home.index', label: 'Home', icon: '🏠' },
+                { name: 'pricing.index', label: 'Plans & Pricing', icon: '⭐' },
+                { name: 'contact.index', label: 'Contact Us', icon: '💬' },
+            ];
+        }
+
+        if (auth.user.role === 'parent') {
+            // For parent role, check if we're on a student page
+            if (isStudentPage()) {
+                return [
+                    { name: 'student.dashboard', label: 'My Piano Home', icon: '🏠' },
+                    { name: 'student.lessons', label: 'Lessons', icon: '🎵' },
+                ];
+            }
+            return [
+                { name: 'parent.dashboard', label: 'My Piano Home', icon: '🏠' },
+                { name: 'parent.students', label: 'My Students', icon: '👥' },
+                { name: 'parent.subscription', label: 'My Plan', icon: '💳' },
+                { name: 'parent.contact', label: 'Get Help', icon: '💬' },
+            ];
+        }
+
+        if (auth.user.role === 'instructor') {
+            return [
+                { name: 'instructor.dashboard', label: 'Dashboard', icon: '🏠' },
+                { name: 'instructor.students', label: 'My Students', icon: '👥' },
+            ];
+        }
+
+        if (auth.user.role === 'admin') {
+            return [
+                { name: 'admin.dashboard', label: 'Dashboard', icon: '🏠' },
+                { name: 'admin.users', label: 'Users', icon: '👥' },
+            ];
+        }
+
+        // Default to guest links
+        return [
+            { name: 'home.index', label: 'Home', icon: '🏠' },
+            { name: 'pricing.index', label: 'Plans & Pricing', icon: '⭐' },
+            { name: 'contact.index', label: 'Contact Us', icon: '💬' },
+        ];
+    };
+
+    const quickLinks = getQuickLinks();
+
     return (
         <footer className="relative overflow-hidden bg-fun-purple text-white">
             {/* Decorative elements */}
@@ -31,45 +90,40 @@ const Footer = () => {
                         </div>
                     </div>
 
-                    {/* Quick Links - Kid-friendly */}
+                    {/* Quick Links - Role-based */}
                     <div>
                         <h3 className="mb-6 flex items-center font-fredoka text-xl font-bold text-white">
                             <Star className="mr-2 h-5 w-5 text-fun-yellow" />
                             Quick Links
                         </h3>
                         <ul className="space-y-3">
-                            <li>
-                                <Link
-                                    href="/lessons"
-                                    className="inline-block transform font-comic text-lg text-white/80 transition-colors duration-200 hover:scale-105 hover:text-fun-yellow"
-                                >
-                                    🎵 Piano Lessons
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/pricing"
-                                    className="inline-block transform font-comic text-lg text-white/80 transition-colors duration-200 hover:scale-105 hover:text-fun-yellow"
-                                >
-                                    ⭐ Plans & Pricing
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/dashboard"
-                                    className="inline-block transform font-comic text-lg text-white/80 transition-colors duration-200 hover:scale-105 hover:text-fun-yellow"
-                                >
-                                    🏠 My Piano Home
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="/contact"
-                                    className="inline-block transform font-comic text-lg text-white/80 transition-colors duration-200 hover:scale-105 hover:text-fun-yellow"
-                                >
-                                    💬 Get Help
-                                </Link>
-                            </li>
+                            {quickLinks.map((link) => {
+                                // For student interface, we need to handle the route differently
+                                const getHref = () => {
+                                    if (isStudentPage() && link.name === 'student.dashboard') {
+                                        // Get current student slug from URL
+                                        const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
+                                        return route('student.dashboard', { student: studentSlug });
+                                    }
+                                    if (isStudentPage() && link.name === 'student.lessons') {
+                                        // Get current student slug from URL
+                                        const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
+                                        return route('student.lessons', { student: studentSlug });
+                                    }
+                                    return route(link.name);
+                                };
+
+                                return (
+                                    <li key={link.name}>
+                                        <Link
+                                            href={getHref()}
+                                            className="inline-block transform font-comic text-lg text-white/80 transition-colors duration-200 hover:scale-105 hover:text-fun-yellow"
+                                        >
+                                            {link.icon} {link.label}
+                                        </Link>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
 
