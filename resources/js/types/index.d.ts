@@ -39,7 +39,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
-    role: 'student' | 'instructor' | 'admin';
+    role: 'student' | 'instructor' | 'admin' | 'parent';
     avatar?: string;
     email_verified_at: string | null;
     created_at: string;
