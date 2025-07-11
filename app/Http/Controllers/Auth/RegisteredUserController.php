@@ -38,7 +38,7 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'whatsapp_number' => 'required|string|max:20',
+            'whatsapp_number' => 'nullable|string|max:20',
             'city' => 'nullable|string|max:255',
             'state_province' => 'nullable|string|max:255',
             'country' => 'required|string|max:2',
