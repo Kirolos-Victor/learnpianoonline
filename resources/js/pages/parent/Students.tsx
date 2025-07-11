@@ -3,11 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import ParentLayout from '@/layouts/parent-layout';
 import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { AlertCircle, CheckCircle, Clock, Crown, Edit, Music, Plus, Trash2, UserPlus, Users } from 'lucide-react';
+import { AlertCircle, Calendar, CheckCircle, Clock, Crown, Edit, Music, Plus, Timer, Trash2, UserPlus, Users } from 'lucide-react';
 import { useState } from 'react';
 
 interface Student {
@@ -20,6 +21,8 @@ interface Student {
     subscriptionType?: 'monthly' | 'yearly';
     subscriptionEndDate?: string;
     sessionsRemaining: number;
+    dayOfWeek?: string;
+    preferredTimeCairo?: string;
     instructor?: {
         id: string;
         name: string;
@@ -27,19 +30,39 @@ interface Student {
     createdAt: string;
 }
 
+interface TimeSlot {
+    value: string;
+    label: string;
+    cairoTime: string;
+    userTime: string;
+}
+
 interface StudentSharedData extends SharedData {
     students: Student[];
+    availableTimeSlots: TimeSlot[];
 }
 
 const Student = () => {
-    const { students, errors } = usePage<StudentSharedData>().props;
+    const { students, errors, availableTimeSlots } = usePage<StudentSharedData>().props;
     const [isAddingStudent, setIsAddingStudent] = useState(false);
     const [editingStudent, setEditingStudent] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         age: '',
         hasPiano: false,
+        dayOfWeek: '',
+        preferredTime: '',
     });
+
+    const daysOfWeek = [
+        { value: 'monday', label: 'Monday' },
+        { value: 'tuesday', label: 'Tuesday' },
+        { value: 'wednesday', label: 'Wednesday' },
+        { value: 'thursday', label: 'Thursday' },
+        { value: 'friday', label: 'Friday' },
+        { value: 'saturday', label: 'Saturday' },
+        { value: 'sunday', label: 'Sunday' },
+    ];
 
     const handleAddStudent = () => {
         router.post(
@@ -48,11 +71,13 @@ const Student = () => {
                 name: formData.name,
                 age: formData.age,
                 hasPiano: formData.hasPiano,
+                dayOfWeek: formData.dayOfWeek,
+                preferredTime: formData.preferredTime,
             },
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    setFormData({ name: '', age: '', hasPiano: false });
+                    setFormData({ name: '', age: '', hasPiano: false, dayOfWeek: '', preferredTime: '' });
                     setIsAddingStudent(false);
                 },
                 onError: () => {
@@ -69,6 +94,8 @@ const Student = () => {
                 name: student.name,
                 age: student.age.toString(),
                 hasPiano: student.hasPiano,
+                dayOfWeek: student.dayOfWeek || '',
+                preferredTime: student.preferredTimeCairo || '',
             });
             setEditingStudent(studentId);
             setIsAddingStudent(true);
@@ -82,11 +109,13 @@ const Student = () => {
                 name: formData.name,
                 age: formData.age,
                 hasPiano: formData.hasPiano,
+                dayOfWeek: formData.dayOfWeek,
+                preferredTime: formData.preferredTime,
             },
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    setFormData({ name: '', age: '', hasPiano: false });
+                    setFormData({ name: '', age: '', hasPiano: false, dayOfWeek: '', preferredTime: '' });
                     setEditingStudent(null);
                     setIsAddingStudent(false);
                 },
@@ -104,7 +133,7 @@ const Student = () => {
     };
 
     const handleCancel = () => {
-        setFormData({ name: '', age: '', hasPiano: false });
+        setFormData({ name: '', age: '', hasPiano: false, dayOfWeek: '', preferredTime: '' });
         setEditingStudent(null);
         setIsAddingStudent(false);
     };
@@ -123,6 +152,17 @@ const Student = () => {
         if (age < 12) return 'Elementary';
         if (age < 18) return 'Teen';
         return 'Adult';
+    };
+
+    const formatDayOfWeek = (day: string) => {
+        return day.charAt(0).toUpperCase() + day.slice(1);
+    };
+
+    const getTimeDisplayForStudent = (student: Student) => {
+        if (!student.preferredTimeCairo) return 'Not set - Please edit to add';
+
+        const timeSlot = availableTimeSlots.find((slot) => slot.cairoTime === student.preferredTimeCairo);
+        return timeSlot ? timeSlot.label : student.preferredTimeCairo;
     };
 
     return (
@@ -150,7 +190,9 @@ const Student = () => {
                                         {editingStudent ? 'Edit Student' : 'Add New Student'}
                                     </CardTitle>
                                     <CardDescription>
-                                        {editingStudent ? 'Update student information below' : 'Add a new student to your account'}
+                                        {editingStudent
+                                            ? 'Update student information and availability'
+                                            : 'Add a new student and set their lesson availability'}
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -175,38 +217,104 @@ const Student = () => {
                                             Add Student
                                         </Button>
                                     ) : (
-                                        <form className="space-y-4">
-                                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                                <div>
-                                                    <Label htmlFor="name">Student Name</Label>
-                                                    <Input
-                                                        id="name"
-                                                        value={formData.name}
-                                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                        placeholder="Enter student's full name"
-                                                        className={errors.name ? 'border-red-500' : ''}
-                                                    />
+                                        <form className="space-y-6">
+                                            {/* Basic Information */}
+                                            <div>
+                                                <Label className="mb-3 block text-base font-semibold text-gray-700">Basic Information</Label>
+                                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                                    <div>
+                                                        <Label htmlFor="name">Student Name</Label>
+                                                        <Input
+                                                            id="name"
+                                                            value={formData.name}
+                                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                            placeholder="Enter student's full name"
+                                                            className={errors.name ? 'border-red-500' : ''}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Label htmlFor="age">Age</Label>
+                                                        <Input
+                                                            id="age"
+                                                            type="number"
+                                                            value={formData.age}
+                                                            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                                                            placeholder="Enter age"
+                                                            className={errors.age ? 'border-red-500' : ''}
+                                                        />
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <Label htmlFor="age">Age</Label>
-                                                    <Input
-                                                        id="age"
-                                                        type="number"
-                                                        value={formData.age}
-                                                        onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                                                        placeholder="Enter age"
-                                                        className={errors.age ? 'border-red-500' : ''}
+
+                                                <div className="mt-4 flex items-center space-x-2">
+                                                    <Switch
+                                                        id="hasPiano"
+                                                        checked={formData.hasPiano}
+                                                        onCheckedChange={(checked: boolean) => setFormData({ ...formData, hasPiano: checked })}
                                                     />
+                                                    <Label htmlFor="hasPiano">Student has access to a piano/keyboard</Label>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center space-x-2">
-                                                <Switch
-                                                    id="hasPiano"
-                                                    checked={formData.hasPiano}
-                                                    onCheckedChange={(checked: boolean) => setFormData({ ...formData, hasPiano: checked })}
-                                                />
-                                                <Label htmlFor="hasPiano">Student has access to a piano/keyboard</Label>
+                                            {/* Lesson Availability */}
+                                            <div className="border-t pt-6">
+                                                <Label className="mb-3 block flex items-center text-base font-semibold text-gray-700">
+                                                    <Calendar className="mr-2 h-4 w-4" />
+                                                    Lesson Availability *
+                                                </Label>
+                                                <p className="mb-4 text-sm text-muted-foreground">
+                                                    Select when your student is available for lessons. These fields are required to schedule lessons.
+                                                </p>
+
+                                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                                    <div>
+                                                        <Label htmlFor="dayOfWeek">Preferred Day *</Label>
+                                                        <Select
+                                                            value={formData.dayOfWeek}
+                                                            onValueChange={(value) => setFormData({ ...formData, dayOfWeek: value })}
+                                                        >
+                                                            <SelectTrigger className={errors.dayOfWeek ? 'border-red-500' : ''}>
+                                                                <SelectValue placeholder="Select day of week" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {daysOfWeek.map((day) => (
+                                                                    <SelectItem key={day.value} value={day.value}>
+                                                                        {day.label}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+
+                                                    <div>
+                                                        <Label htmlFor="preferredTime" className="flex items-center">
+                                                            <Timer className="mr-1 h-3 w-3" />
+                                                            Preferred Time (Your Local Time) *
+                                                        </Label>
+                                                        <Select
+                                                            value={formData.preferredTime}
+                                                            onValueChange={(value) => setFormData({ ...formData, preferredTime: value })}
+                                                        >
+                                                            <SelectTrigger className={errors.preferredTime ? 'border-red-500' : ''}>
+                                                                <SelectValue placeholder="Select preferred time" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {availableTimeSlots.map((slot) => (
+                                                                    <SelectItem key={slot.value} value={slot.value}>
+                                                                        {slot.label}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                                                    <p className="text-sm text-amber-700">
+                                                        <strong>Important:</strong> Lesson availability is required to schedule your student's piano
+                                                        lessons. Available times are between 5:00 PM and 3:00 AM Cairo time, automatically converted
+                                                        to your timezone.
+                                                    </p>
+                                                </div>
                                             </div>
 
                                             <div className="flex space-x-2">
@@ -281,6 +389,17 @@ const Student = () => {
                                                                     </Badge>
                                                                 )}
                                                             </div>
+                                                            {student.dayOfWeek && student.preferredTimeCairo ? (
+                                                                <div className="mt-2 text-sm text-muted-foreground">
+                                                                    <strong>Availability:</strong> {formatDayOfWeek(student.dayOfWeek)}s at{' '}
+                                                                    {getTimeDisplayForStudent(student)}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="mt-2 text-sm text-red-600">
+                                                                    <strong>⚠️ Availability Required:</strong> Please edit student to set lesson
+                                                                    schedule
+                                                                </div>
+                                                            )}
                                                             <p className="mt-1 text-sm text-muted-foreground">Added: {student.createdAt}</p>
                                                         </div>
                                                     </div>
@@ -338,10 +457,42 @@ const Student = () => {
                                             <span className="font-semibold text-blue-600">{students.filter((s) => s.hasPiano).length}</span>
                                         </div>
                                         <div className="flex justify-between">
+                                            <span className="text-sm">Missing Availability</span>
+                                            <span className="font-semibold text-red-600">
+                                                {students.filter((s) => !s.dayOfWeek || !s.preferredTimeCairo).length}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between">
                                             <span className="text-sm">Average Age</span>
                                             <span className="font-semibold">
                                                 {students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.age, 0) / students.length) : 0}
                                             </span>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Lesson Scheduling Info */}
+                            <Card className="border-green-200 bg-green-50">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center text-green-800">
+                                        <Calendar className="mr-2 h-5 w-5" />
+                                        Lesson Scheduling
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-3 text-sm text-green-700">
+                                        <div className="flex items-start space-x-2">
+                                            <Timer className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                                            <p>Lessons are available between 5:00 PM and 3:00 AM Cairo time</p>
+                                        </div>
+                                        <div className="flex items-start space-x-2">
+                                            <Clock className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                                            <p>Times are automatically converted to your local timezone</p>
+                                        </div>
+                                        <div className="flex items-start space-x-2">
+                                            <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                                            <p>Set availability for each student to help with scheduling</p>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -368,29 +519,6 @@ const Student = () => {
                                         <div className="flex items-start space-x-2">
                                             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
                                             <p>Click "Subscribe" next to any student to get started</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Tips */}
-                            <Card className="border-blue-200 bg-blue-50">
-                                <CardHeader>
-                                    <CardTitle className="text-blue-800">Tips for Success</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3 text-sm text-blue-700">
-                                        <div className="flex items-start space-x-2">
-                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                            <p>Students with piano access practice more effectively</p>
-                                        </div>
-                                        <div className="flex items-start space-x-2">
-                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                            <p>Consider age-appropriate lesson scheduling</p>
-                                        </div>
-                                        <div className="flex items-start space-x-2">
-                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                            <p>Regular practice leads to better progress</p>
                                         </div>
                                     </div>
                                 </CardContent>

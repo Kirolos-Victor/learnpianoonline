@@ -20,12 +20,15 @@ class Student extends Model
         'instructor_id',
         'sessions_remaining',
         'subscription_expires_at',
+        'day_of_week',
+        'preferred_time_cairo',
     ];
 
     protected $casts = [
         'is_subscribed' => 'boolean',
         'has_piano' => 'boolean',
         'subscription_expires_at' => 'datetime',
+        'preferred_time_cairo' => 'datetime:H:i',
     ];
 
     /**

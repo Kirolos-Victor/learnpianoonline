@@ -66,6 +66,8 @@ class InstructorStudentSeeder extends Seeder
             'instructor_id' => $instructor->id,
             'sessions_remaining' => 10,
             'is_subscribed' => true,
+            'day_of_week' => 'monday',
+            'preferred_time_cairo' => '18:00:00', // 6:00 PM Cairo time
         ]);
 
         $studentProfile2 = Student::create([
@@ -75,6 +77,8 @@ class InstructorStudentSeeder extends Seeder
             'instructor_id' => $instructor->id,
             'sessions_remaining' => 5,
             'is_subscribed' => false,
+            'day_of_week' => 'wednesday',
+            'preferred_time_cairo' => '20:00:00', // 8:00 PM Cairo time
         ]);
 
         // Create lessons for each student
