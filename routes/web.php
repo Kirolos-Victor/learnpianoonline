@@ -35,8 +35,8 @@ Route::middleware(['auth', 'parent'])->prefix('parent')->name('parent.')->group(
     Route::get('student/{student:slug}', [ParentDashboardController::class, 'selectStudent'])->name('student.select');
     Route::get('students', [ParentStudentController::class, 'index'])->name('students');
     Route::post('students', [ParentStudentController::class, 'store'])->name('students.store');
-    Route::put('students/{student}', [ParentStudentController::class, 'update'])->name('students.update');
-    Route::delete('students/{student}', [ParentStudentController::class, 'destroy'])->name('students.destroy');
+    Route::put('students/{student:slug}', [ParentStudentController::class, 'update'])->name('students.update');
+    Route::delete('students/{student:slug}', [ParentStudentController::class, 'destroy'])->name('students.destroy');
     Route::get('subscription', [ParentSubscriptionController::class, 'index'])->name('subscription');
     Route::get('contact', [ParentContactController::class, 'index'])->name('contact');
 

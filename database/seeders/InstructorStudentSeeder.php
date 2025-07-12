@@ -62,23 +62,25 @@ class InstructorStudentSeeder extends Seeder
         $studentProfile1 = Student::create([
             'user_id' => $student1->id,
             'name' => $student1->name,
-            'age' => 25,
+            'age' => fake()->numberBetween(5, 17),
+            'has_piano' => fake()->boolean(),
+            'day_of_week' => fake()->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
+            'preferred_time' => fake()->randomElement(['17:00', '18:00', '19:00', '20:00', '21:00', '22:00']),
             'instructor_id' => $instructor->id,
             'sessions_remaining' => 10,
             'is_subscribed' => true,
-            'day_of_week' => 'monday',
-            'preferred_time_cairo' => '18:00:00', // 6:00 PM Cairo time
         ]);
 
         $studentProfile2 = Student::create([
             'user_id' => $student2->id,
             'name' => $student2->name,
-            'age' => 30,
+            'age' => fake()->numberBetween(5, 17),
+            'has_piano' => fake()->boolean(),
+            'day_of_week' => fake()->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
+            'preferred_time' => fake()->randomElement(['17:00', '18:00', '19:00', '20:00', '21:00', '22:00']),
             'instructor_id' => $instructor->id,
             'sessions_remaining' => 5,
             'is_subscribed' => false,
-            'day_of_week' => 'wednesday',
-            'preferred_time_cairo' => '20:00:00', // 8:00 PM Cairo time
         ]);
 
         // Create lessons for each student

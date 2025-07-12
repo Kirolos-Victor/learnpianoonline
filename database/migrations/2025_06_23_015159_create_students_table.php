@@ -22,8 +22,8 @@ return new class extends Migration
             $table->dateTime('subscription_expires_at')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('instructor_id')->nullable()->constrained('users');
-            $table->string('day_of_week'); // Required field - monday, tuesday, etc.
-            $table->time('preferred_time_cairo'); // Required field - Time in Cairo timezone
+            $table->string('day_of_week');
+            $table->time('preferred_time');
             $table->timestamps();
         });
     }

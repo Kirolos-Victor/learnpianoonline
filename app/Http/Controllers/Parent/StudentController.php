@@ -30,7 +30,7 @@ class StudentController extends Controller
                     'subscriptionEndDate' => $student->subscription_expires_at?->format('Y-m-d'),
                     'sessionsRemaining' => $student->sessions_remaining,
                     'dayOfWeek' => $student->day_of_week,
-                    'preferredTimeCairo' => $student->preferred_time_cairo,
+                    'preferredTime' => $student->preferred_time,
                     'instructor' => $student->instructor ? [
                         'id' => $student->instructor->id,
                         'name' => $student->instructor->name,
@@ -39,28 +39,29 @@ class StudentController extends Controller
                 ];
             }),
             'availableTimeSlots' => $this->getAvailableTimeSlots($user->timezone ?? 'UTC'),
+            'availableDays' => $this->getAvailableDays(),
+            'preferredTimezone' => config('app.preferred_timezone', 'UTC'),
         ]);
     }
 
     public function store(Request $request)
     {
+        $availableDays = $this->getAvailableDays();
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'age' => 'required|integer|min:1|max:100',
+            'age' => 'required|integer|min:5|max:100',
             'hasPiano' => 'required|boolean',
-            'dayOfWeek' => 'required|string|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+            'dayOfWeek' => 'required|string|in:' . implode(',', $availableDays),
             'preferredTime' => 'required|string',
         ]);
-
-        // Convert the selected time from user's timezone to Cairo time
-        $cairoTime = $this->convertToCairoTime($request->preferredTime, Auth::user()->timezone ?? 'UTC');
 
         $student = Auth::user()->students()->create([
             'name' => $request->name,
             'age' => $request->age,
             'has_piano' => $request->hasPiano,
             'day_of_week' => $request->dayOfWeek,
-            'preferred_time_cairo' => $cairoTime,
+            'preferred_time' => $request->preferredTime,
         ]);
 
         return redirect()->route('parent.students')->with('success', 'Student added successfully!');
@@ -73,23 +74,22 @@ class StudentController extends Controller
             abort(403, 'Unauthorized access to student data');
         }
 
+        $availableDays = $this->getAvailableDays();
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'age' => 'required|integer|min:1|max:100',
+            'age' => 'required|integer|min:5|max:100',
             'hasPiano' => 'required|boolean',
-            'dayOfWeek' => 'required|string|in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+            'dayOfWeek' => 'required|string|in:' . implode(',', $availableDays),
             'preferredTime' => 'required|string',
         ]);
-
-        // Convert the selected time from user's timezone to Cairo time
-        $cairoTime = $this->convertToCairoTime($request->preferredTime, Auth::user()->timezone ?? 'UTC');
 
         $student->update([
             'name' => $request->name,
             'age' => $request->age,
             'has_piano' => $request->hasPiano,
             'day_of_week' => $request->dayOfWeek,
-            'preferred_time_cairo' => $cairoTime,
+            'preferred_time' => $request->preferredTime,
         ]);
 
         return redirect()->route('parent.students')->with('success', 'Student updated successfully!');
@@ -113,40 +113,24 @@ class StudentController extends Controller
     private function getAvailableTimeSlots($userTimezone)
     {
         $timeSlots = [];
+        $preferredTimezone = config('app.preferred_timezone', 'UTC');
+        $startTime = config('app.preferred_start_time', '17:00');
+        $endTime = config('app.preferred_end_time', '03:00');
 
-        // Cairo time range: 17:00 (5:00 PM) to 03:00 (3:00 AM next day)
-        $cairoTimeSlots = [
-            '17:00',
-            '17:30',
-            '18:00',
-            '18:30',
-            '19:00',
-            '19:30',
-            '20:00',
-            '20:30',
-            '21:00',
-            '21:30',
-            '22:00',
-            '22:30',
-            '23:00',
-            '23:30',
-            '00:00',
-            '00:30',
-            '01:00',
-            '01:30',
-            '02:00',
-            '02:30',
-            '03:00'
-        ];
+        // Generate time slots between start and end time
+        $preferredTimeSlots = $this->generateTimeSlots($startTime, $endTime, $preferredTimezone);
 
-        foreach ($cairoTimeSlots as $cairoTime) {
-            $cairoDateTime = Carbon::createFromFormat('H:i', $cairoTime, 'Africa/Cairo');
-            $userDateTime = $cairoDateTime->setTimezone($userTimezone);
+        foreach ($preferredTimeSlots as $preferredTime) {
+            // Create a datetime in the preferred timezone
+            $preferredDateTime = Carbon::createFromFormat('H:i', $preferredTime, $preferredTimezone);
+
+            // Convert to user's timezone for display
+            $userDateTime = $preferredDateTime->setTimezone($userTimezone);
 
             $timeSlots[] = [
-                'value' => $cairoTime,
+                'value' => $userDateTime->format('H:i'),
                 'label' => $userDateTime->format('g:i A'),
-                'cairoTime' => $cairoTime,
+                'preferredTime' => $preferredTime,
                 'userTime' => $userDateTime->format('H:i'),
             ];
         }
@@ -155,13 +139,60 @@ class StudentController extends Controller
     }
 
     /**
-     * Convert time from user's timezone to Cairo time
+     * Generate time slots between start and end time
      */
-    private function convertToCairoTime($userTime, $userTimezone)
+    private function generateTimeSlots($startTime, $endTime, $timezone)
     {
-        $userDateTime = Carbon::createFromFormat('H:i', $userTime, $userTimezone);
-        $cairoDateTime = $userDateTime->setTimezone('Africa/Cairo');
+        $timeSlots = [];
+        $start = Carbon::createFromFormat('H:i', $startTime, $timezone);
+        $end = Carbon::createFromFormat('H:i', $endTime, $timezone);
 
-        return $cairoDateTime->format('H:i:s');
+        // If end time is before start time, it means it goes to the next day
+        if ($end->lessThan($start)) {
+            $end->addDay();
+        }
+
+        $current = $start->copy();
+        while ($current->lessThanOrEqualTo($end)) {
+            $timeSlots[] = $current->format('H:i');
+            $current->addMinutes(30); // 30-minute intervals
+        }
+
+        return $timeSlots;
+    }
+
+    /**
+     * Get available days from environment configuration
+     */
+    private function getAvailableDays()
+    {
+        $availableDays = config('app.available_days', 'monday,tuesday,wednesday,thursday,friday,saturday,sunday');
+
+        if (is_string($availableDays)) {
+            // Try to decode as JSON first
+            $decoded = json_decode($availableDays, true);
+
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+
+            // If not JSON, split by comma
+            return array_map('trim', explode(',', $availableDays));
+        }
+
+        return is_array($availableDays) ? $availableDays : ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    }
+
+    /**
+     * Convert student's preferred time to the preferred timezone for scheduling
+     */
+    public function convertToPreferredTimezone($userTime, $userTimezone)
+    {
+        $preferredTimezone = config('app.preferred_timezone', 'UTC');
+
+        $userDateTime = Carbon::createFromFormat('H:i', $userTime, $userTimezone);
+        $preferredDateTime = $userDateTime->setTimezone($preferredTimezone);
+
+        return $preferredDateTime->format('H:i:s');
     }
 }

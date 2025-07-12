@@ -123,4 +123,19 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Dynamic Scheduling Configuration
+    |--------------------------------------------------------------------------
+    |
+    | These configuration values control the dynamic scheduling system
+    | for lesson availability and timezone handling.
+    |
+    */
+
+    'preferred_timezone' => env('PREFERRED_TIMEZONE', 'Africa/Cairo'),
+    'preferred_start_time' => env('PREFERRED_START_TIME', '17:00'),
+    'preferred_end_time' => env('PREFERRED_END_TIME', '03:00'),
+    'available_days' => env('AVAILABLE_DAYS', 'monday,tuesday,wednesday,thursday,friday,saturday,sunday'),
+
 ];

@@ -1,51 +1,96 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import ParentLayout from '@/layouts/parent-layout';
-import { SharedData } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
-import { AlertCircle, Calendar, CheckCircle, Clock, Crown, Edit, Music, Plus, Timer, Trash2, UserPlus, Users } from 'lucide-react';
-import { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { AlertCircle, Calendar, Clock, Edit2, Piano, PlusCircle, Trash2, User, Users } from 'lucide-react';
+import { FormEvent, useEffect, useState } from 'react';
 
 interface Student {
-    id: string;
+    id: number;
     name: string;
     slug: string;
     age: number;
     hasPiano: boolean;
     isSubscribed: boolean;
-    subscriptionType?: 'monthly' | 'yearly';
-    subscriptionEndDate?: string;
+    subscriptionType: string | null;
+    subscriptionEndDate: string | null;
     sessionsRemaining: number;
-    dayOfWeek?: string;
-    preferredTimeCairo?: string;
-    instructor?: {
-        id: string;
+    dayOfWeek: string;
+    preferredTime: string;
+    instructor: {
+        id: number;
         name: string;
-    };
+    } | null;
     createdAt: string;
 }
 
 interface TimeSlot {
     value: string;
     label: string;
-    cairoTime: string;
+    preferredTime: string;
     userTime: string;
 }
 
-interface StudentSharedData extends SharedData {
+interface Props {
     students: Student[];
     availableTimeSlots: TimeSlot[];
+    availableDays: string[] | string;
+    preferredTimezone: string;
 }
 
-const Student = () => {
-    const { students, errors, availableTimeSlots } = usePage<StudentSharedData>().props;
-    const [isAddingStudent, setIsAddingStudent] = useState(false);
-    const [editingStudent, setEditingStudent] = useState<string | null>(null);
+// Helper function to format time
+const formatTime = (timeString: string) => {
+    if (!timeString) return '';
+
+    try {
+        // Handle ISO format like "2025-07-11T18:00:00.000000Z"
+        if (timeString.includes('T')) {
+            const date = new Date(timeString);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Handle HH:MM format
+        if (timeString.includes(':')) {
+            const [hours, minutes] = timeString.split(':');
+            const date = new Date();
+            date.setHours(parseInt(hours), parseInt(minutes));
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        return timeString;
+    } catch (error) {
+        return timeString;
+    }
+};
+
+// Helper function to parse available days
+const parseAvailableDays = (days: string[] | string): string[] => {
+    if (Array.isArray(days)) {
+        return days;
+    }
+
+    if (typeof days === 'string') {
+        try {
+            // Try to parse as JSON first
+            const parsed = JSON.parse(days);
+            return Array.isArray(parsed) ? parsed : [days];
+        } catch {
+            // If JSON parsing fails, split by comma
+            return days.split(',').map((day) => day.trim());
+        }
+    }
+
+    return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+};
+
+export default function Students({ students, availableTimeSlots, availableDays, preferredTimezone }: Props) {
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [editingStudent, setEditingStudent] = useState<Student | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         age: '',
@@ -53,518 +98,535 @@ const Student = () => {
         dayOfWeek: '',
         preferredTime: '',
     });
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const daysOfWeek = [
-        { value: 'monday', label: 'Monday' },
-        { value: 'tuesday', label: 'Tuesday' },
-        { value: 'wednesday', label: 'Wednesday' },
-        { value: 'thursday', label: 'Thursday' },
-        { value: 'friday', label: 'Friday' },
-        { value: 'saturday', label: 'Saturday' },
-        { value: 'sunday', label: 'Sunday' },
-    ];
+    // Parse available days to ensure it's always an array
+    const parsedAvailableDays = parseAvailableDays(availableDays);
 
-    const handleAddStudent = () => {
-        router.post(
-            '/parent/students',
-            {
-                name: formData.name,
-                age: formData.age,
-                hasPiano: formData.hasPiano,
-                dayOfWeek: formData.dayOfWeek,
-                preferredTime: formData.preferredTime,
-            },
-            {
+    // Debug form data changes
+    useEffect(() => {
+        console.log('Form data changed:', formData);
+        console.log('Editing student:', editingStudent);
+    }, [formData, editingStudent]);
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+
+        // Clear previous errors
+        setErrors({});
+
+        // Client-side validation
+        const newErrors: Record<string, string> = {};
+
+        if (!formData.name.trim()) {
+            newErrors.name = 'Student name is required';
+        }
+
+        const age = parseInt(formData.age);
+        if (!formData.age || isNaN(age) || age < 5 || age > 100) {
+            newErrors.age = 'Age must be between 5 and 100 years';
+        }
+
+        if (!formData.dayOfWeek) {
+            newErrors.dayOfWeek = 'Please select a preferred day';
+        }
+
+        if (!formData.preferredTime) {
+            newErrors.preferredTime = 'Please select a preferred time';
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        if (editingStudent) {
+            router.put(`/parent/students/${editingStudent.slug}`, formData, {
                 preserveScroll: true,
                 onSuccess: () => {
-                    setFormData({ name: '', age: '', hasPiano: false, dayOfWeek: '', preferredTime: '' });
-                    setIsAddingStudent(false);
+                    resetForm();
+                    setIsSubmitting(false);
                 },
-                onError: () => {
-                    // Keep form open on validation errors
+                onError: (serverErrors) => {
+                    console.error('Update failed:', serverErrors);
+                    setErrors(serverErrors);
+                    setIsSubmitting(false);
                 },
-            },
-        );
-    };
-
-    const handleEditStudent = (studentId: string) => {
-        const student = students.find((s) => s.id === studentId);
-        if (student) {
-            setFormData({
-                name: student.name,
-                age: student.age.toString(),
-                hasPiano: student.hasPiano,
-                dayOfWeek: student.dayOfWeek || '',
-                preferredTime: student.preferredTimeCairo || '',
             });
-            setEditingStudent(studentId);
-            setIsAddingStudent(true);
-        }
-    };
-
-    const handleUpdateStudent = () => {
-        router.put(
-            `/parent/students/${editingStudent}`,
-            {
-                name: formData.name,
-                age: formData.age,
-                hasPiano: formData.hasPiano,
-                dayOfWeek: formData.dayOfWeek,
-                preferredTime: formData.preferredTime,
-            },
-            {
+        } else {
+            router.post('/parent/students', formData, {
                 preserveScroll: true,
                 onSuccess: () => {
-                    setFormData({ name: '', age: '', hasPiano: false, dayOfWeek: '', preferredTime: '' });
-                    setEditingStudent(null);
-                    setIsAddingStudent(false);
+                    resetForm();
+                    setIsSubmitting(false);
                 },
-                onError: () => {
-                    // Keep form open on validation errors
+                onError: (serverErrors) => {
+                    console.error('Create failed:', serverErrors);
+                    setErrors(serverErrors);
+                    setIsSubmitting(false);
                 },
-            },
-        );
-    };
-
-    const handleDeleteStudent = (studentId: string) => {
-        router.delete(`/parent/students/${studentId}`, {
-            preserveScroll: true,
-        });
-    };
-
-    const handleCancel = () => {
-        setFormData({ name: '', age: '', hasPiano: false, dayOfWeek: '', preferredTime: '' });
-        setEditingStudent(null);
-        setIsAddingStudent(false);
-    };
-
-    const handleSubscribeStudent = (studentId: string) => {
-        // Find student slug by ID
-        const student = students.find((s) => s.id === studentId);
-        if (student) {
-            // Redirect to subscription page for this student using slug
-            router.visit(`/parent/subscription?student=${student.slug}`);
+            });
         }
     };
 
-    const getAgeGroup = (age: number) => {
-        if (age < 6) return 'Kindergarten';
-        if (age < 12) return 'Elementary';
-        if (age < 18) return 'Teen';
-        return 'Adult';
+    const resetForm = () => {
+        console.log('Resetting form');
+        setFormData({
+            name: '',
+            age: '',
+            hasPiano: false,
+            dayOfWeek: '',
+            preferredTime: '',
+        });
+        setErrors({});
+        setIsSubmitting(false);
+        setShowAddForm(false);
+        setEditingStudent(null);
+        console.log('Form reset complete');
     };
 
-    const formatDayOfWeek = (day: string) => {
-        return day.charAt(0).toUpperCase() + day.slice(1);
+    const handleEdit = (student: Student) => {
+        setEditingStudent(student);
+
+        console.log('Editing student:', student);
+        console.log('Available time slots:', availableTimeSlots);
+
+        // Convert the student's preferred time to match available time slot values
+        let matchingTimeValue = '';
+
+        // First, try direct matching
+        const directMatch = availableTimeSlots.find((slot) => slot.value === student.preferredTime);
+        if (directMatch) {
+            matchingTimeValue = directMatch.value;
+            console.log('Direct match found:', matchingTimeValue);
+        } else {
+            // Try to extract time from different formats
+            let timeToMatch = student.preferredTime;
+
+            // Handle ISO format like "2025-07-11T18:00:00.000000Z"
+            if (student.preferredTime.includes('T')) {
+                try {
+                    const date = new Date(student.preferredTime);
+                    timeToMatch = date.toTimeString().slice(0, 5); // Gets "HH:MM"
+                    console.log('Extracted time from ISO format:', timeToMatch);
+                } catch (error) {
+                    console.error('Error parsing ISO date:', error);
+                }
+            }
+
+            // Handle time format like "18:00:00" -> "18:00"
+            if (timeToMatch.includes(':')) {
+                const timeParts = timeToMatch.split(':');
+                if (timeParts.length >= 2) {
+                    timeToMatch = `${timeParts[0]}:${timeParts[1]}`;
+                }
+            }
+
+            console.log('Time to match after processing:', timeToMatch);
+
+            // Try to find matching slot with processed time
+            const processedMatch = availableTimeSlots.find(
+                (slot) => slot.value === timeToMatch || slot.userTime === timeToMatch || slot.preferredTime === timeToMatch,
+            );
+
+            if (processedMatch) {
+                matchingTimeValue = processedMatch.value;
+                console.log('Processed match found:', matchingTimeValue);
+            } else {
+                // Try matching by formatted time display
+                const formattedTimeMatch = availableTimeSlots.find((slot) => {
+                    const slotFormatted = formatTime(slot.value);
+                    const studentFormatted = formatTime(student.preferredTime);
+                    return slotFormatted === studentFormatted;
+                });
+
+                if (formattedTimeMatch) {
+                    matchingTimeValue = formattedTimeMatch.value;
+                    console.log('Formatted time match found:', matchingTimeValue);
+                } else {
+                    console.warn('No matching time slot found for:', student.preferredTime);
+                    // Default to first available slot if no match found
+                    if (availableTimeSlots.length > 0) {
+                        matchingTimeValue = availableTimeSlots[0].value;
+                        console.log('Using default first slot:', matchingTimeValue);
+                    }
+                }
+            }
+        }
+
+        // Ensure age is properly converted to string
+        const ageString = String(student.age);
+        console.log('Setting age:', ageString);
+
+        setFormData({
+            name: student.name,
+            age: ageString,
+            hasPiano: student.hasPiano,
+            dayOfWeek: student.dayOfWeek,
+            preferredTime: matchingTimeValue,
+        });
+
+        console.log('Form data set:', {
+            name: student.name,
+            age: ageString,
+            hasPiano: student.hasPiano,
+            dayOfWeek: student.dayOfWeek,
+            preferredTime: matchingTimeValue,
+        });
+
+        setShowAddForm(true);
     };
 
-    const getTimeDisplayForStudent = (student: Student) => {
-        if (!student.preferredTimeCairo) return 'Not set - Please edit to add';
-
-        const timeSlot = availableTimeSlots.find((slot) => slot.cairoTime === student.preferredTimeCairo);
-        return timeSlot ? timeSlot.label : student.preferredTimeCairo;
+    const handleDelete = (student: Student) => {
+        if (confirm('Are you sure you want to delete this student?')) {
+            router.delete(`/parent/students/${student.slug}`);
+        }
     };
+
+    const studentsWithAvailability = students.filter((s) => s.dayOfWeek && s.preferredTime);
+    const studentsWithoutAvailability = students.filter((s) => !s.dayOfWeek || !s.preferredTime);
 
     return (
         <ParentLayout>
-            <div className="min-h-screen bg-background">
-                <Head title="Student Management" />
+            <Head title="Students" />
 
-                {/* Header */}
-                <div className="bg-piano-gradient px-6 py-8">
-                    <div className="container mx-auto">
-                        <h1 className="font-playfair mb-2 text-3xl font-bold text-primary md:text-4xl">Student Management</h1>
-                        <p className="text-muted-foreground">Manage your students and their piano learning journey</p>
-                    </div>
+            <div className="mx-auto max-w-7xl p-6">
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-gray-900">Students</h1>
+                    <p className="mt-1 text-gray-600">Manage your children's piano learning journey</p>
                 </div>
 
-                <div className="container mx-auto px-6 py-8">
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        {/* Main Content */}
-                        <div className="space-y-6 lg:col-span-2">
-                            {/* Add Student Form */}
-                            <Card className="border-gold/20">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center">
-                                        <UserPlus className="text-gold mr-2 h-5 w-5" />
-                                        {editingStudent ? 'Edit Student' : 'Add New Student'}
-                                    </CardTitle>
-                                    <CardDescription>
-                                        {editingStudent
-                                            ? 'Update student information and availability'
-                                            : 'Add a new student and set their lesson availability'}
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {/* Display validation errors */}
-                                    {Object.keys(errors).length > 0 && (
-                                        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
-                                            <div className="flex items-center">
-                                                <AlertCircle className="mr-2 h-5 w-5 text-red-600" />
-                                                <h3 className="font-medium text-red-800">Please fix the following errors:</h3>
-                                            </div>
-                                            <ul className="mt-2 list-inside list-disc text-red-700">
-                                                {Object.entries(errors).map(([field, messages]) => (
-                                                    <li key={field}>{Array.isArray(messages) ? messages[0] : messages}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
+                {/* Statistics Cards */}
+                <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+                    <Card>
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-600">Total Students</p>
+                                    <p className="text-2xl font-bold">{students.length}</p>
+                                </div>
+                                <Users className="h-8 w-8 text-blue-500" />
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                                    {!isAddingStudent && !editingStudent ? (
-                                        <Button onClick={() => setIsAddingStudent(true)} className="bg-gold hover:bg-gold/90 text-warm-brown w-full">
-                                            <Plus className="mr-2 h-4 w-4" />
-                                            Add Student
-                                        </Button>
-                                    ) : (
-                                        <form className="space-y-6">
-                                            {/* Basic Information */}
+                    <Card>
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-600">Active Subscriptions</p>
+                                    <p className="text-2xl font-bold">{students.filter((s) => s.isSubscribed).length}</p>
+                                </div>
+                                <Calendar className="h-8 w-8 text-green-500" />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-600">Have Piano</p>
+                                    <p className="text-2xl font-bold">{students.filter((s) => s.hasPiano).length}</p>
+                                </div>
+                                <Piano className="h-8 w-8 text-purple-500" />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-600">Missing Availability</p>
+                                    <p className="text-2xl font-bold text-red-600">{studentsWithoutAvailability.length}</p>
+                                </div>
+                                <AlertCircle className="h-8 w-8 text-red-500" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Add Student Button */}
+                <div className="mb-6">
+                    <Button onClick={() => setShowAddForm(!showAddForm)} className="bg-blue-600 hover:bg-blue-700">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Student
+                    </Button>
+                </div>
+
+                {/* Missing Availability Alert */}
+                {studentsWithoutAvailability.length > 0 && (
+                    <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                        <div className="flex items-center">
+                            <AlertCircle className="mr-2 h-5 w-5 text-amber-600" />
+                            <div>
+                                <h3 className="font-medium text-amber-800">Lesson Availability Required</h3>
+                                <p className="mt-1 text-sm text-amber-700">
+                                    Some students are missing their preferred lesson day and time. Please update their availability to enable
+                                    scheduling.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Add/Edit Student Form */}
+                {showAddForm && (
+                    <Card className="mb-6">
+                        <CardHeader>
+                            <CardTitle>{editingStudent ? 'Edit Student' : 'Add New Student'}</CardTitle>
+                            {/* Debug information */}
+                            {editingStudent && (
+                                <div className="mt-2 text-xs text-gray-500">
+                                    <p>Debug - Form Values:</p>
+                                    <p>
+                                        Name: "{formData.name}" | Age: "{formData.age}" | Day: "{formData.dayOfWeek}" | Time: "
+                                        {formData.preferredTime}"
+                                    </p>
+                                    <p>
+                                        Editing Student: {editingStudent.name} (Age: {editingStudent.age})
+                                    </p>
+                                </div>
+                            )}
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* General Error Display */}
+                                {Object.keys(errors).length > 0 && (
+                                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                                        <div className="flex items-center">
+                                            <AlertCircle className="mr-2 h-5 w-5 text-red-600" />
                                             <div>
-                                                <Label className="mb-3 block text-base font-semibold text-gray-700">Basic Information</Label>
-                                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                                    <div>
-                                                        <Label htmlFor="name">Student Name</Label>
-                                                        <Input
-                                                            id="name"
-                                                            value={formData.name}
-                                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                            placeholder="Enter student's full name"
-                                                            className={errors.name ? 'border-red-500' : ''}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label htmlFor="age">Age</Label>
-                                                        <Input
-                                                            id="age"
-                                                            type="number"
-                                                            value={formData.age}
-                                                            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                                                            placeholder="Enter age"
-                                                            className={errors.age ? 'border-red-500' : ''}
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-4 flex items-center space-x-2">
-                                                    <Switch
-                                                        id="hasPiano"
-                                                        checked={formData.hasPiano}
-                                                        onCheckedChange={(checked: boolean) => setFormData({ ...formData, hasPiano: checked })}
-                                                    />
-                                                    <Label htmlFor="hasPiano">Student has access to a piano/keyboard</Label>
-                                                </div>
+                                                <h3 className="font-medium text-red-800">Please fix the following errors:</h3>
+                                                <ul className="mt-2 list-inside list-disc text-red-700">
+                                                    {Object.entries(errors).map(([field, message]) => (
+                                                        <li key={field}>{message}</li>
+                                                    ))}
+                                                </ul>
                                             </div>
-
-                                            {/* Lesson Availability */}
-                                            <div className="border-t pt-6">
-                                                <Label className="mb-3 block flex items-center text-base font-semibold text-gray-700">
-                                                    <Calendar className="mr-2 h-4 w-4" />
-                                                    Lesson Availability *
-                                                </Label>
-                                                <p className="mb-4 text-sm text-muted-foreground">
-                                                    Select when your student is available for lessons. These fields are required to schedule lessons.
-                                                </p>
-
-                                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                                    <div>
-                                                        <Label htmlFor="dayOfWeek">Preferred Day *</Label>
-                                                        <Select
-                                                            value={formData.dayOfWeek}
-                                                            onValueChange={(value) => setFormData({ ...formData, dayOfWeek: value })}
-                                                        >
-                                                            <SelectTrigger className={errors.dayOfWeek ? 'border-red-500' : ''}>
-                                                                <SelectValue placeholder="Select day of week" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {daysOfWeek.map((day) => (
-                                                                    <SelectItem key={day.value} value={day.value}>
-                                                                        {day.label}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-
-                                                    <div>
-                                                        <Label htmlFor="preferredTime" className="flex items-center">
-                                                            <Timer className="mr-1 h-3 w-3" />
-                                                            Preferred Time (Your Local Time) *
-                                                        </Label>
-                                                        <Select
-                                                            value={formData.preferredTime}
-                                                            onValueChange={(value) => setFormData({ ...formData, preferredTime: value })}
-                                                        >
-                                                            <SelectTrigger className={errors.preferredTime ? 'border-red-500' : ''}>
-                                                                <SelectValue placeholder="Select preferred time" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {availableTimeSlots.map((slot) => (
-                                                                    <SelectItem key={slot.value} value={slot.value}>
-                                                                        {slot.label}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
-                                                    <p className="text-sm text-amber-700">
-                                                        <strong>Important:</strong> Lesson availability is required to schedule your student's piano
-                                                        lessons. Available times are between 5:00 PM and 3:00 AM Cairo time, automatically converted
-                                                        to your timezone.
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex space-x-2">
-                                                <Button
-                                                    type="button"
-                                                    onClick={editingStudent ? handleUpdateStudent : handleAddStudent}
-                                                    className="bg-gold hover:bg-gold/90 text-warm-brown flex-1"
-                                                >
-                                                    {editingStudent ? 'Update Student' : 'Add Student'}
-                                                </Button>
-                                                <Button type="button" variant="outline" onClick={handleCancel} className="flex-1">
-                                                    Cancel
-                                                </Button>
-                                            </div>
-                                        </form>
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            {/* Students List */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center">
-                                        <Users className="text-gold mr-2 h-5 w-5" />
-                                        Your Students ({students.length})
-                                    </CardTitle>
-                                    <CardDescription>Manage your students and their learning progress</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {students.length === 0 ? (
-                                        <div className="py-8 text-center">
-                                            <Users className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                                            <h3 className="mb-2 text-lg font-semibold">No students added yet</h3>
-                                            <p className="mb-4 text-muted-foreground">
-                                                Start by adding your first student to begin their piano learning journey.
-                                            </p>
-                                            <Button onClick={() => setIsAddingStudent(true)} className="bg-gold hover:bg-gold/90 text-warm-brown">
-                                                <Plus className="mr-2 h-4 w-4" />
-                                                Add Your First Student
-                                            </Button>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-4">
-                                            {students.map((student) => (
-                                                <div key={student.id} className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
-                                                    <div className="flex items-center space-x-4">
-                                                        <div className="bg-gold flex h-10 w-10 items-center justify-center rounded-full">
-                                                            <span className="text-warm-brown font-semibold">
-                                                                {student.name.charAt(0).toUpperCase()}
-                                                            </span>
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="font-semibold text-primary">{student.name}</h4>
-                                                            <div className="mt-1 flex items-center space-x-2">
-                                                                <Badge variant="secondary">{student.age} years old</Badge>
-                                                                <Badge variant="outline">{getAgeGroup(student.age)}</Badge>
-                                                                {student.hasPiano && (
-                                                                    <Badge className="bg-green-100 text-green-800">
-                                                                        <Music className="mr-1 h-3 w-3" />
-                                                                        Has Piano
-                                                                    </Badge>
-                                                                )}
-                                                                {student.isSubscribed ? (
-                                                                    <Badge className="bg-blue-100 text-blue-800">
-                                                                        <CheckCircle className="mr-1 h-3 w-3" />
-                                                                        Subscribed
-                                                                    </Badge>
-                                                                ) : (
-                                                                    <Badge className="bg-orange-100 text-orange-800">
-                                                                        <Clock className="mr-1 h-3 w-3" />
-                                                                        Not Subscribed
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                            {student.dayOfWeek && student.preferredTimeCairo ? (
-                                                                <div className="mt-2 text-sm text-muted-foreground">
-                                                                    <strong>Availability:</strong> {formatDayOfWeek(student.dayOfWeek)}s at{' '}
-                                                                    {getTimeDisplayForStudent(student)}
-                                                                </div>
-                                                            ) : (
-                                                                <div className="mt-2 text-sm text-red-600">
-                                                                    <strong>⚠️ Availability Required:</strong> Please edit student to set lesson
-                                                                    schedule
-                                                                </div>
-                                                            )}
-                                                            <p className="mt-1 text-sm text-muted-foreground">Added: {student.createdAt}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex space-x-2">
-                                                        {!student.isSubscribed && (
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => handleSubscribeStudent(student.id)}
-                                                                className="text-green-600 hover:text-green-700"
-                                                            >
-                                                                <Crown className="mr-1 h-4 w-4" />
-                                                                Subscribe
-                                                            </Button>
-                                                        )}
-                                                        <Button variant="outline" size="sm" onClick={() => handleEditStudent(student.id)}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => handleDeleteStudent(student.id)}
-                                                            className="text-red-600 hover:text-red-700"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* Sidebar */}
-                        <div className="space-y-6">
-                            {/* Quick Stats */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Student Overview</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between">
-                                            <span className="text-sm">Total Students</span>
-                                            <span className="font-semibold">{students.length}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-sm">Subscribed</span>
-                                            <span className="font-semibold text-green-600">{students.filter((s) => s.isSubscribed).length}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-sm">With Piano Access</span>
-                                            <span className="font-semibold text-blue-600">{students.filter((s) => s.hasPiano).length}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-sm">Missing Availability</span>
-                                            <span className="font-semibold text-red-600">
-                                                {students.filter((s) => !s.dayOfWeek || !s.preferredTimeCairo).length}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-sm">Average Age</span>
-                                            <span className="font-semibold">
-                                                {students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.age, 0) / students.length) : 0}
-                                            </span>
                                         </div>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                )}
 
-                            {/* Lesson Scheduling Info */}
-                            <Card className="border-green-200 bg-green-50">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center text-green-800">
+                                {/* Basic Information Section */}
+                                <div>
+                                    <h3 className="mb-4 flex items-center text-lg font-semibold">
+                                        <User className="mr-2 h-5 w-5" />
+                                        Basic Information
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div>
+                                            <Label htmlFor="name">Student Name *</Label>
+                                            <Input
+                                                id="name"
+                                                type="text"
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                required
+                                                className="mt-1"
+                                            />
+                                            <InputError message={errors.name} />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="age">Age *</Label>
+                                            <Input
+                                                id="age"
+                                                type="number"
+                                                min="5"
+                                                max="100"
+                                                value={formData.age}
+                                                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                                                required
+                                                className="mt-1"
+                                            />
+                                            <InputError message={errors.age} />
+                                        </div>
+                                    </div>
+                                    <div className="mt-4">
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id="hasPiano"
+                                                checked={formData.hasPiano}
+                                                onCheckedChange={(checked) => setFormData({ ...formData, hasPiano: checked as boolean })}
+                                            />
+                                            <Label htmlFor="hasPiano" className="flex items-center">
+                                                <Piano className="mr-2 h-4 w-4" />
+                                                Has Piano at Home
+                                            </Label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Lesson Availability Section */}
+                                <div>
+                                    <h3 className="mb-4 flex items-center text-lg font-semibold">
                                         <Calendar className="mr-2 h-5 w-5" />
-                                        Lesson Scheduling
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3 text-sm text-green-700">
-                                        <div className="flex items-start space-x-2">
-                                            <Timer className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                            <p>Lessons are available between 5:00 PM and 3:00 AM Cairo time</p>
+                                        Lesson Availability *
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div>
+                                            <Label htmlFor="dayOfWeek">Preferred Day *</Label>
+                                            <Select
+                                                value={formData.dayOfWeek}
+                                                onValueChange={(value) => setFormData({ ...formData, dayOfWeek: value })}
+                                            >
+                                                <SelectTrigger className="mt-1">
+                                                    <SelectValue placeholder="Select a day" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {parsedAvailableDays.map((day) => (
+                                                        <SelectItem key={day} value={day}>
+                                                            {day.charAt(0).toUpperCase() + day.slice(1)}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <InputError message={errors.dayOfWeek} />
                                         </div>
-                                        <div className="flex items-start space-x-2">
-                                            <Clock className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                            <p>Times are automatically converted to your local timezone</p>
-                                        </div>
-                                        <div className="flex items-start space-x-2">
-                                            <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                            <p>Set availability for each student to help with scheduling</p>
+                                        <div>
+                                            <Label htmlFor="preferredTime">Preferred Time *</Label>
+                                            <Select
+                                                value={formData.preferredTime}
+                                                onValueChange={(value) => setFormData({ ...formData, preferredTime: value })}
+                                            >
+                                                <SelectTrigger className="mt-1">
+                                                    <SelectValue placeholder="Select a time" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {availableTimeSlots.map((slot) => (
+                                                        <SelectItem key={slot.value} value={slot.value}>
+                                                            {slot.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <InputError message={errors.preferredTime} />
                                         </div>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                    <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                                        <div className="flex items-center">
+                                            <Clock className="mr-2 h-5 w-5 text-blue-600" />
+                                            <div>
+                                                <p className="text-sm font-medium text-blue-800">Scheduling Information</p>
+                                                <p className="mt-1 text-xs text-blue-700">
+                                                    Times are displayed in your local timezone. Lessons will be scheduled according to{' '}
+                                                    {preferredTimezone} timezone.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            {/* Subscription Notice */}
-                            <Card className="border-blue-200 bg-blue-50">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center text-blue-800">
-                                        <Crown className="mr-2 h-5 w-5" />
-                                        Subscription Required
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3 text-sm text-blue-700">
-                                        <div className="flex items-start space-x-2">
-                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                            <p>Students need a paid subscription to access lessons</p>
-                                        </div>
-                                        <div className="flex items-start space-x-2">
-                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                            <p>Subscriptions are managed through secure payments</p>
-                                        </div>
-                                        <div className="flex items-start space-x-2">
-                                            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                            <p>Click "Subscribe" next to any student to get started</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                <div className="flex gap-4">
+                                    <Button type="submit" className="bg-green-600 hover:bg-green-700" disabled={isSubmitting}>
+                                        {isSubmitting ? 'Saving...' : editingStudent ? 'Update Student' : 'Add Student'}
+                                    </Button>
+                                    <Button type="button" variant="outline" onClick={resetForm} disabled={isSubmitting}>
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </form>
+                        </CardContent>
+                    </Card>
+                )}
 
-                            {/* Age Groups Info */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Age Groups</CardTitle>
-                                    <CardDescription>Understanding learning stages</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3 text-sm">
-                                        <div className="flex justify-between">
-                                            <span>Kindergarten (5-5)</span>
-                                            <Badge variant="outline" className="text-xs">
-                                                Basic
-                                            </Badge>
+                {/* Students List */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {students.map((student) => (
+                        <Card key={student.id} className="transition-shadow hover:shadow-lg">
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg">{student.name}</CardTitle>
+                                    <div className="flex gap-2">
+                                        <Button size="sm" variant="outline" onClick={() => handleEdit(student)}>
+                                            <Edit2 className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => handleDelete(student)}
+                                            className="text-red-600 hover:text-red-700"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="flex items-center text-sm text-gray-600">
+                                    <User className="mr-2 h-4 w-4" />
+                                    Age: {student.age}
+                                </div>
+
+                                <div className="flex items-center text-sm text-gray-600">
+                                    <Piano className="mr-2 h-4 w-4" />
+                                    {student.hasPiano ? 'Has Piano' : 'No Piano'}
+                                </div>
+
+                                {/* Availability Display */}
+                                {student.dayOfWeek && student.preferredTime ? (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center text-sm text-gray-600">
+                                            <Calendar className="mr-2 h-4 w-4" />
+                                            {student.dayOfWeek.charAt(0).toUpperCase() + student.dayOfWeek.slice(1)}
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span>Elementary (6-11)</span>
-                                            <Badge variant="outline" className="text-xs">
-                                                Foundation
-                                            </Badge>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Teen (12-17)</span>
-                                            <Badge variant="outline" className="text-xs">
-                                                Intermediate
-                                            </Badge>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Adult (18+)</span>
-                                            <Badge variant="outline" className="text-xs">
-                                                Advanced
-                                            </Badge>
+                                        <div className="flex items-center text-sm text-gray-600">
+                                            <Clock className="mr-2 h-4 w-4" />
+                                            {formatTime(student.preferredTime)}
                                         </div>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
+                                ) : (
+                                    <div className="rounded-lg border border-red-200 bg-red-50 p-2">
+                                        <div className="flex items-center text-sm text-red-700">
+                                            <AlertCircle className="mr-2 h-4 w-4" />
+                                            Missing availability
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="border-t pt-2">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-gray-500">Status:</span>
+                                        <span className={`font-medium ${student.isSubscribed ? 'text-green-600' : 'text-gray-500'}`}>
+                                            {student.isSubscribed ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </div>
+
+                                    {student.isSubscribed && (
+                                        <div className="mt-1 flex items-center justify-between text-sm">
+                                            <span className="text-gray-500">Sessions:</span>
+                                            <span className="font-medium">{student.sessionsRemaining}</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {student.instructor && (
+                                    <div className="flex items-center text-sm text-gray-600">
+                                        <User className="mr-2 h-4 w-4" />
+                                        Instructor: {student.instructor.name}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
+
+                {students.length === 0 && (
+                    <div className="py-12 text-center">
+                        <User className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+                        <h3 className="mb-2 text-lg font-semibold text-gray-900">No students yet</h3>
+                        <p className="mb-4 text-gray-600">Add your first student to get started with piano lessons</p>
+                        <Button onClick={() => setShowAddForm(true)} className="bg-blue-600 hover:bg-blue-700">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Your First Student
+                        </Button>
+                    </div>
+                )}
             </div>
         </ParentLayout>
     );
-};
-
-export default Student;
+}
