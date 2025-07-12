@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 interface SubscriptionPageData extends SubscriptionPageProps {
     isSingleStudent?: boolean;
     selectedStudentSlug?: string;
+    selectedStudentSlugs?: string;
     subscribedStudents?: Array<{
         id: number;
         name: string;
@@ -23,13 +24,14 @@ interface SubscriptionPageData extends SubscriptionPageProps {
 
 const Subscription = () => {
     const { monthlySubscribePrice, yearlySubscribePrice, discountPercentage } = usePage<SharedData>().props;
-    const { pricingData, availableStudents, subscribedStudents, isSingleStudent, selectedStudentSlug } = usePage<SubscriptionPageData>().props;
+    const { pricingData, availableStudents, subscribedStudents, isSingleStudent, selectedStudentSlug, selectedStudentSlugs } =
+        usePage<SubscriptionPageData>().props;
 
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
     const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Pre-select student if it's a single student subscription or if selectedStudentSlug is provided
+    // Pre-select student(s) if provided via URL parameters
     useEffect(() => {
         if (isSingleStudent && availableStudents.length > 0) {
             setSelectedStudents([availableStudents[0].id]);
@@ -39,10 +41,17 @@ const Subscription = () => {
             if (studentExists) {
                 setSelectedStudents([studentExists.id]);
             }
+        } else if (selectedStudentSlugs && availableStudents.length > 0) {
+            // Pre-select multiple students if selectedStudentSlugs is provided (for bulk selection)
+            const slugsArray = selectedStudentSlugs.split(',');
+            const studentIds = availableStudents.filter((student) => slugsArray.includes(student.slug)).map((student) => student.id);
+            if (studentIds.length > 0) {
+                setSelectedStudents(studentIds);
+            }
         } else {
             setSelectedStudents([]);
         }
-    }, [isSingleStudent, selectedStudentSlug, availableStudents]);
+    }, [isSingleStudent, selectedStudentSlug, selectedStudentSlugs, availableStudents]);
 
     const handleStudentToggle = (studentId: number) => {
         if (isSingleStudent) {
@@ -141,12 +150,14 @@ const Subscription = () => {
                                 <p className="text-muted-foreground">
                                     {selectedStudentSlug
                                         ? `Subscribe ${availableStudents.find((s) => s.slug === selectedStudentSlug)?.name || 'your student'} and get a `
-                                        : 'Subscribe your students and get a '}
+                                        : selectedStudentSlugs
+                                          ? `Subscribe ${selectedStudentSlugs.split(',').length} selected students and get a `
+                                          : 'Subscribe your students and get a '}
                                     <span className="font-bold text-green-700">10% discount</span> for each additional student you add to your
                                     subscription.
                                 </p>
                             </div>
-                            {selectedStudentSlug && (
+                            {(selectedStudentSlug || selectedStudentSlugs) && (
                                 <Button
                                     variant="outline"
                                     onClick={handleBackToStudents}

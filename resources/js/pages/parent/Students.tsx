@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import ParentLayout from '@/layouts/parent-layout';
 import { Head, router } from '@inertiajs/react';
 import { AlertCircle, Calendar, Clock, Edit2, Piano, PlusCircle, Trash2, User, Users } from 'lucide-react';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 
 interface Student {
     id: number;
@@ -40,21 +40,17 @@ interface Props {
     students: Student[];
     availableTimeSlots: TimeSlot[];
     availableDays: string[] | string;
-    preferredTimezone: string;
 }
 
-// Helper function to format time
 const formatTime = (timeString: string) => {
     if (!timeString) return '';
 
     try {
-        // Handle ISO format like "2025-07-11T18:00:00.000000Z"
         if (timeString.includes('T')) {
             const date = new Date(timeString);
             return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
 
-        // Handle HH:MM format
         if (timeString.includes(':')) {
             const [hours, minutes] = timeString.split(':');
             const date = new Date();
@@ -68,7 +64,6 @@ const formatTime = (timeString: string) => {
     }
 };
 
-// Helper function to parse available days
 const parseAvailableDays = (days: string[] | string): string[] => {
     if (Array.isArray(days)) {
         return days;
@@ -76,11 +71,9 @@ const parseAvailableDays = (days: string[] | string): string[] => {
 
     if (typeof days === 'string') {
         try {
-            // Try to parse as JSON first
             const parsed = JSON.parse(days);
             return Array.isArray(parsed) ? parsed : [days];
         } catch {
-            // If JSON parsing fails, split by comma
             return days.split(',').map((day) => day.trim());
         }
     }
@@ -88,7 +81,7 @@ const parseAvailableDays = (days: string[] | string): string[] => {
     return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 };
 
-export default function Students({ students, availableTimeSlots, availableDays, preferredTimezone }: Props) {
+export default function Students({ students, availableTimeSlots, availableDays }: Props) {
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingStudent, setEditingStudent] = useState<Student | null>(null);
     const [formData, setFormData] = useState({
@@ -101,22 +94,17 @@ export default function Students({ students, availableTimeSlots, availableDays, 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Parse available days to ensure it's always an array
     const parsedAvailableDays = parseAvailableDays(availableDays);
 
-    // Debug form data changes
-    useEffect(() => {
-        console.log('Form data changed:', formData);
-        console.log('Editing student:', editingStudent);
-    }, [formData, editingStudent]);
+    const handleSingleSubscribe = (studentSlug: string) => {
+        router.visit(`/parent/subscription?selectedStudentSlug=${studentSlug}`);
+    };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        // Clear previous errors
         setErrors({});
 
-        // Client-side validation
         const newErrors: Record<string, string> = {};
 
         if (!formData.name.trim()) {
@@ -151,7 +139,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                     setIsSubmitting(false);
                 },
                 onError: (serverErrors) => {
-                    console.error('Update failed:', serverErrors);
                     setErrors(serverErrors);
                     setIsSubmitting(false);
                 },
@@ -164,7 +151,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                     setIsSubmitting(false);
                 },
                 onError: (serverErrors) => {
-                    console.error('Create failed:', serverErrors);
                     setErrors(serverErrors);
                     setIsSubmitting(false);
                 },
@@ -173,7 +159,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
     };
 
     const resetForm = () => {
-        console.log('Resetting form');
         setFormData({
             name: '',
             age: '',
@@ -185,39 +170,28 @@ export default function Students({ students, availableTimeSlots, availableDays, 
         setIsSubmitting(false);
         setShowAddForm(false);
         setEditingStudent(null);
-        console.log('Form reset complete');
     };
 
     const handleEdit = (student: Student) => {
         setEditingStudent(student);
 
-        console.log('Editing student:', student);
-        console.log('Available time slots:', availableTimeSlots);
-
-        // Convert the student's preferred time to match available time slot values
         let matchingTimeValue = '';
 
-        // First, try direct matching
         const directMatch = availableTimeSlots.find((slot) => slot.value === student.preferredTime);
         if (directMatch) {
             matchingTimeValue = directMatch.value;
-            console.log('Direct match found:', matchingTimeValue);
         } else {
-            // Try to extract time from different formats
             let timeToMatch = student.preferredTime;
 
-            // Handle ISO format like "2025-07-11T18:00:00.000000Z"
             if (student.preferredTime.includes('T')) {
                 try {
                     const date = new Date(student.preferredTime);
-                    timeToMatch = date.toTimeString().slice(0, 5); // Gets "HH:MM"
-                    console.log('Extracted time from ISO format:', timeToMatch);
+                    timeToMatch = date.toTimeString().slice(0, 5);
                 } catch (error) {
-                    console.error('Error parsing ISO date:', error);
+                    timeToMatch = student.preferredTime;
                 }
             }
 
-            // Handle time format like "18:00:00" -> "18:00"
             if (timeToMatch.includes(':')) {
                 const timeParts = timeToMatch.split(':');
                 if (timeParts.length >= 2) {
@@ -225,18 +199,13 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                 }
             }
 
-            console.log('Time to match after processing:', timeToMatch);
-
-            // Try to find matching slot with processed time
             const processedMatch = availableTimeSlots.find(
                 (slot) => slot.value === timeToMatch || slot.userTime === timeToMatch || slot.preferredTime === timeToMatch,
             );
 
             if (processedMatch) {
                 matchingTimeValue = processedMatch.value;
-                console.log('Processed match found:', matchingTimeValue);
             } else {
-                // Try matching by formatted time display
                 const formattedTimeMatch = availableTimeSlots.find((slot) => {
                     const slotFormatted = formatTime(slot.value);
                     const studentFormatted = formatTime(student.preferredTime);
@@ -245,31 +214,17 @@ export default function Students({ students, availableTimeSlots, availableDays, 
 
                 if (formattedTimeMatch) {
                     matchingTimeValue = formattedTimeMatch.value;
-                    console.log('Formatted time match found:', matchingTimeValue);
                 } else {
-                    console.warn('No matching time slot found for:', student.preferredTime);
-                    // Default to first available slot if no match found
                     if (availableTimeSlots.length > 0) {
                         matchingTimeValue = availableTimeSlots[0].value;
-                        console.log('Using default first slot:', matchingTimeValue);
                     }
                 }
             }
         }
 
-        // Ensure age is properly converted to string
         const ageString = String(student.age);
-        console.log('Setting age:', ageString);
 
         setFormData({
-            name: student.name,
-            age: ageString,
-            hasPiano: student.hasPiano,
-            dayOfWeek: student.dayOfWeek,
-            preferredTime: matchingTimeValue,
-        });
-
-        console.log('Form data set:', {
             name: student.name,
             age: ageString,
             hasPiano: student.hasPiano,
@@ -286,7 +241,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
         }
     };
 
-    const studentsWithAvailability = students.filter((s) => s.dayOfWeek && s.preferredTime);
     const studentsWithoutAvailability = students.filter((s) => !s.dayOfWeek || !s.preferredTime);
 
     return (
@@ -299,7 +253,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                     <p className="mt-1 text-gray-600">Manage your children's piano learning journey</p>
                 </div>
 
-                {/* Statistics Cards */}
                 <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
                     <Card>
                         <CardContent className="p-4">
@@ -350,7 +303,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                     </Card>
                 </div>
 
-                {/* Add Student Button */}
                 <div className="mb-6">
                     <Button onClick={() => setShowAddForm(!showAddForm)} className="bg-blue-600 hover:bg-blue-700">
                         <PlusCircle className="mr-2 h-4 w-4" />
@@ -358,7 +310,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                     </Button>
                 </div>
 
-                {/* Missing Availability Alert */}
                 {studentsWithoutAvailability.length > 0 && (
                     <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
                         <div className="flex items-center">
@@ -374,28 +325,13 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                     </div>
                 )}
 
-                {/* Add/Edit Student Form */}
                 {showAddForm && (
                     <Card className="mb-6">
                         <CardHeader>
                             <CardTitle>{editingStudent ? 'Edit Student' : 'Add New Student'}</CardTitle>
-                            {/* Debug information */}
-                            {editingStudent && (
-                                <div className="mt-2 text-xs text-gray-500">
-                                    <p>Debug - Form Values:</p>
-                                    <p>
-                                        Name: "{formData.name}" | Age: "{formData.age}" | Day: "{formData.dayOfWeek}" | Time: "
-                                        {formData.preferredTime}"
-                                    </p>
-                                    <p>
-                                        Editing Student: {editingStudent.name} (Age: {editingStudent.age})
-                                    </p>
-                                </div>
-                            )}
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={handleSubmit} className="space-y-6">
-                                {/* General Error Display */}
                                 {Object.keys(errors).length > 0 && (
                                     <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                                         <div className="flex items-center">
@@ -412,7 +348,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                                     </div>
                                 )}
 
-                                {/* Basic Information Section */}
                                 <div>
                                     <h3 className="mb-4 flex items-center text-lg font-semibold">
                                         <User className="mr-2 h-5 w-5" />
@@ -446,22 +381,36 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                                             <InputError message={errors.age} />
                                         </div>
                                     </div>
-                                    <div className="mt-4">
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id="hasPiano"
-                                                checked={formData.hasPiano}
-                                                onCheckedChange={(checked) => setFormData({ ...formData, hasPiano: checked as boolean })}
-                                            />
-                                            <Label htmlFor="hasPiano" className="flex items-center">
-                                                <Piano className="mr-2 h-4 w-4" />
-                                                Has Piano at Home
-                                            </Label>
+                                </div>
+
+                                <div>
+                                    <h3 className="mb-4 flex items-center text-lg font-semibold">
+                                        <Piano className="mr-2 h-5 w-5" />
+                                        Piano Access
+                                    </h3>
+                                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-3">
+                                                <Checkbox
+                                                    id="hasPiano"
+                                                    checked={formData.hasPiano}
+                                                    onCheckedChange={(checked) => setFormData({ ...formData, hasPiano: checked as boolean })}
+                                                    className="h-5 w-5"
+                                                />
+                                                <div>
+                                                    <Label htmlFor="hasPiano" className="cursor-pointer text-base font-medium text-gray-900">
+                                                        Has Piano at Home
+                                                    </Label>
+                                                    <p className="mt-1 text-sm text-gray-600">
+                                                        Check this if your child has access to a piano at home for practice
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <Piano className="h-8 w-8 text-purple-500" />
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Lesson Availability Section */}
                                 <div>
                                     <h3 className="mb-4 flex items-center text-lg font-semibold">
                                         <Calendar className="mr-2 h-5 w-5" />
@@ -507,18 +456,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                                             <InputError message={errors.preferredTime} />
                                         </div>
                                     </div>
-                                    <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3">
-                                        <div className="flex items-center">
-                                            <Clock className="mr-2 h-5 w-5 text-blue-600" />
-                                            <div>
-                                                <p className="text-sm font-medium text-blue-800">Scheduling Information</p>
-                                                <p className="mt-1 text-xs text-blue-700">
-                                                    Times are displayed in your local timezone. Lessons will be scheduled according to{' '}
-                                                    {preferredTimezone} timezone.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <div className="flex gap-4">
@@ -534,13 +471,14 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                     </Card>
                 )}
 
-                {/* Students List */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {students.map((student) => (
                         <Card key={student.id} className="transition-shadow hover:shadow-lg">
                             <CardHeader className="pb-3">
                                 <div className="flex items-center justify-between">
-                                    <CardTitle className="text-lg">{student.name}</CardTitle>
+                                    <div className="flex items-center gap-3">
+                                        <CardTitle className="text-lg">{student.name}</CardTitle>
+                                    </div>
                                     <div className="flex gap-2">
                                         <Button size="sm" variant="outline" onClick={() => handleEdit(student)}>
                                             <Edit2 className="h-4 w-4" />
@@ -567,7 +505,6 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                                     {student.hasPiano ? 'Has Piano' : 'No Piano'}
                                 </div>
 
-                                {/* Availability Display */}
                                 {student.dayOfWeek && student.preferredTime ? (
                                     <div className="space-y-2">
                                         <div className="flex items-center text-sm text-gray-600">
@@ -592,7 +529,7 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-gray-500">Status:</span>
                                         <span className={`font-medium ${student.isSubscribed ? 'text-green-600' : 'text-gray-500'}`}>
-                                            {student.isSubscribed ? 'Active' : 'Inactive'}
+                                            {student.isSubscribed ? 'Subscribed' : 'Not Subscribed'}
                                         </span>
                                     </div>
 
@@ -600,6 +537,17 @@ export default function Students({ students, availableTimeSlots, availableDays, 
                                         <div className="mt-1 flex items-center justify-between text-sm">
                                             <span className="text-gray-500">Sessions:</span>
                                             <span className="font-medium">{student.sessionsRemaining}</span>
+                                        </div>
+                                    )}
+
+                                    {!student.isSubscribed && (
+                                        <div className="mt-3">
+                                            <Button
+                                                onClick={() => handleSingleSubscribe(student.slug)}
+                                                className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                                            >
+                                                Subscribe Now
+                                            </Button>
                                         </div>
                                     )}
                                 </div>

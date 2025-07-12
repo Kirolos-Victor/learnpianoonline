@@ -20,7 +20,8 @@ class SubscriptionController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $studentSlug = $request->query('student');
+        $studentSlug = $request->query('selectedStudentSlug');
+        $studentSlugs = $request->query('selectedStudentSlugs'); // For bulk selection
 
         // Get all students for this user
         $allStudents = $user->students()->get();
@@ -33,7 +34,7 @@ class SubscriptionController extends Controller
         $availableStudents = $unsubscribedStudents;
         $isSingleStudent = false;
 
-        // If student slug is provided, verify the student exists, belongs to user, and is unsubscribed
+        // Handle single student selection
         $selectedStudent = null;
         if ($studentSlug) {
             $selectedStudent = \App\Models\Student::findBySlugForUser($studentSlug, $user->id);
@@ -45,6 +46,19 @@ class SubscriptionController extends Controller
             if ($selectedStudent->is_subscribed) {
                 return redirect()->route('parent.students')->with('error', 'Student is already subscribed');
             }
+        }
+
+        // Handle multiple student selection (bulk)
+        $selectedStudentSlugs = null;
+        if ($studentSlugs) {
+            $slugsArray = explode(',', $studentSlugs);
+            $selectedStudents = $allStudents->whereIn('slug', $slugsArray)->where('is_subscribed', false);
+
+            if ($selectedStudents->isEmpty()) {
+                return redirect()->route('parent.students')->with('error', 'No valid unsubscribed students found');
+            }
+
+            $selectedStudentSlugs = $studentSlugs; // Pass the original comma-separated string
         }
 
         // Generate pricing data for all possible combinations (1 to 5 students)
@@ -106,6 +120,7 @@ class SubscriptionController extends Controller
             })->values(),
             'isSingleStudent' => $isSingleStudent,
             'selectedStudentSlug' => $studentSlug,
+            'selectedStudentSlugs' => $selectedStudentSlugs,
         ]);
     }
 }
