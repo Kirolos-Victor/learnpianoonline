@@ -15,7 +15,7 @@ class Homework extends Model
         'title',
         'description',
         'due_date',
-        'lesson_id',
+        'session_id',
         'student_id',
         'is_submitted',
         'submission_notes',
@@ -30,11 +30,11 @@ class Homework extends Model
     ];
 
     /**
-     * Get the lesson this homework is for
+     * Get the session this homework is for
      */
-    public function lesson()
+    public function session()
     {
-        return $this->belongsTo(Lesson::class);
+        return $this->belongsTo(StudentSession::class);
     }
 
     /**

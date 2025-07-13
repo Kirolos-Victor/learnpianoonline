@@ -14,10 +14,11 @@ import { useEffect, useState } from 'react';
 
 interface Student {
     id: string;
+    slug: string;
     user_id: string;
     name: string;
     email: string;
-    lessons_remaining: number;
+    sessions_remaining: number;
     is_subscribed: boolean;
     subscription_months: number;
     subscription_expires_at: string | null;
@@ -73,17 +74,17 @@ interface Props {
 }
 
 const AdminStudents = ({ students, instructors, stats, filters, timezone }: Props) => {
-    const [searchTerm, setSearchTerm] = useState(filters.search);
-    const [subscriptionFilter, setSubscriptionFilter] = useState(filters.subscription);
+    const [searchTerm, setSearchTerm] = useState(filters?.search || '');
+    const [subscriptionFilter, setSubscriptionFilter] = useState(filters?.subscription || 'all');
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [editData, setEditData] = useState<{ lessons: string; instructor_id: string }>({ lessons: '', instructor_id: '' });
+    const [editData, setEditData] = useState<{ sessions: string; instructor_id: string }>({ sessions: '', instructor_id: '' });
     const [processing, setProcessing] = useState(false);
 
     // Debounced search effect
     useEffect(() => {
         const delayedSearch = setTimeout(() => {
-            if (searchTerm !== filters.search) {
+            if (searchTerm !== (filters?.search || '')) {
                 applyFilters();
             }
         }, 500);
@@ -97,7 +98,7 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
             {
                 search: searchTerm,
                 subscription: subscriptionFilter,
-                per_page: filters.per_page,
+                per_page: filters?.per_page || 10,
             },
             {
                 preserveState: true,
@@ -114,7 +115,7 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
             {
                 search: searchTerm,
                 subscription: value,
-                per_page: filters.per_page,
+                per_page: filters?.per_page || 10,
             },
             {
                 preserveState: true,
@@ -127,13 +128,13 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
     const handleOpenEditDialog = (student: Student) => {
         setSelectedStudent(student);
         setEditData({
-            lessons: student.lessons_remaining.toString(),
+            sessions: student.sessions_remaining.toString(),
             instructor_id: student.instructor_id?.toString() || 'none',
         });
         setIsEditDialogOpen(true);
     };
 
-    const handleEditChange = (field: 'lessons' | 'instructor_id', value: string) => {
+    const handleEditChange = (field: 'sessions' | 'instructor_id', value: string) => {
         setEditData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -141,9 +142,9 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
         if (!selectedStudent) return;
         setProcessing(true);
         router.patch(
-            route('admin.students.update-lessons', { id: selectedStudent.id }),
+            route('admin.students.update-sessions', { slug: selectedStudent.slug }),
             {
-                lessons: Number(editData.lessons),
+                sessions: Number(editData.sessions),
             },
             {
                 preserveScroll: true,
@@ -151,7 +152,7 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                     const newInstructorId = editData.instructor_id === 'none' ? null : editData.instructor_id;
                     if (newInstructorId !== selectedStudent.instructor_id?.toString()) {
                         router.patch(
-                            route('admin.students.change-instructor', { id: selectedStudent.id }),
+                            route('admin.students.change-instructor', { slug: selectedStudent.slug }),
                             {
                                 instructor_id: newInstructorId,
                             },
@@ -258,11 +259,11 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
 
             <Card>
                 <CardHeader>
-                    <CardTitle>All Students ({students.total})</CardTitle>
+                    <CardTitle>All Students ({students?.total || 0})</CardTitle>
                     <CardDescription>Manage student sessions, subscriptions, and instructor assignments</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {students.data.length === 0 ? (
+                    {!students?.data || students.data.length === 0 ? (
                         <div className="py-8 text-center">
                             <Users className="mx-auto h-12 w-12 text-gray-400" />
                             <h3 className="mt-2 text-sm font-medium text-gray-900">No students found</h3>
@@ -323,7 +324,7 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
                                                     <div className="text-sm text-gray-500">
-                                                        <span className="font-medium">{student.lessons_remaining}</span> lessons remaining
+                                                        <span className="font-medium">{student.sessions_remaining}</span> sessions remaining
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
@@ -344,9 +345,9 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                                                         <Button size="sm" variant="outline" onClick={() => handleOpenEditDialog(student)}>
                                                             <Edit className="h-4 w-4" /> Edit
                                                         </Button>
-                                                        <Link href={route('admin.students.lessons', { id: student.id })}>
+                                                        <Link href={route('admin.students.sessions', { slug: student.slug })}>
                                                             <Button size="sm" variant="outline">
-                                                                <Calendar className="h-4 w-4" /> View Lessons
+                                                                <Calendar className="h-4 w-4" /> View Sessions
                                                             </Button>
                                                         </Link>
                                                     </div>
@@ -367,7 +368,7 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                                             {
                                                 search: searchTerm,
                                                 subscription: subscriptionFilter,
-                                                per_page: filters.per_page,
+                                                per_page: filters?.per_page || 10,
                                                 page,
                                             },
                                             {
@@ -405,7 +406,7 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                 onOpenChange={(open) => {
                     if (!open) {
                         setSelectedStudent(null);
-                        setEditData({ lessons: '', instructor_id: '' });
+                        setEditData({ sessions: '', instructor_id: '' });
                     }
                     setIsEditDialogOpen(open);
                 }}
@@ -417,14 +418,14 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                     </DialogHeader>
                     <div className="space-y-4">
                         <div>
-                            <Label htmlFor="edit-lessons">Number of Lessons (Exact Value)</Label>
+                            <Label htmlFor="edit-sessions">Number of Sessions (Exact Value)</Label>
                             <Input
-                                id="edit-lessons"
+                                id="edit-sessions"
                                 type="number"
                                 min="0"
-                                value={editData.lessons}
-                                onChange={(e) => handleEditChange('lessons', e.target.value)}
-                                placeholder="Enter exact number of lessons"
+                                value={editData.sessions}
+                                onChange={(e) => handleEditChange('sessions', e.target.value)}
+                                placeholder="Enter exact number of sessions"
                             />
                         </div>
                         <div>

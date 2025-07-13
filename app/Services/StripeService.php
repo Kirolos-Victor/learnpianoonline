@@ -86,7 +86,7 @@ class StripeService
                     'price_data' => [
                         'currency' => 'usd',
                         'product_data' => [
-                            'name' => "Piano Lessons " . ucfirst($subscriptionType) . " Subscription - {$studentCount} Student(s)",
+                            'name' => "Piano Sessions " . ucfirst($subscriptionType) . " Subscription - {$studentCount} Student(s)",
                             'description' => $planDescription,
                         ],
                         'unit_amount' => $amountInCents, // Already in cents
@@ -140,7 +140,7 @@ class StripeService
                     $student->update([
                         'is_subscribed' => true,
                         'subscription_expires_at' => $subscriptionEndDate,
-                        'lessons_remaining' => $isYearly ? 48 : 4, // 48 lessons per year (4 per month) or 4 per month
+                        'sessions_remaining' => $isYearly ? 48 : 4, // 48 sessions per year (4 per month) or 4 per month
                     ]);
 
                     // Attach student to subscription

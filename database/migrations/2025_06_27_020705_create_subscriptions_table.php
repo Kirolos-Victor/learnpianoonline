@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('stripe_payment_intent_id')->nullable();
             $table->decimal('amount', 10, 2);
             $table->integer('student_count');
+            $table->string('subscription_type')->default('monthly');
             $table->string('status')->default('pending'); // pending, completed, failed
             $table->json('student_ids')->nullable(); // Array of student IDs included in this subscription
             $table->timestamp('paid_at')->nullable();

@@ -14,32 +14,24 @@ class StudentController extends Controller
 {
     public function index(): \Inertia\Response
     {
-        $instructor = Auth::user();
+        $instructor = auth()->user();
 
-        // Get students assigned to this instructor
-        $students = Student::with(['user', 'lessons'])
+        $students = Student::with(['user', 'studentSessions'])
             ->where('instructor_id', $instructor->id)
-            ->where('is_subscribed', true) // Only show subscribed students
             ->get()
             ->map(function ($student) {
-                $convertedTimeData = $this->convertStudentTimeToPreferredTimezone($student);
-
                 return [
                     'id' => $student->id,
                     'name' => $student->name,
                     'slug' => $student->slug,
                     'email' => $student->user->email,
                     'age' => $student->age,
-                    'is_subscribed' => $student->is_subscribed,
+                    'has_piano' => $student->has_piano,
                     'sessions_remaining' => $student->sessions_remaining,
-                    'lessons_completed' => $student->completedLessons()->count(),
-                    'lessons_pending' => $student->pendingLessons()->count(),
-                    'last_lesson_date' => $student->completedLessons()->latest('completed_at')->first()?->completed_at,
-                    'next_lesson_date' => $student->pendingLessons()->oldest('scheduled_at')->first()?->scheduled_at,
-                    'day_of_week' => $convertedTimeData['day_of_week'],
-                    'preferred_time' => $convertedTimeData['preferred_time'],
-                    'student_timezone' => $student->user->timezone ?? 'UTC',
-                    'converted_timezone' => config('app.preferred_timezone', 'Africa/Cairo'),
+                    'sessions_completed' => $student->completedStudentSessions()->count(),
+                    'sessions_pending' => $student->pendingStudentSessions()->count(),
+                    'last_session_date' => $student->completedStudentSessions()->latest('completed_at')->first()?->completed_at,
+                    'next_session_date' => $student->pendingStudentSessions()->oldest('scheduled_at')->first()?->scheduled_at,
                 ];
             });
 
@@ -49,109 +41,56 @@ class StudentController extends Controller
     }
 
     /**
-     * Show lessons for a specific student
+     * Show sessions for a specific student
      */
-    public function lessons(Request $request, Student $student): \Inertia\Response
+    public function sessions(Request $request, Student $student): \Inertia\Response
     {
-        $instructor = Auth::user();
-
-        // Verify that the student is assigned to this instructor
-        if ($student->instructor_id !== $instructor->id) {
-            abort(403, 'Unauthorized access to student lessons');
+        // Check if the student is assigned to this instructor
+        if ($student->instructor_id !== auth()->id()) {
+            abort(403, 'Unauthorized access to student sessions');
         }
 
-        // Get filter parameters
-        $month = $request->query('month');
-        $status = $request->query('status', 'all');
-        $perPage = $request->query('per_page', 10);
+        // Get available months from sessions
+        $availableMonths = $student->studentSessions()
+            ->selectRaw('DISTINCT DATE_FORMAT(scheduled_at, "%Y-%m") as month')
+            ->orderBy('month', 'desc')
+            ->pluck('month')
+            ->map(function ($month) {
+                return \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y');
+            });
 
-        // Build the query
-        $query = Lesson::where('student_id', $student->id)
-            ->where('instructor_id', $instructor->id)
-            ->with(['student', 'instructor']);
+        // Build query with filters
+        $query = $student->studentSessions()->with(['instructor']);
 
         // Apply month filter
-        if ($month) {
-            try {
-                $monthDate = Carbon::createFromFormat('Y-m', $month);
-                $startOfMonth = $monthDate->copy()->startOfMonth();
-                $endOfMonth = $monthDate->copy()->endOfMonth();
-                $query->whereBetween('scheduled_at', [$startOfMonth, $endOfMonth]);
-            } catch (\Exception $e) {
-                // If month format is invalid, ignore the filter
-            }
+        if ($month = $request->input('month')) {
+            $query->whereMonth('scheduled_at', substr($month, -2));
+            $query->whereYear('scheduled_at', substr($month, 0, 4));
         }
 
         // Apply status filter
-        if ($status !== 'all') {
+        if ($status = $request->input('status')) {
             $query->where('status', $status);
         }
 
-        // Get paginated results
-        $lessons = $query->orderBy('scheduled_at', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+        // Get paginated sessions
+        $sessions = $query->orderBy('scheduled_at', 'desc')
+            ->paginate($request->input('perPage', 10))
+            ->through(function ($session) {
+                return [
+                    'id' => $session->id,
+                    'instructor_name' => $session->instructor->name,
+                    'scheduled_date' => $session->scheduled_at->format('M d, Y'),
+                    'scheduled_time' => $session->scheduled_at->format('h:i A'),
+                    'completed_at' => $session->completed_at?->toDateTimeString(),
+                    'status' => $session->status,
+                    'notes' => $session->notes,
+                ];
+            });
 
-        // Format the lessons data
-        $formattedLessons = $lessons->through(function ($lesson) {
-            return [
-                'id' => $lesson->id,
-                'student_name' => $lesson->student->name,
-                'instructor_name' => $lesson->instructor->name,
-                'scheduled_at' => $lesson->scheduled_at->format('Y-m-d H:i:s'),
-                'scheduled_date' => $lesson->scheduled_at->format('F j, Y'),
-                'scheduled_time' => $lesson->scheduled_at->format('g:i A'),
-                'completed_at' => $lesson->completed_at?->format('Y-m-d H:i:s'),
-                'status' => $lesson->status,
-                'notes' => $lesson->notes,
-                'screenshot_path' => $lesson->screenshot_path,
-            ];
-        });
-
-        // Generate available months (last 12 months and next 3 months)
-        $availableMonths = collect();
-        $currentMonth = Carbon::now()->startOfMonth();
-
-        // Add past months
-        for ($i = 11; $i >= 0; $i--) {
-            $month = $currentMonth->copy()->subMonths($i);
-            $availableMonths->push([
-                'value' => $month->format('Y-m'),
-                'label' => $month->format('F Y'),
-            ]);
-        }
-
-        // Add future months
-        for ($i = 1; $i <= 3; $i++) {
-            $month = $currentMonth->copy()->addMonths($i);
-            $availableMonths->push([
-                'value' => $month->format('Y-m'),
-                'label' => $month->format('F Y'),
-            ]);
-        }
-
-        // Student data
-        $studentData = [
-            'id' => $student->id,
-            'name' => $student->name,
-            'slug' => $student->slug,
-            'email' => $student->user->email,
-            'age' => $student->age,
-            'is_subscribed' => $student->is_subscribed,
-            'sessions_remaining' => $student->sessions_remaining,
-            'lessons_completed' => $student->completedLessons()->count(),
-            'lessons_pending' => $student->pendingLessons()->count(),
-        ];
-
-        return Inertia::render('instructor/StudentLessons', [
-            'student' => $studentData,
-            'lessons' => $formattedLessons,
+        return Inertia::render('instructor/StudentSessions', [
+            'sessions' => $sessions,
             'availableMonths' => $availableMonths,
-            'filters' => [
-                'month' => $month,
-                'status' => $status,
-                'per_page' => $perPage,
-            ],
         ]);
     }
 

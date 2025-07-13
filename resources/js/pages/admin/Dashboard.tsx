@@ -17,9 +17,9 @@ interface Stats {
     inactive_instructors: number;
     total_students: number;
     subscribed_students: number;
-    total_lessons: number;
-    completed_lessons: number;
-    pending_lessons: number;
+    total_sessions: number;
+    completed_sessions: number;
+    pending_sessions: number;
     total_sessions_remaining: number;
 
     // Subscription stats (also date-filtered)
@@ -180,18 +180,18 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                 </Card>
             </div>
 
-            {/* Lessons Stats */}
+            {/* Sessions Stats */}
             <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
                             <BookOpen className="h-5 w-5 text-blue-600" />
-                            <span>Total Lessons</span>
+                            <span>Total Sessions</span>
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-blue-600">{stats.total_lessons}</div>
-                        <p className="mt-2 text-sm text-gray-600">Lessons created in date range</p>
+                        <div className="text-3xl font-bold text-blue-600">{stats.total_sessions}</div>
+                        <p className="mt-2 text-sm text-gray-600">Sessions created in date range</p>
                     </CardContent>
                 </Card>
 
@@ -199,12 +199,12 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                     <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
                             <CheckCircle className="h-5 w-5 text-green-600" />
-                            <span>Completed Lessons</span>
+                            <span>Completed Sessions</span>
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-green-600">{stats.completed_lessons}</div>
-                        <p className="mt-2 text-sm text-gray-600">Lessons completed in date range</p>
+                        <div className="text-3xl font-bold text-green-600">{stats.completed_sessions}</div>
+                        <p className="mt-2 text-sm text-gray-600">Sessions completed in date range</p>
                     </CardContent>
                 </Card>
 
@@ -212,12 +212,12 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                     <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
                             <Clock className="h-5 w-5 text-yellow-600" />
-                            <span>Pending Lessons</span>
+                            <span>Pending Sessions</span>
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-yellow-600">{stats.pending_lessons}</div>
-                        <p className="mt-2 text-sm text-gray-600">Pending lessons in date range</p>
+                        <div className="text-3xl font-bold text-yellow-600">{stats.pending_sessions}</div>
+                        <p className="mt-2 text-sm text-gray-600">Pending sessions in date range</p>
                     </CardContent>
                 </Card>
             </div>

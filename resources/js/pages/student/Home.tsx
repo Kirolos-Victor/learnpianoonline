@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import StudentLayout from '@/layouts/student-layout';
 import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { AlertTriangle, ArrowLeft, BookOpen, Calendar, CheckCircle, Clock, Music, Star, Upload } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, BookOpen, CheckCircle, Clock, Music, Star, Upload } from 'lucide-react';
 
 interface Student {
     id: string;
@@ -23,15 +23,13 @@ interface Student {
     };
 }
 
-interface Lesson {
+interface Session {
     id: string;
     title: string;
     instructor: string;
     date: string;
     time: string;
-    status: 'completed' | 'pending' | 'cancelled';
-    type: 'private' | 'group';
-    scheduledAt: string;
+    status: string;
 }
 
 interface Homework {
@@ -47,7 +45,7 @@ interface Homework {
 
 interface StudentData {
     student: Student;
-    lessons: Lesson[];
+    sessions: Session[];
     homework: Homework[];
 }
 
@@ -60,8 +58,8 @@ interface StudentHomeSharedData extends Omit<SharedData, 'subscribePrice'> {
 const StudentHome = () => {
     const { auth, student, studentData, subscribePrice } = usePage<StudentHomeSharedData>().props;
 
-    const currentLessons = studentData?.lessons || [];
-    const upcomingLesson = currentLessons.find((lesson) => lesson.status === 'pending');
+    const currentSessions = studentData?.sessions || [];
+    const upcomingSession = currentSessions.find((session) => session.status === 'pending');
     const pendingHomework = studentData?.homework?.filter((hw) => !hw.isSubmitted) || [];
     const overdueHomework = pendingHomework.filter((hw) => hw.isOverdue);
     const dueSoonHomework = pendingHomework.filter((hw) => hw.isDueSoon && !hw.isOverdue);
@@ -201,27 +199,20 @@ const StudentHome = () => {
                             </Card>
                         </div>
 
-                        {/* Next Lesson */}
-                        {upcomingLesson && (
-                            <Card className="shadow-fun rounded-3xl border-fun-purple/20 bg-gradient-to-br from-fun-purple/10 to-fun-blue/10">
-                                <CardHeader className="text-center">
-                                    <div className="animate-gentle-bounce mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-purple">
-                                        <Calendar className="h-8 w-8 text-white" />
-                                    </div>
-                                    <CardTitle className="font-fredoka text-2xl text-fun-purple">🎹 Your Next Lesson! 🌟</CardTitle>
-                                    <CardDescription className="font-comic text-lg text-fun-purple/80">
-                                        Get ready for another amazing piano adventure!
-                                    </CardDescription>
+                        {/* Next Session */}
+                        {upcomingSession && (
+                            <Card className="mb-6 bg-gradient-to-r from-fun-purple to-fun-blue text-white">
+                                <CardHeader>
+                                    <CardTitle className="font-fredoka text-2xl text-fun-purple">🎹 Your Next Session! 🌟</CardTitle>
+                                    <CardDescription className="text-white/80">Get ready for your upcoming piano session!</CardDescription>
                                 </CardHeader>
-                                <CardContent className="space-y-6 text-center">
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-center space-x-4">
-                                            <Badge className="bg-fun-purple text-white">📅 {upcomingLesson.date}</Badge>
-                                            <Badge className="bg-fun-blue text-white">🕐 {upcomingLesson.time}</Badge>
-                                        </div>
-                                        <h3 className="font-fredoka text-xl font-bold text-fun-purple">{upcomingLesson.title}</h3>
-                                        <p className="font-comic text-fun-purple/80">with {upcomingLesson.instructor}</p>
+                                <CardContent>
+                                    <div className="mb-4 flex flex-wrap gap-2">
+                                        <Badge className="bg-fun-purple text-white">📅 {upcomingSession.date}</Badge>
+                                        <Badge className="bg-fun-blue text-white">🕐 {upcomingSession.time}</Badge>
                                     </div>
+                                    <h3 className="font-fredoka text-xl font-bold text-fun-purple">{upcomingSession.title}</h3>
+                                    <p className="font-comic text-fun-purple/80">with {upcomingSession.instructor}</p>
                                 </CardContent>
                             </Card>
                         )}
@@ -323,13 +314,13 @@ const StudentHome = () => {
                             <Card className="shadow-float max-w-md rounded-2xl border-2 border-fun-blue/20 bg-white transition-all duration-200 hover:scale-105">
                                 <CardContent className="p-6 text-center">
                                     <BookOpen className="mx-auto mb-4 h-12 w-12 text-fun-blue" />
-                                    <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-blue">View All Lessons</h3>
-                                    <p className="mb-4 font-comic text-sm text-fun-purple/70">Check out your lesson history and upcoming sessions</p>
+                                    <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-blue">View All Sessions</h3>
+                                    <p className="mb-4 font-comic text-sm text-fun-purple/70">Check out your session history and upcoming sessions</p>
                                     <Button
-                                        onClick={() => router.visit(route('student.lessons', student.slug))}
+                                        onClick={() => router.visit(route('student.sessions', student.slug))}
                                         className="rounded-full bg-fun-blue px-6 py-3 font-comic text-white hover:bg-fun-blue/90"
                                     >
-                                        View Lessons
+                                        View Sessions
                                     </Button>
                                 </CardContent>
                             </Card>

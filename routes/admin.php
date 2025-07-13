@@ -30,10 +30,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
 
     // Students routes
     Route::get('students', [StudentController::class, 'index'])->name('admin.students');
-    Route::get('students/{id}/lessons', [StudentController::class, 'viewLessons'])->name('admin.students.lessons');
+    Route::get('students/{slug}/sessions', [StudentController::class, 'viewSessions'])->name('admin.students.sessions');
     Route::get('pending-subscribers', [StudentController::class, 'pendingSubscribers'])->name('admin.pending-subscribers');
-    Route::patch('students/{id}/sessions', [StudentController::class, 'updateSessions'])->name('admin.students.update-sessions');
-    Route::patch('students/{id}/instructor', [StudentController::class, 'changeInstructor'])->name('admin.students.change-instructor');
-    Route::patch('students/{id}/lessons', [StudentController::class, 'updateLessons'])->name('admin.students.update-lessons');
-    Route::patch('pending-subscribers/{id}/assign-instructor', [StudentController::class, 'assignInstructorToPending'])->name('admin.pending-subscribers.assign-instructor');
+    Route::patch('students/{slug}/sessions', [StudentController::class, 'updateSessions'])->name('admin.students.update-sessions');
+    Route::patch('students/{slug}/instructor', [StudentController::class, 'changeInstructor'])->name('admin.students.change-instructor');
+    Route::patch('pending-subscribers/{slug}/assign-instructor', [StudentController::class, 'assignInstructorToPending'])->name('admin.pending-subscribers.assign-instructor');
 });

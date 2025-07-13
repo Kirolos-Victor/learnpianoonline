@@ -6,7 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Student;
-use App\Models\Lesson;
+use App\Models\StudentSession;
 use Illuminate\Support\Facades\Hash;
 
 class InstructorStudentSeeder extends Seeder
@@ -67,7 +67,7 @@ class InstructorStudentSeeder extends Seeder
             'day_of_week' => fake()->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
             'preferred_time' => fake()->randomElement(['17:00', '18:00', '19:00', '20:00', '21:00', '22:00']),
             'instructor_id' => $instructor->id,
-            'lessons_remaining' => 10,
+            'sessions_remaining' => 10,
             'is_subscribed' => true,
         ]);
 
@@ -79,16 +79,16 @@ class InstructorStudentSeeder extends Seeder
             'day_of_week' => fake()->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
             'preferred_time' => fake()->randomElement(['17:00', '18:00', '19:00', '20:00', '21:00', '22:00']),
             'instructor_id' => $instructor->id,
-            'lessons_remaining' => 5,
+            'sessions_remaining' => 5,
             'is_subscribed' => false,
         ]);
 
-        // Create lessons for each student
+        // Create sessions for each student
         for ($i = 1; $i <= 3; $i++) {
             $status = $i === 1 ? 'completed' : 'pending';
             $completedAt = $i === 1 ? now()->subDays($i) : null;
 
-            \App\Models\Lesson::create([
+            StudentSession::create([
                 'student_id' => $studentProfile1->id,
                 'instructor_id' => $instructor->id,
                 'scheduled_at' => now()->addDays($i * 7),
@@ -102,7 +102,7 @@ class InstructorStudentSeeder extends Seeder
             $status = $i === 1 ? 'completed' : 'pending';
             $completedAt = $i === 1 ? now()->subDays($i) : null;
 
-            \App\Models\Lesson::create([
+            StudentSession::create([
                 'student_id' => $studentProfile2->id,
                 'instructor_id' => $instructor->id,
                 'scheduled_at' => now()->addDays($i * 7),

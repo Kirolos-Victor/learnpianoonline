@@ -6,18 +6,20 @@ use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\LessonsController;
 use App\Http\Controllers\User\PricingController;
 use App\Http\Controllers\User\StudentController;
+use App\Http\Controllers\User\SessionsController;
 use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
 use App\Http\Controllers\Parent\StudentController as ParentStudentController;
 use App\Http\Controllers\Parent\ContactController as ParentContactController;
 use App\Http\Controllers\Parent\SubscriptionController as ParentSubscriptionController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\LessonController as StudentLessonController;
+use App\Http\Controllers\Student\StudentSessionController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('', [HomeController::class, 'index'])->name('home.index');
-Route::get('lessons', [LessonsController::class, 'index'])->name('lessons.index');
+Route::get('sessions', [SessionsController::class, 'index'])->name('sessions.index');
 Route::get('pricing', [PricingController::class, 'index'])->name('pricing.index');
 Route::get('contact', [ContactController::class, 'index'])->name('contact.index');
 
@@ -49,8 +51,8 @@ Route::middleware(['auth', 'parent'])->prefix('parent')->name('parent.')->group(
 // Student routes (require authentication and parent role)
 Route::middleware(['auth', 'parent'])->prefix('student')->name('student.')->group(function () {
     Route::get('{student:slug}', [StudentDashboardController::class, 'index'])->name('dashboard');
-    Route::get('{student:slug}/lessons', [StudentLessonController::class, 'index'])->name('lessons');
-    Route::get('{student:slug}/homework/{lessonId}', [LessonsController::class, 'homework'])->name('homework');
+    Route::get('{student:slug}/sessions', [StudentSessionController::class, 'index'])->name('student.sessions');
+    Route::get('{student:slug}/homework/{sessionId}', [SessionsController::class, 'homework'])->name('homework');
 });
 
 // Legacy routes (for backward compatibility - redirect to appropriate parent/student routes)
@@ -61,19 +63,20 @@ Route::middleware(['auth', 'parent'])->group(function () {
     Route::get('home/student/{student:slug}', function ($student) {
         return redirect()->route('student.dashboard', $student);
     });
-    Route::get('lessons', function () {
-        return redirect()->route('parent.dashboard');
-    });
-    Route::get('lessons/student/{student:slug}', function ($student) {
-        return redirect()->route('student.lessons', $student);
-    });
+    Route::get('sessions', function () {
+        return redirect()->route('sessions.index');
+    })->name('sessions');
+
+    Route::get('sessions/student/{student:slug}', function ($student) {
+        return redirect()->route('student.sessions', $student);
+    })->name('sessions.student');
     Route::get('student', function () {
         return redirect()->route('parent.students');
     });
     Route::post('student', [StudentController::class, 'store'])->name('student.store');
     Route::put('student/{student}', [StudentController::class, 'update'])->name('student.update');
     Route::delete('student/{student}', [StudentController::class, 'destroy'])->name('student.destroy');
-    Route::get('homework/{student:slug}/{lessonId}', [LessonsController::class, 'homework'])->name('homework.submission');
+    Route::get('homework/{student:slug}/{sessionId}', [SessionsController::class, 'homework'])->name('homework.submission');
     Route::get('subscription', function () {
         return redirect()->route('parent.subscription');
     });

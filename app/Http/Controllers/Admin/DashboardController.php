@@ -10,6 +10,7 @@ use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Models\StudentSession;
 
 class DashboardController extends Controller
 {
@@ -59,13 +60,13 @@ class DashboardController extends Controller
             'total_sessions_remaining' => Student::whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->sum('sessions_remaining'),
 
-            // Lessons (filtered by creation/update date)
-            'total_lessons' => Lesson::whereBetween('created_at', [$startDateTime, $endDateTime])
+            // Sessions (filtered by creation/update date)
+            'total_sessions' => StudentSession::whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
-            'completed_lessons' => Lesson::where('status', 'completed')
+            'completed_sessions' => StudentSession::where('status', 'completed')
                 ->whereBetween('updated_at', [$startDateTime, $endDateTime])
                 ->count(),
-            'pending_lessons' => Lesson::where('status', 'pending')
+            'pending_sessions' => StudentSession::where('status', 'pending')
                 ->whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
         ];

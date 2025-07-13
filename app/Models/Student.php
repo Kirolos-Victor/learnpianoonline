@@ -18,7 +18,7 @@ class Student extends Model
         'is_subscribed',
         'has_piano',
         'instructor_id',
-        'lessons_remaining',
+        'sessions_remaining',
         'subscription_expires_at',
         'day_of_week',
         'preferred_time',
@@ -101,43 +101,43 @@ class Student extends Model
     }
 
     /**
-     * Get all lessons for this student
+     * Get all sessions for this student
      */
-    public function lessons()
+    public function studentSessions()
     {
-        return $this->hasMany(Lesson::class);
+        return $this->hasMany(StudentSession::class);
     }
 
     /**
-     * Get completed lessons
+     * Get completed sessions
      */
-    public function completedLessons()
+    public function completedStudentSessions()
     {
-        return $this->lessons()->where('status', 'completed');
+        return $this->studentSessions()->where('status', 'completed');
     }
 
     /**
-     * Get pending lessons
+     * Get pending sessions
      */
-    public function pendingLessons()
+    public function pendingStudentSessions()
     {
-        return $this->lessons()->where('status', 'pending');
+        return $this->studentSessions()->where('status', 'pending');
     }
 
     /**
      * Check if student has remaining sessions
      */
-    public function hasAvailableLessons(): bool
+    public function hasAvailableSessions(): bool
     {
-        return $this->lessons_remaining > 0;
+        return $this->sessions_remaining > 0;
     }
 
     /**
      * Add sessions to student's balance
      */
-    public function addLessons(int $count): void
+    public function addSessions(int $count): void
     {
-        $this->increment('lessons_remaining', $count);
+        $this->increment('sessions_remaining', $count);
     }
 
     /**

@@ -14,11 +14,11 @@ class StudentController extends Controller
     {
         $perPage = $request->get('per_page', 25);
         $search = $request->get('search', '');
-        $subscriptionFilter = $request->get('subscription', 'all'); // all, subscribed, unsubscribed
+        $subscription = $request->get('subscription', 'all');
 
         $query = Student::with(['user', 'instructor']);
 
-        // Apply search filter (search by student name or user email)
+        // Apply search filter
         if ($search) {
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -27,9 +27,9 @@ class StudentController extends Controller
         }
 
         // Apply subscription filter
-        if ($subscriptionFilter === 'subscribed') {
+        if ($subscription === 'subscribed') {
             $query->where('is_subscribed', true);
-        } elseif ($subscriptionFilter === 'unsubscribed') {
+        } elseif ($subscription === 'unsubscribed') {
             $query->where('is_subscribed', false);
         }
 
@@ -50,23 +50,25 @@ class StudentController extends Controller
 
             return [
                 'id' => $student->id,
+                'slug' => $student->slug,
                 'user_id' => $student->user_id,
                 'name' => $student->user->name,
                 'email' => $student->user->email,
-                'lessons_remaining' => $student->lessons_remaining,
+                'sessions_remaining' => $student->sessions_remaining,
                 'is_subscribed' => $student->is_subscribed,
                 'subscription_months' => $subscriptionMonths,
                 'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
                 'instructor_id' => $student->instructor_id,
-                'instructor_name' => $student->instructor ? $student->instructor->name : null,
-                'preferred_time' => $student->preferred_time,
+                'instructor_name' => $student->instructor?->name,
+                'preferred_time' => $student->preferred_time?->format('H:i'),
                 'created_at' => $student->created_at->format('M d, Y'),
             ];
         });
 
+        // Get instructors for assignment
         $instructors = User::where('role', 'instructor')->where('is_active', true)->get(['id', 'name']);
 
-        // Get summary statistics
+        // Calculate stats
         $stats = [
             'total' => Student::count(),
             'subscribed' => Student::where('is_subscribed', true)->count(),
@@ -79,26 +81,106 @@ class StudentController extends Controller
             'stats' => $stats,
             'filters' => [
                 'search' => $search,
-                'subscription' => $subscriptionFilter,
+                'subscription' => $subscription,
                 'per_page' => $perPage,
             ],
             'timezone' => config('app.timezone'),
         ]);
     }
 
-    public function updateLessons(Request $request, $id)
+    /**
+     * Update student's sessions
+     */
+    public function updateSessions(Request $request, $slug): \Illuminate\Http\RedirectResponse
     {
-        $student = Student::findOrFail($id);
+        $student = Student::where('slug', $slug)->firstOrFail();
+
         $request->validate([
-            'lessons' => 'required|integer|min:0',
+            'sessions' => 'required|integer|min:0',
         ]);
-        $student->update(['lessons_remaining' => $request->lessons]);
-        return redirect()->back()->with('success', 'Lessons updated successfully.');
+
+        $student->update(['sessions_remaining' => $request->sessions]);
+        return redirect()->back()->with('success', 'Sessions updated successfully.');
     }
 
-    public function changeInstructor(Request $request, $id)
+    /**
+     * View student's sessions
+     */
+    public function viewSessions(Request $request, $slug): \Inertia\Response
     {
-        $student = Student::findOrFail($id);
+        $student = Student::with(['user', 'instructor', 'studentSessions'])->where('slug', $slug)->firstOrFail();
+
+        // Get available months from sessions
+        $availableMonths = $student->studentSessions()
+            ->selectRaw("DISTINCT to_char(scheduled_at, 'YYYY-MM') as month")
+            ->orderBy('month', 'desc')
+            ->pluck('month')
+            ->map(function ($month) {
+                return \Carbon\Carbon::createFromFormat('Y-m', $month)->format('F Y');
+            });
+
+        // Build query with filters
+        $sessionsQuery = $student->studentSessions()->with(['instructor']);
+
+        // Apply month filter
+        if ($month = $request->input('month')) {
+            $sessionsQuery->whereMonth('scheduled_at', substr($month, -2));
+            $sessionsQuery->whereYear('scheduled_at', substr($month, 0, 4));
+        }
+
+        // Apply status filter
+        if ($status = $request->input('status')) {
+            if ($status !== 'all') {
+                $sessionsQuery->where('status', $status);
+            }
+        }
+
+        // Get paginated sessions
+        $sessions = $sessionsQuery->orderBy('scheduled_at', 'desc')
+            ->paginate($request->input('perPage', 10))
+            ->through(function ($session) use ($student) {
+                return [
+                    'id' => $session->id,
+                    'instructor_name' => $session->instructor->name,
+                    'scheduled_at' => $session->scheduled_at,
+                    'scheduled_date' => $session->scheduled_at->format('M d, Y'),
+                    'scheduled_time' => $session->scheduled_at->format('h:i A'),
+                    'completed_at' => $session->completed_at?->toDateTimeString(),
+                    'status' => $session->status,
+                    'notes' => $session->notes,
+                    'screenshot_path' => $session->screenshot_path,
+                ];
+            });
+
+        return Inertia::render('admin/StudentSessions', [
+            'student' => [
+                'id' => $student->id,
+                'slug' => $student->slug,
+                'name' => $student->name,
+                'email' => $student->user->email,
+                'age' => $student->age,
+                'is_subscribed' => $student->is_subscribed,
+                'sessions_remaining' => $student->sessions_remaining,
+                'sessions_completed' => $student->studentSessions()->where('status', 'completed')->count(),
+                'sessions_pending' => $student->studentSessions()->where('status', 'pending')->count(),
+                'instructor' => $student->instructor ? [
+                    'id' => $student->instructor->id,
+                    'name' => $student->instructor->name,
+                ] : null,
+            ],
+            'sessions' => $sessions,
+            'availableMonths' => $availableMonths,
+            'filters' => [
+                'month' => $request->input('month'),
+                'status' => $request->input('status'),
+                'perPage' => $request->input('perPage', 10),
+            ],
+        ]);
+    }
+
+    public function changeInstructor(Request $request, $slug)
+    {
+        $student = Student::where('slug', $slug)->firstOrFail();
         $request->validate([
             'instructor_id' => 'nullable|exists:users,id',
         ]);
@@ -151,7 +233,7 @@ class StudentController extends Controller
                 'user_id' => $student->user_id,
                 'name' => $student->user->name,
                 'email' => $student->user->email,
-                'lessons_remaining' => $student->lessons_remaining,
+                'sessions_remaining' => $student->sessions_remaining,
                 'subscription_months' => $subscriptionMonths,
                 'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
                 'created_at' => $student->created_at->format('M d, Y'),
@@ -170,9 +252,9 @@ class StudentController extends Controller
         ]);
     }
 
-    public function assignInstructorToPending(Request $request, $id)
+    public function assignInstructorToPending(Request $request, $slug)
     {
-        $student = Student::findOrFail($id);
+        $student = Student::where('slug', $slug)->firstOrFail();
 
         // Verify the student is subscribed and has no instructor
         if (!$student->is_subscribed || $student->instructor_id) {
@@ -191,80 +273,5 @@ class StudentController extends Controller
         $student->update(['instructor_id' => $instructor->id]);
 
         return redirect()->back()->with('success', 'Instructor assigned successfully. Student has been moved to the main students list.');
-    }
-
-    public function viewLessons(Request $request, $id): \Inertia\Response
-    {
-        $student = Student::with(['user', 'instructor', 'lessons'])->findOrFail($id);
-
-        $perPage = $request->get('per_page', 10);
-        $month = $request->get('month');
-        $status = $request->get('status', 'all');
-
-        $lessonsQuery = $student->lessons()->with(['instructor']);
-
-        if ($month && $month !== 'all') {
-            $lessonsQuery->whereMonth('scheduled_at', substr($month, -2));
-        }
-
-        if ($status && $status !== 'all') {
-            $lessonsQuery->where('status', $status);
-        }
-
-        $lessons = $lessonsQuery->orderBy('scheduled_at', 'desc')
-            ->paginate($perPage)
-            ->through(function ($lesson) use ($student) {
-                return [
-                    'id' => $lesson->id,
-                    'student_name' => $student->user->name,
-                    'instructor_name' => $lesson->instructor->name,
-                    'scheduled_at' => $lesson->scheduled_at,
-                    'scheduled_date' => $lesson->scheduled_at->format('M d, Y'),
-                    'scheduled_time' => $lesson->scheduled_at->format('h:i A'),
-                    'completed_at' => $lesson->completed_at?->toDateTimeString(),
-                    'status' => $lesson->status,
-                    'notes' => $lesson->notes,
-                    'screenshot_path' => $lesson->screenshot_path,
-                ];
-            });
-
-        // Get available months from lessons
-        $availableMonths = $student->lessons()
-            ->selectRaw("DISTINCT to_char(scheduled_at, 'YYYY-MM') as month_value, to_char(scheduled_at, 'Month YYYY') as month_label")
-            ->orderBy('month_value', 'desc')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'value' => $item->month_value,
-                    'label' => $item->month_label,
-                ];
-            });
-
-        $studentData = [
-            'id' => $student->id,
-            'name' => $student->user->name,
-            'email' => $student->user->email,
-            'age' => $student->age,
-            'is_subscribed' => $student->is_subscribed,
-            'lessons_remaining' => $student->lessons_remaining,
-            'lessons_completed' => $student->lessons()->where('status', 'completed')->count(),
-            'lessons_pending' => $student->lessons()->where('status', 'pending')->count(),
-            'instructor' => $student->instructor ? [
-                'id' => $student->instructor->id,
-                'name' => $student->instructor->name,
-                'email' => $student->instructor->email,
-            ] : null,
-        ];
-
-        return Inertia::render('admin/StudentLessons', [
-            'student' => $studentData,
-            'lessons' => $lessons,
-            'availableMonths' => $availableMonths,
-            'filters' => [
-                'month' => $month,
-                'status' => $status,
-                'per_page' => $perPage,
-            ],
-        ]);
     }
 }

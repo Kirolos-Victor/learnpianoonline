@@ -111,19 +111,19 @@ class User extends Authenticatable
     }
 
     /**
-     * Get lessons conducted by this instructor
+     * Get sessions conducted by this instructor
      */
-    public function conductedLessons()
+    public function conductedStudentSessions()
     {
-        return $this->hasMany(Lesson::class, 'instructor_id');
+        return $this->hasMany(\App\Models\StudentSession::class, 'instructor_id');
     }
 
     /**
-     * Get lessons for this student
+     * Get sessions for this student
      */
-    public function studentLessons()
+    public function studentSessions()
     {
-        return $this->hasMany(Lesson::class, 'student_id');
+        return $this->hasMany(\App\Models\StudentSession::class, 'student_id');
     }
 
     /**

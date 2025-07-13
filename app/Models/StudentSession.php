@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Lesson extends Model
+class StudentSession extends Model
 {
     use HasFactory;
+
+    protected $table = 'student_sessions';
 
     protected $fillable = [
         'student_id',
@@ -25,7 +27,7 @@ class Lesson extends Model
     ];
 
     /**
-     * Get the student for this lesson
+     * Get the student for this session
      */
     public function student()
     {
@@ -33,7 +35,7 @@ class Lesson extends Model
     }
 
     /**
-     * Get the instructor (User with role 'instructor') for this lesson
+     * Get the instructor (User with role 'instructor') for this session
      */
     public function instructor()
     {
@@ -41,7 +43,7 @@ class Lesson extends Model
     }
 
     /**
-     * Check if lesson is completed
+     * Check if session is completed
      */
     public function isCompleted(): bool
     {
@@ -49,7 +51,7 @@ class Lesson extends Model
     }
 
     /**
-     * Mark lesson as completed
+     * Mark session as completed
      */
     public function markAsCompleted(?string $screenshotPath = null, ?string $notes = null): void
     {
@@ -60,12 +62,12 @@ class Lesson extends Model
             'notes' => $notes,
         ]);
 
-        // Decrement student's remaining lessons
-        $this->student->decrement('lessons_remaining');
+        // Decrement student's remaining sessions
+        $this->student->decrement('sessions_remaining');
     }
 
     /**
-     * Mark lesson as missed
+     * Mark session as missed
      */
     public function markAsMissed(?string $notes = null): void
     {
@@ -75,14 +77,14 @@ class Lesson extends Model
             'notes' => $notes,
         ]);
 
-        // Reduce student's session balance (missed lessons still count)
+        // Reduce student's session balance (missed sessions still count)
         if ($this->student) {
             $this->student->decrement('sessions_remaining');
         }
     }
 
     /**
-     * Mark lesson as cancelled by instructor
+     * Mark session as cancelled by instructor
      */
     public function markAsCancelled(string $notes): void
     {
@@ -92,44 +94,44 @@ class Lesson extends Model
             'notes' => $notes,
         ]);
 
-        // Decrement student's remaining lessons if it was a no-show
-        $this->student->decrement('lessons_remaining');
+        // Decrement student's remaining sessions if it was a no-show
+        $this->student->decrement('sessions_remaining');
 
-        // Create replacement lesson one week after the latest scheduled lesson
-        $this->scheduleReplacementLesson();
+        // Create replacement session one week after the latest scheduled session
+        $this->scheduleReplacementSession();
     }
 
     /**
-     * Schedule a replacement lesson one week after the latest scheduled lesson
+     * Schedule a replacement session one week after the latest scheduled session
      */
-    private function scheduleReplacementLesson(): void
+    private function scheduleReplacementSession(): void
     {
         if (!$this->student || !$this->instructor) {
             return;
         }
 
-        // Find the latest scheduled lesson for this student
-        $latestLesson = Lesson::where('student_id', $this->student->id)
+        // Find the latest scheduled session for this student
+        $latestSession = StudentSession::where('student_id', $this->student->id)
             ->where('instructor_id', $this->instructor_id)
             ->orderBy('scheduled_at', 'desc')
             ->first();
 
-        // Schedule replacement lesson one week after the latest lesson
-        $replacementDateTime = $latestLesson
-            ? $latestLesson->scheduled_at->addWeek()
+        // Schedule replacement session one week after the latest session
+        $replacementDateTime = $latestSession
+            ? $latestSession->scheduled_at->addWeek()
             : $this->scheduled_at->addWeek();
 
-        Lesson::create([
+        StudentSession::create([
             'student_id' => $this->student->id,
             'instructor_id' => $this->instructor_id,
             'scheduled_at' => $replacementDateTime,
             'status' => 'pending',
-            'notes' => 'Replacement lesson for cancelled lesson on ' . $this->scheduled_at->format('Y-m-d'),
+            'notes' => 'Replacement session for cancelled session on ' . $this->scheduled_at->format('Y-m-d'),
         ]);
     }
 
     /**
-     * Get homework assigned for this lesson
+     * Get homework assigned for this session
      */
     public function homework()
     {
