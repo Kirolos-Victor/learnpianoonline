@@ -90,7 +90,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
 
     const applyFilters = () => {
         router.get(
-            '/admin/students',
+            route('admin.students'),
             {
                 search: searchTerm,
                 subscription: subscriptionFilter,
@@ -98,6 +98,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
             },
             {
                 preserveState: true,
+                preserveScroll: true,
                 replace: true,
             },
         );
@@ -106,7 +107,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
     const handleSubscriptionFilterChange = (value: string) => {
         setSubscriptionFilter(value);
         router.get(
-            '/admin/students',
+            route('admin.students'),
             {
                 search: searchTerm,
                 subscription: value,
@@ -114,6 +115,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
             },
             {
                 preserveState: true,
+                preserveScroll: true,
                 replace: true,
             },
         );
@@ -123,7 +125,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
         setSelectedStudent(student);
         setEditData({
             sessions: student.sessions_remaining.toString(),
-            instructor_id: student.instructor_id || '',
+            instructor_id: student.instructor_id?.toString() || 'none',
         });
         setIsEditDialogOpen(true);
     };
@@ -136,28 +138,37 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
         if (!selectedStudent) return;
         setProcessing(true);
         router.patch(
-            `/admin/students/${selectedStudent.id}/sessions`,
+            route('admin.students.update-sessions', { id: selectedStudent.id }),
             {
                 sessions: Number(editData.sessions),
             },
             {
+                preserveScroll: true,
                 onSuccess: () => {
-                    router.patch(
-                        `/admin/students/${selectedStudent.id}/instructor`,
-                        {
-                            instructor_id: editData.instructor_id,
-                        },
-                        {
-                            onSuccess: () => {
-                                setIsEditDialogOpen(false);
-                                setSelectedStudent(null);
-                                setProcessing(false);
+                    const newInstructorId = editData.instructor_id === 'none' ? null : editData.instructor_id;
+                    if (newInstructorId !== selectedStudent.instructor_id?.toString()) {
+                        router.patch(
+                            route('admin.students.change-instructor', { id: selectedStudent.id }),
+                            {
+                                instructor_id: newInstructorId,
                             },
-                            onFinish: () => setProcessing(false),
-                        },
-                    );
+                            {
+                                preserveScroll: true,
+                                onSuccess: () => {
+                                    setIsEditDialogOpen(false);
+                                    setSelectedStudent(null);
+                                    setProcessing(false);
+                                },
+                                onError: () => setProcessing(false),
+                            },
+                        );
+                    } else {
+                        setIsEditDialogOpen(false);
+                        setSelectedStudent(null);
+                        setProcessing(false);
+                    }
                 },
-                onFinish: () => setProcessing(false),
+                onError: () => setProcessing(false),
             },
         );
     };
@@ -330,24 +341,33 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                                     data={students}
                                     onPageChange={(page) =>
                                         router.get(
-                                            `/admin/students?page=${page}`,
+                                            route('admin.students'),
                                             {
                                                 search: searchTerm,
                                                 subscription: subscriptionFilter,
                                                 per_page: filters.per_page,
+                                                page,
                                             },
-                                            { preserveState: true, replace: true },
+                                            {
+                                                preserveState: true,
+                                                preserveScroll: true,
+                                                replace: true,
+                                            },
                                         )
                                     }
                                     onPerPageChange={(perPage) =>
                                         router.get(
-                                            '/admin/students',
+                                            route('admin.students'),
                                             {
                                                 search: searchTerm,
                                                 subscription: subscriptionFilter,
                                                 per_page: perPage,
                                             },
-                                            { preserveState: true, replace: true },
+                                            {
+                                                preserveState: true,
+                                                preserveScroll: true,
+                                                replace: true,
+                                            },
                                         )
                                     }
                                 />
@@ -358,7 +378,16 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
             </Card>
 
             {/* Edit Student Dialog */}
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <Dialog
+                open={isEditDialogOpen}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setSelectedStudent(null);
+                        setEditData({ sessions: '', instructor_id: '' });
+                    }
+                    setIsEditDialogOpen(open);
+                }}
+            >
                 <DialogContent className="max-w-md">
                     <DialogHeader>
                         <DialogTitle>Update Student</DialogTitle>
@@ -383,9 +412,9 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                                     <SelectValue placeholder="Select an instructor" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">No instructor</SelectItem>
+                                    <SelectItem value="none">No instructor</SelectItem>
                                     {instructors.map((inst) => (
-                                        <SelectItem key={inst.id} value={inst.id}>
+                                        <SelectItem key={inst.id} value={inst.id.toString()}>
                                             {inst.name}
                                         </SelectItem>
                                     ))}

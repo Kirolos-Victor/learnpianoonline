@@ -52,6 +52,7 @@ const AdminInstructors = ({ instructors }: Props) => {
     const handleUpdateInstructor = () => {
         if (selectedInstructor) {
             put(`/admin/instructors/${selectedInstructor.id}`, {
+                preserveScroll: true,
                 onSuccess: () => {
                     setIsEditDialogOpen(false);
                     setSelectedInstructor(null);
@@ -62,6 +63,7 @@ const AdminInstructors = ({ instructors }: Props) => {
 
     const handleInviteInstructor = () => {
         post('/admin/instructors/invite', {
+            preserveScroll: true,
             onSuccess: () => {
                 setIsInviteDialogOpen(false);
                 setData({ name: '', email: '' });
@@ -71,13 +73,17 @@ const AdminInstructors = ({ instructors }: Props) => {
 
     const handleRestrictAccess = (instructorId: string) => {
         if (confirm('Are you sure you want to deactivate this instructor?')) {
-            patch(`/admin/instructors/${instructorId}/restrict`);
+            patch(`/admin/instructors/${instructorId}/restrict`, {
+                preserveScroll: true,
+            });
         }
     };
 
     const handleActivateInstructor = (instructorId: string) => {
         if (confirm('Are you sure you want to activate this instructor?')) {
-            patch(`/admin/instructors/${instructorId}/activate`);
+            patch(`/admin/instructors/${instructorId}/activate`, {
+                preserveScroll: true,
+            });
         }
     };
 

@@ -85,6 +85,7 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
             },
             {
                 preserveState: true,
+                preserveScroll: true,
                 replace: true,
             },
         );
@@ -100,12 +101,13 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
         if (!selectedStudent || !selectedInstructorId) return;
 
         setProcessing(true);
-        router.patch(
-            `/admin/pending-subscribers/${selectedStudent.id}/assign-instructor`,
+        router.post(
+            route('admin.pending-subscribers.assign-instructor', { id: selectedStudent.id }),
             {
                 instructor_id: selectedInstructorId,
             },
             {
+                preserveScroll: true,
                 onSuccess: () => {
                     setIsAssignDialogOpen(false);
                     setSelectedStudent(null);

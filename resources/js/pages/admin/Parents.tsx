@@ -88,9 +88,37 @@ const AdminParents = ({ users, stats, filters }: Props) => {
         updateFilters({ per_page: perPage });
     };
 
-    const handleStatusChange = (status: string) => {
-        setStatusFilter(status);
-        updateFilters({ status, per_page: filters.per_page });
+    const applyFilters = () => {
+        router.get(
+            route('admin.parents'),
+            {
+                search: searchTerm,
+                status: statusFilter,
+                per_page: filters.per_page,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    };
+
+    const handleStatusChange = (value: string) => {
+        setStatusFilter(value);
+        router.get(
+            route('admin.parents'),
+            {
+                search: searchTerm,
+                status: value,
+                per_page: filters.per_page,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
     };
 
     const handleRestrictAccess = (userId: string) => {
@@ -119,6 +147,16 @@ const AdminParents = ({ users, stats, filters }: Props) => {
                 },
             );
         }
+    };
+
+    const handleToggleStatus = (userId: string, currentStatus: boolean) => {
+        router.patch(
+            route('admin.parents.toggle-status', { id: userId }),
+            {},
+            {
+                preserveScroll: true,
+            },
+        );
     };
 
     return (

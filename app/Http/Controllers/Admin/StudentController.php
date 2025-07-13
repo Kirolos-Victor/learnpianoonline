@@ -22,7 +22,7 @@ class StudentController extends Controller
         if ($search) {
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -35,8 +35,8 @@ class StudentController extends Controller
 
         // Get paginated results
         $students = $query->orderByDesc('created_at')
-                         ->paginate($perPage)
-                         ->withQueryString();
+            ->paginate($perPage)
+            ->withQueryString();
 
         // Transform the data
         $students->getCollection()->transform(function ($student) {
@@ -98,13 +98,17 @@ class StudentController extends Controller
     {
         $student = Student::findOrFail($id);
         $request->validate([
-            'instructor_id' => 'required|exists:users,id',
+            'instructor_id' => 'nullable|exists:users,id',
         ]);
-        $instructor = User::findOrFail($request->instructor_id);
-        if ($instructor->role !== 'instructor') {
-            return redirect()->back()->with('error', 'Selected user is not an instructor.');
+
+        if ($request->instructor_id) {
+            $instructor = User::findOrFail($request->instructor_id);
+            if ($instructor->role !== 'instructor') {
+                return redirect()->back()->with('error', 'Selected user is not an instructor.');
+            }
         }
-        $student->update(['instructor_id' => $instructor->id]);
+
+        $student->update(['instructor_id' => $request->instructor_id]);
         return redirect()->back()->with('success', 'Instructor changed successfully.');
     }
 
@@ -121,14 +125,14 @@ class StudentController extends Controller
         if ($search) {
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
         // Get paginated results
         $students = $query->orderByDesc('created_at')
-                         ->paginate($perPage)
-                         ->withQueryString();
+            ->paginate($perPage)
+            ->withQueryString();
 
         // Transform the data
         $students->getCollection()->transform(function ($student) {
