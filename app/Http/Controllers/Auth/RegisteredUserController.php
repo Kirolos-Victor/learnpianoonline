@@ -24,6 +24,7 @@ class RegisteredUserController extends Controller
     {
         return Inertia::render('auth/register', [
             'countries' => LocationService::getCountries(),
+            'countriesRequiringState' => LocationService::getCountriesRequiringStateSelection(),
         ]);
     }
 
@@ -34,14 +35,43 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Determine if state/province is required based on country
+        $stateRequired = LocationService::countryRequiresStateSelection($request->country);
+
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s\-\'\.]+$/',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'whatsapp_number' => 'nullable|string|max:20',
-            'city' => 'nullable|string|max:255',
-            'state_province' => 'nullable|string|max:255',
-            'country' => 'required|string|max:2',
+            'password' => [
+                'required',
+                'confirmed',
+                'min:8',
+                'max:128',
+            ],
+            'whatsapp_number' => 'nullable|string|min:10|max:20|regex:/^[\+]?[1-9][\d]{0,15}$/',
+            'city' => 'nullable|string|min:2|max:255|regex:/^[a-zA-Z\s\-\'\.]+$/',
+            'state_province' => $stateRequired ? 'required|string|min:2|max:255' : 'nullable|string|min:2|max:255',
+            'country' => 'required|string|size:2',
+        ], [
+            'name.required' => 'Full name is required.',
+            'name.min' => 'Name must be at least 2 characters long.',
+            'name.regex' => 'Name can only contain letters, spaces, hyphens, apostrophes, and periods.',
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email address is already registered. Please use a different email or try logging in.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 8 characters long.',
+            'password.max' => 'Password cannot exceed 128 characters.',
+            'password.confirmed' => 'Password confirmation does not match.',
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+            'whatsapp_number.min' => 'Phone number must be at least 10 digits.',
+            'whatsapp_number.max' => 'Phone number cannot exceed 20 digits.',
+            'whatsapp_number.regex' => 'Please enter a valid phone number.',
+            'city.min' => 'City name must be at least 2 characters long.',
+            'city.regex' => 'City name can only contain letters, spaces, hyphens, apostrophes, and periods.',
+            'state_province.required' => 'State/Province selection is required for your country to determine the correct timezone.',
+            'state_province.min' => 'State/Province must be at least 2 characters long.',
+            'country.required' => 'Please select your country.',
+            'country.size' => 'Invalid country code.',
         ]);
 
         // Automatically determine timezone based on location
@@ -67,7 +97,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->intended(route('parent.dashboard', absolute: false));
+        // Clear any intended URL from session to prevent conflicts
+        session()->forget('url.intended');
+
+        return redirect()->route('parent.dashboard');
     }
 
     /**
