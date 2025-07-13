@@ -52,21 +52,21 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
 
             <div className="flex">
                 {/* Sidebar */}
-                <aside className="min-h-screen w-64 border-r border-gray-200 bg-white">
+                <aside className="min-h-screen w-64 flex-shrink-0 border-r border-gray-200 bg-white">
                     <nav className="mt-8">
                         <div className="space-y-2 px-4">
                             {navigationItems.map((item) => (
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                                    className={`flex items-center rounded-md px-3 py-2 text-sm font-medium ${
                                         isActive(item.name)
                                             ? 'border-r-2 border-red-700 bg-red-50 text-red-700'
                                             : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                                     }`}
                                 >
-                                    <item.icon className="mr-3 h-5 w-5" />
-                                    {item.label}
+                                    <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                                    <span className="truncate">{item.label}</span>
                                 </Link>
                             ))}
                         </div>
