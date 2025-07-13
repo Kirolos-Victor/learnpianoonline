@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TablePagination } from '@/components/ui/table-pagination';
 import AdminLayout from '@/layouts/admin-layout';
-import { Head, router } from '@inertiajs/react';
+import dayjs from '@/lib/dayjs';
+import { Head, Link, router } from '@inertiajs/react';
 import { Calendar, Edit, GraduationCap, Search, UserCheck, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -16,12 +17,13 @@ interface Student {
     user_id: string;
     name: string;
     email: string;
-    sessions_remaining: number;
+    lessons_remaining: number;
     is_subscribed: boolean;
     subscription_months: number;
     subscription_expires_at: string | null;
     instructor_id: string | null;
     instructor_name: string | null;
+    preferred_time: string | null;
     created_at: string;
 }
 
@@ -67,14 +69,15 @@ interface Props {
     instructors: InstructorOption[];
     stats: Stats;
     filters: Filters;
+    timezone: string;
 }
 
-const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
+const AdminStudents = ({ students, instructors, stats, filters, timezone }: Props) => {
     const [searchTerm, setSearchTerm] = useState(filters.search);
     const [subscriptionFilter, setSubscriptionFilter] = useState(filters.subscription);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [editData, setEditData] = useState<{ sessions: string; instructor_id: string }>({ sessions: '', instructor_id: '' });
+    const [editData, setEditData] = useState<{ lessons: string; instructor_id: string }>({ lessons: '', instructor_id: '' });
     const [processing, setProcessing] = useState(false);
 
     // Debounced search effect
@@ -124,13 +127,13 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
     const handleOpenEditDialog = (student: Student) => {
         setSelectedStudent(student);
         setEditData({
-            sessions: student.sessions_remaining.toString(),
+            lessons: student.lessons_remaining.toString(),
             instructor_id: student.instructor_id?.toString() || 'none',
         });
         setIsEditDialogOpen(true);
     };
 
-    const handleEditChange = (field: 'sessions' | 'instructor_id', value: string) => {
+    const handleEditChange = (field: 'lessons' | 'instructor_id', value: string) => {
         setEditData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -138,9 +141,9 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
         if (!selectedStudent) return;
         setProcessing(true);
         router.patch(
-            route('admin.students.update-sessions', { id: selectedStudent.id }),
+            route('admin.students.update-lessons', { id: selectedStudent.id }),
             {
-                sessions: Number(editData.sessions),
+                lessons: Number(editData.lessons),
             },
             {
                 preserveScroll: true,
@@ -279,6 +282,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Subscription</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sessions</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Preferred Time</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Instructor</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                         </tr>
@@ -318,16 +322,34 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
-                                                    <span className="font-medium">{student.sessions_remaining}</span>
-                                                    <span className="ml-1 text-xs text-gray-500">remaining</span>
+                                                    <div className="text-sm text-gray-500">
+                                                        <span className="font-medium">{student.lessons_remaining}</span> lessons remaining
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-2 whitespace-nowrap">
+                                                    {student.preferred_time ? (
+                                                        <div className="flex items-center">
+                                                            <Calendar className="mr-2 h-4 w-4 text-gray-500" />
+                                                            <span>{dayjs.utc(student.preferred_time, 'HH:mm').tz(timezone).format('hh:mm A')}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-gray-400">Not set</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
                                                     {student.instructor_name || <span className="text-gray-400">None assigned</span>}
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
-                                                    <Button size="sm" variant="outline" onClick={() => handleOpenEditDialog(student)}>
-                                                        <Edit className="h-4 w-4" /> Edit
-                                                    </Button>
+                                                    <div className="flex gap-2">
+                                                        <Button size="sm" variant="outline" onClick={() => handleOpenEditDialog(student)}>
+                                                            <Edit className="h-4 w-4" /> Edit
+                                                        </Button>
+                                                        <Link href={route('admin.students.lessons', { id: student.id })}>
+                                                            <Button size="sm" variant="outline">
+                                                                <Calendar className="h-4 w-4" /> View Lessons
+                                                            </Button>
+                                                        </Link>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -383,7 +405,7 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                 onOpenChange={(open) => {
                     if (!open) {
                         setSelectedStudent(null);
-                        setEditData({ sessions: '', instructor_id: '' });
+                        setEditData({ lessons: '', instructor_id: '' });
                     }
                     setIsEditDialogOpen(open);
                 }}
@@ -395,14 +417,14 @@ const AdminStudents = ({ students, instructors, stats, filters }: Props) => {
                     </DialogHeader>
                     <div className="space-y-4">
                         <div>
-                            <Label htmlFor="edit-sessions">Number of Sessions (Exact Value)</Label>
+                            <Label htmlFor="edit-lessons">Number of Lessons (Exact Value)</Label>
                             <Input
-                                id="edit-sessions"
+                                id="edit-lessons"
                                 type="number"
                                 min="0"
-                                value={editData.sessions}
-                                onChange={(e) => handleEditChange('sessions', e.target.value)}
-                                placeholder="Enter exact number of sessions"
+                                value={editData.lessons}
+                                onChange={(e) => handleEditChange('lessons', e.target.value)}
+                                placeholder="Enter exact number of lessons"
                             />
                         </div>
                         <div>

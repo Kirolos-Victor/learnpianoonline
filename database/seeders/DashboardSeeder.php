@@ -42,7 +42,7 @@ class DashboardSeeder extends Seeder
             'age' => 12,
             'is_subscribed' => true,
             'has_piano' => true,
-            'sessions_remaining' => 8,
+            'lessons_remaining' => 8,
             'subscription_expires_at' => Carbon::now()->addMonths(2),
             'instructor_id' => $instructor->id,
         ]);
@@ -53,7 +53,7 @@ class DashboardSeeder extends Seeder
             'age' => 8,
             'is_subscribed' => false,
             'has_piano' => false,
-            'sessions_remaining' => 0,
+            'lessons_remaining' => 0,
             'instructor_id' => null,
         ]);
 
@@ -63,7 +63,7 @@ class DashboardSeeder extends Seeder
             'age' => 15,
             'is_subscribed' => true,
             'has_piano' => true,
-            'sessions_remaining' => 12,
+            'lessons_remaining' => 12,
             'subscription_expires_at' => Carbon::now()->addYear(),
             'instructor_id' => $instructor->id,
         ]);

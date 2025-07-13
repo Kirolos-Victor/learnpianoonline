@@ -53,12 +53,13 @@ class StudentController extends Controller
                 'user_id' => $student->user_id,
                 'name' => $student->user->name,
                 'email' => $student->user->email,
-                'sessions_remaining' => $student->sessions_remaining,
+                'lessons_remaining' => $student->lessons_remaining,
                 'is_subscribed' => $student->is_subscribed,
                 'subscription_months' => $subscriptionMonths,
                 'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
                 'instructor_id' => $student->instructor_id,
                 'instructor_name' => $student->instructor ? $student->instructor->name : null,
+                'preferred_time' => $student->preferred_time,
                 'created_at' => $student->created_at->format('M d, Y'),
             ];
         });
@@ -81,17 +82,18 @@ class StudentController extends Controller
                 'subscription' => $subscriptionFilter,
                 'per_page' => $perPage,
             ],
+            'timezone' => config('app.timezone'),
         ]);
     }
 
-    public function updateSessions(Request $request, $id)
+    public function updateLessons(Request $request, $id)
     {
         $student = Student::findOrFail($id);
         $request->validate([
-            'sessions' => 'required|integer|min:0',
+            'lessons' => 'required|integer|min:0',
         ]);
-        $student->update(['sessions_remaining' => $request->sessions]);
-        return redirect()->back()->with('success', 'Sessions updated successfully.');
+        $student->update(['lessons_remaining' => $request->lessons]);
+        return redirect()->back()->with('success', 'Lessons updated successfully.');
     }
 
     public function changeInstructor(Request $request, $id)
@@ -149,7 +151,7 @@ class StudentController extends Controller
                 'user_id' => $student->user_id,
                 'name' => $student->user->name,
                 'email' => $student->user->email,
-                'sessions_remaining' => $student->sessions_remaining,
+                'lessons_remaining' => $student->lessons_remaining,
                 'subscription_months' => $subscriptionMonths,
                 'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
                 'created_at' => $student->created_at->format('M d, Y'),
@@ -189,5 +191,80 @@ class StudentController extends Controller
         $student->update(['instructor_id' => $instructor->id]);
 
         return redirect()->back()->with('success', 'Instructor assigned successfully. Student has been moved to the main students list.');
+    }
+
+    public function viewLessons(Request $request, $id): \Inertia\Response
+    {
+        $student = Student::with(['user', 'instructor', 'lessons'])->findOrFail($id);
+
+        $perPage = $request->get('per_page', 10);
+        $month = $request->get('month');
+        $status = $request->get('status', 'all');
+
+        $lessonsQuery = $student->lessons()->with(['instructor']);
+
+        if ($month && $month !== 'all') {
+            $lessonsQuery->whereMonth('scheduled_at', substr($month, -2));
+        }
+
+        if ($status && $status !== 'all') {
+            $lessonsQuery->where('status', $status);
+        }
+
+        $lessons = $lessonsQuery->orderBy('scheduled_at', 'desc')
+            ->paginate($perPage)
+            ->through(function ($lesson) use ($student) {
+                return [
+                    'id' => $lesson->id,
+                    'student_name' => $student->user->name,
+                    'instructor_name' => $lesson->instructor->name,
+                    'scheduled_at' => $lesson->scheduled_at,
+                    'scheduled_date' => $lesson->scheduled_at->format('M d, Y'),
+                    'scheduled_time' => $lesson->scheduled_at->format('h:i A'),
+                    'completed_at' => $lesson->completed_at?->toDateTimeString(),
+                    'status' => $lesson->status,
+                    'notes' => $lesson->notes,
+                    'screenshot_path' => $lesson->screenshot_path,
+                ];
+            });
+
+        // Get available months from lessons
+        $availableMonths = $student->lessons()
+            ->selectRaw("DISTINCT to_char(scheduled_at, 'YYYY-MM') as month_value, to_char(scheduled_at, 'Month YYYY') as month_label")
+            ->orderBy('month_value', 'desc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'value' => $item->month_value,
+                    'label' => $item->month_label,
+                ];
+            });
+
+        $studentData = [
+            'id' => $student->id,
+            'name' => $student->user->name,
+            'email' => $student->user->email,
+            'age' => $student->age,
+            'is_subscribed' => $student->is_subscribed,
+            'lessons_remaining' => $student->lessons_remaining,
+            'lessons_completed' => $student->lessons()->where('status', 'completed')->count(),
+            'lessons_pending' => $student->lessons()->where('status', 'pending')->count(),
+            'instructor' => $student->instructor ? [
+                'id' => $student->instructor->id,
+                'name' => $student->instructor->name,
+                'email' => $student->instructor->email,
+            ] : null,
+        ];
+
+        return Inertia::render('admin/StudentLessons', [
+            'student' => $studentData,
+            'lessons' => $lessons,
+            'availableMonths' => $availableMonths,
+            'filters' => [
+                'month' => $month,
+                'status' => $status,
+                'per_page' => $perPage,
+            ],
+        ]);
     }
 }

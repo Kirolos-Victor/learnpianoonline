@@ -18,12 +18,12 @@ return new class extends Migration
             $table->integer('age');
             $table->boolean('is_subscribed')->default(false);
             $table->boolean('has_piano')->default(false);
-            $table->integer('sessions_remaining')->default(0);
+            $table->integer('lessons_remaining')->default(0);
             $table->dateTime('subscription_expires_at')->nullable();
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('instructor_id')->nullable()->constrained('users');
+            $table->foreignId('instructor_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('day_of_week');
-            $table->time('preferred_time');
+            $table->time('preferred_time')->nullable();
             $table->timestamps();
         });
     }

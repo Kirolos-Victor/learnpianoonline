@@ -60,10 +60,8 @@ class Lesson extends Model
             'notes' => $notes,
         ]);
 
-        // Reduce student's session balance
-        if ($this->student) {
-            $this->student->decrement('sessions_remaining');
-        }
+        // Decrement student's remaining lessons
+        $this->student->decrement('lessons_remaining');
     }
 
     /**
@@ -93,6 +91,9 @@ class Lesson extends Model
             'completed_at' => now(),
             'notes' => $notes,
         ]);
+
+        // Decrement student's remaining lessons if it was a no-show
+        $this->student->decrement('lessons_remaining');
 
         // Create replacement lesson one week after the latest scheduled lesson
         $this->scheduleReplacementLesson();

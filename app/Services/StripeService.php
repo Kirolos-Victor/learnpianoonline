@@ -134,11 +134,13 @@ class StripeService
                 $student = \App\Models\Student::find($studentId);
                 if ($student) {
                     $isYearly = $subscription->subscription_type === 'yearly';
+                    $subscriptionEndDate = $isYearly ? now()->addYear() : now()->addMonth();
 
+                    // Update student subscription data
                     $student->update([
                         'is_subscribed' => true,
-                        'subscription_expires_at' => $isYearly ? now()->addYear() : now()->addMonth(),
-                        'sessions_remaining' => $isYearly ? 48 : 4, // 48 sessions per year (4 per month) or 4 per month
+                        'subscription_expires_at' => $subscriptionEndDate,
+                        'lessons_remaining' => $isYearly ? 48 : 4, // 48 lessons per year (4 per month) or 4 per month
                     ]);
 
                     // Attach student to subscription

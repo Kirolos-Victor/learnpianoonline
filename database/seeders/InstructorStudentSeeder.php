@@ -67,7 +67,7 @@ class InstructorStudentSeeder extends Seeder
             'day_of_week' => fake()->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
             'preferred_time' => fake()->randomElement(['17:00', '18:00', '19:00', '20:00', '21:00', '22:00']),
             'instructor_id' => $instructor->id,
-            'sessions_remaining' => 10,
+            'lessons_remaining' => 10,
             'is_subscribed' => true,
         ]);
 
@@ -79,7 +79,7 @@ class InstructorStudentSeeder extends Seeder
             'day_of_week' => fake()->randomElement(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
             'preferred_time' => fake()->randomElement(['17:00', '18:00', '19:00', '20:00', '21:00', '22:00']),
             'instructor_id' => $instructor->id,
-            'sessions_remaining' => 5,
+            'lessons_remaining' => 5,
             'is_subscribed' => false,
         ]);
 

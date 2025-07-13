@@ -18,7 +18,7 @@ class Student extends Model
         'is_subscribed',
         'has_piano',
         'instructor_id',
-        'sessions_remaining',
+        'lessons_remaining',
         'subscription_expires_at',
         'day_of_week',
         'preferred_time',
@@ -127,17 +127,17 @@ class Student extends Model
     /**
      * Check if student has remaining sessions
      */
-    public function hasRemainingSessions(): bool
+    public function hasAvailableLessons(): bool
     {
-        return $this->sessions_remaining > 0;
+        return $this->lessons_remaining > 0;
     }
 
     /**
      * Add sessions to student's balance
      */
-    public function addSessions(int $count): void
+    public function addLessons(int $count): void
     {
-        $this->increment('sessions_remaining', $count);
+        $this->increment('lessons_remaining', $count);
     }
 
     /**
