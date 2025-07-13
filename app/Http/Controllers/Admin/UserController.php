@@ -45,7 +45,7 @@ class UserController extends Controller
             'inactive' => User::where('role', 'parent')->where('is_active', false)->count(),
         ];
 
-        return Inertia::render('admin/Users', [
+        return Inertia::render('admin/Parents', [
             'users' => $users,
             'stats' => $stats,
             'filters' => [

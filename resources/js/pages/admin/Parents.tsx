@@ -39,7 +39,7 @@ interface Props {
     filters: Filters;
 }
 
-const AdminUsers = ({ users, stats, filters }: Props) => {
+const AdminParents = ({ users, stats, filters }: Props) => {
     const [processing, setProcessing] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters.search);
     const [statusFilter, setStatusFilter] = useState(filters.status);
@@ -259,4 +259,4 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
     );
 };
 
-export default AdminUsers;
+export default AdminParents;
