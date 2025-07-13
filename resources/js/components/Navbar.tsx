@@ -43,7 +43,7 @@ const Navbar = () => {
     // Admin navigation items
     const adminNavItems = [
         { name: 'admin.dashboard', label: 'Dashboard', icon: Home },
-        { name: 'admin.users', label: 'Users', icon: Users },
+        { name: 'admin.parents', label: 'Parents', icon: Users },
     ];
 
     // Guest navigation items with kid-friendly labels

@@ -66,7 +66,7 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
             delete (params as any).search;
         }
 
-        router.visit(route('admin.users'), {
+        router.visit(route('admin.parents'), {
             data: params,
             preserveState: true,
             replace: true,
@@ -74,7 +74,7 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
     };
 
     const handlePageChange = (page: number) => {
-        router.visit(route('admin.users'), {
+        router.visit(route('admin.parents'), {
             data: {
                 ...filters,
                 page,
@@ -94,10 +94,10 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
     };
 
     const handleRestrictAccess = (userId: string) => {
-        if (confirm('Are you sure you want to deactivate this user?')) {
+        if (confirm('Are you sure you want to deactivate this parent?')) {
             setProcessing(true);
             router.patch(
-                `/admin/users/${userId}/restrict`,
+                `/admin/parents/${userId}/restrict`,
                 {},
                 {
                     preserveScroll: true,
@@ -108,10 +108,10 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
     };
 
     const handleActivateUser = (userId: string) => {
-        if (confirm('Are you sure you want to activate this user?')) {
+        if (confirm('Are you sure you want to activate this parent?')) {
             setProcessing(true);
             router.patch(
-                `/admin/users/${userId}/activate`,
+                `/admin/parents/${userId}/activate`,
                 {},
                 {
                     preserveScroll: true,
@@ -122,18 +122,18 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
     };
 
     return (
-        <AdminLayout title="Users Management">
-            <Head title="Users Management" />
+        <AdminLayout title="Parents Management">
+            <Head title="Parents Management" />
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
-                <p className="mt-2 text-gray-600">Manage users. You can only deactivate or reactivate users from login here.</p>
+                <h1 className="text-3xl font-bold text-gray-900">Parents Management</h1>
+                <p className="mt-2 text-gray-600">Manage parent accounts. You can only deactivate or reactivate parents from login here.</p>
             </div>
 
             {/* Stats Cards */}
             <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                        <CardTitle className="text-sm font-medium">Total Parents</CardTitle>
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
@@ -145,7 +145,7 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                        <CardTitle className="text-sm font-medium">Active Parents</CardTitle>
                         <UserCheck className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
@@ -155,7 +155,7 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Inactive Users</CardTitle>
+                        <CardTitle className="text-sm font-medium">Inactive Parents</CardTitle>
                         <UserX className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
@@ -170,7 +170,7 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
                 <div className="relative flex-1">
                     <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                     <Input
-                        placeholder="Search users by name or email..."
+                        placeholder="Search parents by name or email..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10"
@@ -181,7 +181,7 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
                         <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All Users</SelectItem>
+                        <SelectItem value="all">All Parents</SelectItem>
                         <SelectItem value="active">Active Only</SelectItem>
                         <SelectItem value="inactive">Inactive Only</SelectItem>
                     </SelectContent>
@@ -189,19 +189,19 @@ const AdminUsers = ({ users, stats, filters }: Props) => {
             </div>
             <Card>
                 <CardHeader>
-                    <CardTitle>All Users</CardTitle>
-                    <CardDescription>Activate or deactivate user accounts</CardDescription>
+                    <CardTitle>All Parents</CardTitle>
+                    <CardDescription>Activate or deactivate parent accounts</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
                         {users.data.length === 0 ? (
                             <div className="py-8 text-center">
                                 <Users className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                                <h3 className="mb-2 text-lg font-medium text-gray-900">No users found</h3>
+                                <h3 className="mb-2 text-lg font-medium text-gray-900">No parents found</h3>
                                 <p className="text-gray-600">
                                     {searchTerm || statusFilter !== 'all'
                                         ? 'Try adjusting your search or filter criteria.'
-                                        : 'No users have been registered yet.'}
+                                        : 'No parents have been registered yet.'}
                                 </p>
                             </div>
                         ) : (

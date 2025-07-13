@@ -19,7 +19,7 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
 
     const navigationItems = [
         { name: 'admin.dashboard', label: 'Dashboard', icon: Shield, href: route('admin.dashboard') },
-        { name: 'admin.users', label: 'Users', icon: Users, href: route('admin.users') },
+        { name: 'admin.parents', label: 'Parents', icon: Users, href: route('admin.parents') },
         { name: 'admin.students', label: 'Students', icon: GraduationCap, href: route('admin.students') },
         { name: 'admin.pending-subscribers', label: 'Pending Subscribers', icon: Clock, href: route('admin.pending-subscribers') },
         { name: 'admin.instructors', label: 'Instructors', icon: Shield, href: route('admin.instructors') },

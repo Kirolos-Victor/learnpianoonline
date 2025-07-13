@@ -48,7 +48,7 @@ const Footer = () => {
         if (auth.user.role === 'admin') {
             return [
                 { name: 'admin.dashboard', label: 'Dashboard', icon: '🏠' },
-                { name: 'admin.users', label: 'Users', icon: '👥' },
+                { name: 'admin.parents', label: 'Parents', icon: '👥' },
             ];
         }
 
