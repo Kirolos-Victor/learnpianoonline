@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\StudentSession;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
@@ -15,7 +14,7 @@ class StudentSessionController extends Controller
     public function index(Request $request, Student $student): \Inertia\Response
     {
         // Check if the student belongs to the authenticated user
-        if ($student->user_id !== auth()->id()) {
+        if ($student->user_id !== $request->user()->id) {
             abort(403, 'Unauthorized access to student sessions');
         }
 
