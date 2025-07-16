@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import TablePagination, { PaginationData } from '@/components/ui/table-pagination';
 import AdminLayout from '@/layouts/admin-layout';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { BookOpen, Edit, GraduationCap, Shield, UserCheck, UserPlus, Users, UserX } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Search, Shield, UserCheck, UserPlus, Users, UserX } from 'lucide-react';
 import { useState } from 'react';
 
 interface Instructor {
@@ -15,82 +17,126 @@ interface Instructor {
     email: string;
     is_active: boolean;
     created_at: string;
-    students_count: number;
-    lessons_count: number;
-    completed_lessons: number;
-    assigned_students: {
-        id: string;
-        user_name: string;
-        sessions_remaining: number;
-        is_subscribed: boolean;
-    }[];
 }
 
 interface Props {
-    instructors: Instructor[];
+    instructors: {
+        data: Instructor[];
+    } & PaginationData;
+    filters: {
+        search?: string;
+        status?: string;
+    };
 }
 
-const AdminInstructors = ({ instructors }: Props) => {
-    const [selectedInstructor, setSelectedInstructor] = useState<Instructor | null>(null);
-    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+const AdminInstructors = ({ instructors, filters }: Props) => {
     const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
-    const { data, setData, put, post, patch, processing, errors } = useForm({
-        name: '',
+    const { data, setData, post, patch, processing, errors } = useForm({
         email: '',
     });
 
-    const handleEditInstructor = (instructor: Instructor) => {
-        setSelectedInstructor(instructor);
-        setData({
-            name: instructor.name,
-            email: instructor.email,
-        });
-        setIsEditDialogOpen(true);
-    };
+    const { data: filterData, setData: setFilterData } = useForm({
+        search: filters.search || '',
+        status: filters.status || 'all',
+    });
 
-    const handleUpdateInstructor = () => {
-        if (selectedInstructor) {
-            put(`/admin/instructors/${selectedInstructor.id}`, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setIsEditDialogOpen(false);
-                    setSelectedInstructor(null);
-                },
-            });
+    const handleFilterChange = (key: 'search' | 'status', value: string) => {
+        // Update the form data first
+        setFilterData(key, value);
+
+        // Build the new filter state
+        const newFilters = {
+            search: key === 'search' ? value : filterData.search,
+            status: key === 'status' ? value : filterData.status,
+        };
+
+        // Build URL parameters
+        const params = new URLSearchParams();
+        if (newFilters.search) {
+            params.set('search', newFilters.search);
         }
+        if (newFilters.status && newFilters.status !== 'all') {
+            params.set('status', newFilters.status);
+        }
+
+        // Navigate with new parameters
+        router.get('/admin/instructors', params.toString() ? Object.fromEntries(params) : {}, {
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
-    const handleInviteInstructor = () => {
-        post('/admin/instructors/invite', {
+    const handlePageChange = (page: number) => {
+        const params = new URLSearchParams();
+        if (filterData.search) params.set('search', filterData.search);
+        if (filterData.status && filterData.status !== 'all') params.set('status', filterData.status);
+        params.set('page', page.toString());
+
+        router.get('/admin/instructors', Object.fromEntries(params), {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const handlePerPageChange = (perPage: number) => {
+        const params = new URLSearchParams();
+        if (filterData.search) params.set('search', filterData.search);
+        if (filterData.status && filterData.status !== 'all') params.set('status', filterData.status);
+        params.set('per_page', perPage.toString());
+
+        router.get('/admin/instructors', Object.fromEntries(params), {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const handleAddInstructor = () => {
+        post('/admin/instructors/add', {
             preserveScroll: true,
             onSuccess: () => {
                 setIsInviteDialogOpen(false);
-                setData({ name: '', email: '' });
+                setData({ email: '' });
             },
         });
     };
 
     const handleRestrictAccess = (instructorId: string) => {
         if (confirm('Are you sure you want to deactivate this instructor?')) {
+            console.log('Deactivating instructor:', instructorId);
             patch(`/admin/instructors/${instructorId}/restrict`, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    console.log('Instructor deactivated successfully');
+                    // Force a page refresh to get updated data
+                    window.location.reload();
+                },
+                onError: (errors) => {
+                    console.error('Error deactivating instructor:', errors);
+                },
             });
         }
     };
 
     const handleActivateInstructor = (instructorId: string) => {
         if (confirm('Are you sure you want to activate this instructor?')) {
+            console.log('Activating instructor:', instructorId);
             patch(`/admin/instructors/${instructorId}/activate`, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    console.log('Instructor activated successfully');
+                    // Force a page refresh to get updated data
+                    window.location.reload();
+                },
+                onError: (errors) => {
+                    console.error('Error activating instructor:', errors);
+                },
             });
         }
     };
 
-    const activeInstructors = instructors.filter((instructor) => instructor.is_active);
-    const inactiveInstructors = instructors.filter((instructor) => !instructor.is_active);
-    const totalStudents = instructors.reduce((sum, instructor) => sum + instructor.students_count, 0);
-    const totalLessons = instructors.reduce((sum, instructor) => sum + instructor.lessons_count, 0);
+    const activeInstructors = instructors.data.filter((instructor) => instructor.is_active);
+    const inactiveInstructors = instructors.data.filter((instructor) => !instructor.is_active);
 
     return (
         <AdminLayout title="Instructors Management">
@@ -107,33 +153,23 @@ const AdminInstructors = ({ instructors }: Props) => {
                         <DialogTrigger asChild>
                             <Button>
                                 <UserPlus className="mr-2 h-4 w-4" />
-                                Invite Instructor
+                                Add Instructor
                             </Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>Invite Instructor</DialogTitle>
-                                <DialogDescription>Send an invitation to a new instructor.</DialogDescription>
+                                <DialogTitle>Add Instructor</DialogTitle>
+                                <DialogDescription>Add an existing parent as an instructor by entering their email address.</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">
                                 <div>
-                                    <Label htmlFor="name">Name</Label>
-                                    <Input
-                                        id="name"
-                                        value={data.name}
-                                        onChange={(e) => setData('name', e.target.value)}
-                                        placeholder="Instructor name"
-                                    />
-                                    {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
-                                </div>
-                                <div>
-                                    <Label htmlFor="email">Email</Label>
+                                    <Label htmlFor="email">Parent Email</Label>
                                     <Input
                                         id="email"
                                         type="email"
                                         value={data.email}
                                         onChange={(e) => setData('email', e.target.value)}
-                                        placeholder="instructor@example.com"
+                                        placeholder="parent@example.com"
                                     />
                                     {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
                                 </div>
@@ -142,8 +178,8 @@ const AdminInstructors = ({ instructors }: Props) => {
                                 <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
                                     Cancel
                                 </Button>
-                                <Button onClick={handleInviteInstructor} disabled={processing}>
-                                    {processing ? 'Inviting...' : 'Send Invitation'}
+                                <Button onClick={handleAddInstructor} disabled={processing}>
+                                    {processing ? 'Adding...' : 'Add Instructor'}
                                 </Button>
                             </DialogFooter>
                         </DialogContent>
@@ -152,14 +188,14 @@ const AdminInstructors = ({ instructors }: Props) => {
             </div>
 
             {/* Stats */}
-            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Instructors</CardTitle>
                         <Shield className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{instructors.length}</div>
+                        <div className="text-2xl font-bold">{instructors.data.length}</div>
                         <p className="text-xs text-muted-foreground">
                             {activeInstructors.length} active, {inactiveInstructors.length} inactive
                         </p>
@@ -179,26 +215,53 @@ const AdminInstructors = ({ instructors }: Props) => {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-                        <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Inactive Instructors</CardTitle>
+                        <UserX className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{totalStudents}</div>
-                        <p className="text-xs text-muted-foreground">Assigned to instructors</p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Lessons</CardTitle>
-                        <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{totalLessons}</div>
-                        <p className="text-xs text-muted-foreground">Conducted by instructors</p>
+                        <div className="text-2xl font-bold">{inactiveInstructors.length}</div>
+                        <p className="text-xs text-muted-foreground">Currently inactive</p>
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Filters */}
+            <Card className="mb-6">
+                <CardHeader>
+                    <CardTitle>Filters</CardTitle>
+                    <CardDescription>Filter instructors by name, email, or status</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col gap-4 md:flex-row md:items-end">
+                        <div className="flex-1">
+                            <Label htmlFor="search">Search</Label>
+                            <div className="relative">
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    id="search"
+                                    placeholder="Search by name or email..."
+                                    value={filterData.search}
+                                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+                        <div className="w-full md:w-48">
+                            <Label htmlFor="status">Status</Label>
+                            <Select value={filterData.status} onValueChange={(value) => handleFilterChange('status', value)}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Instructors List */}
             <Card>
@@ -208,7 +271,7 @@ const AdminInstructors = ({ instructors }: Props) => {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        {instructors.map((instructor) => (
+                        {instructors.data.map((instructor) => (
                             <div key={instructor.id} className="flex items-center justify-between rounded-lg border p-4">
                                 <div className="flex items-center space-x-4">
                                     <div className="flex items-center space-x-2">
@@ -223,11 +286,7 @@ const AdminInstructors = ({ instructors }: Props) => {
                                     <div>
                                         <p className="font-medium text-gray-900">{instructor.name}</p>
                                         <p className="text-sm text-gray-600">{instructor.email}</p>
-                                        <div className="mt-1 flex items-center space-x-4">
-                                            <p className="text-xs text-gray-500">Students: {instructor.students_count}</p>
-                                            <p className="text-xs text-gray-500">Lessons: {instructor.lessons_count}</p>
-                                            <p className="text-xs text-gray-500">Completed: {instructor.completed_lessons}</p>
-                                        </div>
+                                        <p className="text-xs text-gray-500">Joined: {new Date(instructor.created_at).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
@@ -236,9 +295,6 @@ const AdminInstructors = ({ instructors }: Props) => {
                                             <Users className="h-4 w-4" />
                                         </Button>
                                     </Link>
-                                    <Button variant="outline" size="sm" onClick={() => handleEditInstructor(instructor)}>
-                                        <Edit className="h-4 w-4" />
-                                    </Button>
                                     {instructor.is_active ? (
                                         <Button
                                             variant="outline"
@@ -265,35 +321,10 @@ const AdminInstructors = ({ instructors }: Props) => {
                 </CardContent>
             </Card>
 
-            {/* Edit Instructor Dialog */}
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit Instructor</DialogTitle>
-                        <DialogDescription>Update instructor information.</DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        <div>
-                            <Label htmlFor="edit-name">Name</Label>
-                            <Input id="edit-name" value={data.name} onChange={(e) => setData('name', e.target.value)} />
-                            {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
-                        </div>
-                        <div>
-                            <Label htmlFor="edit-email">Email</Label>
-                            <Input id="edit-email" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} />
-                            {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleUpdateInstructor} disabled={processing}>
-                            {processing ? 'Updating...' : 'Update Instructor'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            {/* Pagination */}
+            <div className="mt-6">
+                <TablePagination data={instructors} onPageChange={handlePageChange} onPerPageChange={handlePerPageChange} />
+            </div>
         </AdminLayout>
     );
 };

@@ -5,110 +5,122 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Student;
-use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class InstructorController extends Controller
 {
-    public function index(): \Inertia\Response
+    public function index(Request $request): \Inertia\Response
     {
-        $instructors = User::with(['assignedStudents', 'conductedLessons'])
-            ->where('role', 'instructor')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($instructor) {
+        $query = User::where('role', 'instructor');
+
+        // Apply filters
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->get('status');
+            if ($status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($status === 'inactive') {
+                $query->where('is_active', false);
+            }
+        }
+
+        $instructors = $query->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 10))
+            ->through(function ($instructor) {
                 return [
                     'id' => $instructor->id,
                     'name' => $instructor->name,
                     'email' => $instructor->email,
                     'is_active' => $instructor->is_active,
                     'created_at' => $instructor->created_at,
-                    'students_count' => $instructor->assignedStudents->count(),
-                    'lessons_count' => $instructor->conductedLessons->count(),
-                    'completed_lessons' => $instructor->conductedLessons->where('status', 'completed')->count(),
-                    'assigned_students' => $instructor->assignedStudents->map(function ($student) {
-                        return [
-                            'id' => $student->id,
-                            'user_name' => $student->user->name,
-                            'sessions_remaining' => $student->sessions_remaining,
-                            'is_subscribed' => $student->is_subscribed,
-                        ];
-                    }),
                 ];
             });
 
         return Inertia::render('admin/Instructors', [
             'instructors' => $instructors,
+            'filters' => $request->only(['search', 'status']),
         ]);
     }
 
-    public function update(Request $request, $id): \Illuminate\Http\RedirectResponse
-    {
-        $instructor = User::where('role', 'instructor')->findOrFail($id);
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-        ]);
-
-        $instructor->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
-
-        return redirect()->back()->with('success', 'Instructor updated successfully.');
-    }
-
-    public function inviteInstructor(Request $request): \Illuminate\Http\RedirectResponse
+    public function addInstructor(Request $request): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|exists:users,email',
         ]);
 
-        // Create instructor user with temporary password
-        $tempPassword = Str::random(12);
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($tempPassword),
+        // Find the user by email
+        $user = User::where('email', $request->email)->first();
+
+        // Check if user exists and is a parent
+        if (!$user) {
+            return redirect()->back()->withErrors(['email' => 'User with this email does not exist.']);
+        }
+
+        if ($user->role !== 'parent') {
+            return redirect()->back()->withErrors(['email' => 'This email belongs to a user who is not a parent. Only parents can be added as instructors.']);
+        }
+
+        if ($user->role === 'instructor') {
+            return redirect()->back()->withErrors(['email' => 'This user is already an instructor.']);
+        }
+
+        // Update user role to instructor
+        $user->update([
             'role' => 'instructor',
             'is_active' => true,
         ]);
 
-        // Send invitation email with temporary password
-        // For now, we'll just return success
-        // Mail::to($user->email)->send(new InstructorInvitation($user, $tempPassword));
+        Log::info('Parent converted to instructor: ' . $user->name . ' (' . $user->email . ')');
 
-        return redirect()->back()->with('success', 'Instructor invited successfully. Temporary password: ' . $tempPassword);
+        return redirect()->back()->with('success', 'Parent successfully added as instructor: ' . $user->name);
     }
 
     public function restrictAccess($id): \Illuminate\Http\RedirectResponse
     {
+        Log::info('Attempting to restrict access for instructor ID: ' . $id);
+
         $instructor = User::where('role', 'instructor')->findOrFail($id);
+
+        Log::info('Found instructor: ' . $instructor->name . ', current status: ' . ($instructor->is_active ? 'active' : 'inactive'));
 
         // Soft deactivation - set is_active to false
         $instructor->update(['is_active' => false]);
+
+        Log::info('Instructor deactivated successfully: ' . $instructor->name);
 
         return redirect()->back()->with('success', 'Instructor access restricted successfully.');
     }
 
     public function activateInstructor($id): \Illuminate\Http\RedirectResponse
     {
+        Log::info('Attempting to activate instructor ID: ' . $id);
+
         $instructor = User::where('role', 'instructor')->findOrFail($id);
+
+        Log::info('Found instructor: ' . $instructor->name . ', current status: ' . ($instructor->is_active ? 'active' : 'inactive'));
 
         // Reactivate instructor - set is_active to true
         $instructor->update(['is_active' => true]);
+
+        Log::info('Instructor activated successfully: ' . $instructor->name);
 
         return redirect()->back()->with('success', 'Instructor activated successfully.');
     }
 
     public function viewStudents($id): \Inertia\Response
     {
-        $instructor = User::with(['assignedStudents.user', 'assignedStudents.lessons'])
+        $instructor = User::with(['assignedStudents.user', 'assignedStudents.studentSessions'])
             ->where('role', 'instructor')
             ->findOrFail($id);
 
@@ -120,8 +132,8 @@ class InstructorController extends Controller
                 'email' => $student->user->email,
                 'sessions_remaining' => $student->sessions_remaining,
                 'is_subscribed' => $student->is_subscribed,
-                'lessons_count' => $student->lessons->count(),
-                'completed_lessons' => $student->lessons->where('status', 'completed')->count(),
+                'lessons_count' => $student->studentSessions->count(),
+                'completed_lessons' => $student->studentSessions->where('status', 'completed')->count(),
                 'is_active' => $student->user->is_active,
             ];
         });

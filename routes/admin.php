@@ -22,8 +22,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
 
     // Instructors routes
     Route::get('instructors', [InstructorController::class, 'index'])->name('admin.instructors');
-    Route::put('instructors/{id}', [InstructorController::class, 'update'])->name('admin.instructors.update');
-    Route::post('instructors/invite', [InstructorController::class, 'inviteInstructor'])->name('admin.instructors.invite');
+    Route::post('instructors/add', [InstructorController::class, 'addInstructor'])->name('admin.instructors.add');
     Route::patch('instructors/{id}/restrict', [InstructorController::class, 'restrictAccess'])->name('admin.instructors.restrict');
     Route::patch('instructors/{id}/activate', [InstructorController::class, 'activateInstructor'])->name('admin.instructors.activate');
     Route::get('instructors/{id}/students', [InstructorController::class, 'viewStudents'])->name('admin.instructors.students');
