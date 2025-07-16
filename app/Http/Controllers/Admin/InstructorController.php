@@ -81,39 +81,25 @@ class InstructorController extends Controller
             'is_active' => true,
         ]);
 
-        Log::info('Parent converted to instructor: ' . $user->name . ' (' . $user->email . ')');
-
         return redirect()->back()->with('success', 'Parent successfully added as instructor: ' . $user->name);
     }
 
     public function restrictAccess($id): \Illuminate\Http\RedirectResponse
     {
-        Log::info('Attempting to restrict access for instructor ID: ' . $id);
-
         $instructor = User::where('role', 'instructor')->findOrFail($id);
-
-        Log::info('Found instructor: ' . $instructor->name . ', current status: ' . ($instructor->is_active ? 'active' : 'inactive'));
 
         // Soft deactivation - set is_active to false
         $instructor->update(['is_active' => false]);
-
-        Log::info('Instructor deactivated successfully: ' . $instructor->name);
 
         return redirect()->back()->with('success', 'Instructor access restricted successfully.');
     }
 
     public function activateInstructor($id): \Illuminate\Http\RedirectResponse
     {
-        Log::info('Attempting to activate instructor ID: ' . $id);
-
         $instructor = User::where('role', 'instructor')->findOrFail($id);
-
-        Log::info('Found instructor: ' . $instructor->name . ', current status: ' . ($instructor->is_active ? 'active' : 'inactive'));
 
         // Reactivate instructor - set is_active to true
         $instructor->update(['is_active' => true]);
-
-        Log::info('Instructor activated successfully: ' . $instructor->name);
 
         return redirect()->back()->with('success', 'Instructor activated successfully.');
     }
