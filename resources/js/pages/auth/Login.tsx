@@ -163,7 +163,7 @@ const Login = () => {
                                     id="remember"
                                     name="remember"
                                     checked={data.remember}
-                                    onClick={() => setData('remember', !data.remember)}
+                                    onChange={(e) => setData('remember', e.target.checked)}
                                 />
                                 <Label htmlFor="remember">Remember me</Label>
                             </div>
