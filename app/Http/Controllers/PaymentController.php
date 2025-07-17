@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\StripeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class PaymentController extends Controller
@@ -120,6 +121,13 @@ class PaymentController extends Controller
                 'checkout_url' => $session->url,
             ]);
         } catch (\Exception $e) {
+            Log::error('Payment session creation failed', [
+                'user_id' => $user->id,
+                'student_ids' => $studentIds,
+                'subscription_type' => $subscriptionType,
+                'error' => $e->getMessage(),
+            ]);
+
             return response()->json(['error' => 'Failed to create checkout session'], 500);
         }
     }

@@ -84,22 +84,57 @@ const PaymentSuccess = () => {
                                     {/* What's Next */}
                                     <div className="rounded-lg bg-blue-50 p-6">
                                         <h3 className="mb-4 font-semibold text-blue-800">What's Next?</h3>
-                                        <div className="space-y-3 text-sm text-blue-700">
-                                            <div className="flex items-start space-x-2">
-                                                <div className="mt-1 h-2 w-2 rounded-full bg-blue-600"></div>
-                                                <span>Your instructor will be notified of your subscription</span>
+                                        <div className="space-y-4 text-sm text-blue-700">
+                                            <div className="flex items-start space-x-3">
+                                                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                                                    1
+                                                </div>
+                                                <div>
+                                                    <span className="font-medium">Instructor Assignment</span>
+                                                    <p className="mt-1 text-blue-600">
+                                                        You will be assigned to an instructor within the next 24-48 hours
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="flex items-start space-x-2">
-                                                <div className="mt-1 h-2 w-2 rounded-full bg-blue-600"></div>
-                                                <span>You'll receive an email with your lesson schedule</span>
+                                            <div className="flex items-start space-x-3">
+                                                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                                                    2
+                                                </div>
+                                                <div>
+                                                    <span className="font-medium">Lesson Management</span>
+                                                    <p className="mt-1 text-blue-600">
+                                                        View and manage all your lessons through the platform dashboard
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="flex items-start space-x-2">
-                                                <div className="mt-1 h-2 w-2 rounded-full bg-blue-600"></div>
-                                                <span>Access your dashboard to view upcoming lessons</span>
+                                            <div className="flex items-start space-x-3">
+                                                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                                                    3
+                                                </div>
+                                                <div>
+                                                    <span className="font-medium">Direct Communication</span>
+                                                    <p className="mt-1 text-blue-600">Contact your instructor directly through the platform chat</p>
+                                                </div>
                                             </div>
-                                            <div className="flex items-start space-x-2">
-                                                <div className="mt-1 h-2 w-2 rounded-full bg-blue-600"></div>
-                                                <span>Start practicing with the provided materials</span>
+                                            <div className="flex items-start space-x-3">
+                                                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                                                    4
+                                                </div>
+                                                <div>
+                                                    <span className="font-medium">Video Call Invitations</span>
+                                                    <p className="mt-1 text-blue-600">
+                                                        Receive invitation links for video calls from your instructor before each session
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-start space-x-3">
+                                                <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                                                    5
+                                                </div>
+                                                <div>
+                                                    <span className="font-medium">Support Available</span>
+                                                    <p className="mt-1 text-blue-600">Feel free to contact us if you face any difficulties</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

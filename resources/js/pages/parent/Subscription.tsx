@@ -23,7 +23,7 @@ interface SubscriptionPageData extends SubscriptionPageProps {
 }
 
 const Subscription = () => {
-    const { monthlySubscribePrice, yearlySubscribePrice, discountPercentage } = usePage<SharedData>().props;
+    const { monthlySubscribePrice, yearlySubscribePrice, discountPercentage, csrf_token } = usePage<SharedData>().props;
     const { pricingData, availableStudents, subscribedStudents, isSingleStudent, selectedStudentSlug, selectedStudentSlugs } =
         usePage<SubscriptionPageData>().props;
 
@@ -81,7 +81,7 @@ const Subscription = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN': csrf_token,
                 },
                 body: JSON.stringify({
                     student_ids: selectedStudents,

@@ -6,6 +6,8 @@ use App\Models\Subscription;
 use App\Models\User;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class StripeService
 {
@@ -62,55 +64,86 @@ class StripeService
      */
     public function createCheckoutSession(User $user, array $studentIds, string $subscriptionType = 'monthly'): Session
     {
-        $studentCount = count($studentIds);
-        $amountInCents = $this->calculateSubscriptionAmount($studentCount, $subscriptionType);
+        try {
+            // Validate student ownership
+            $validStudentIds = $user->students()
+                ->whereIn('id', $studentIds)
+                ->where('is_subscribed', false)
+                ->pluck('id')->toArray();
 
-        // Create subscription record (store amount in dollars)
-        $subscription = Subscription::create([
-            'user_id' => $user->id,
-            'amount' => $amountInCents / 100,
-            'student_count' => $studentCount,
-            'subscription_type' => $subscriptionType,
-            'status' => 'pending',
-            'student_ids' => $studentIds,
-        ]);
+            if (count($validStudentIds) !== count($studentIds)) {
+                throw new \Exception('Invalid student selection or students already subscribed');
+            }
 
-        $planDescription = $subscriptionType === 'yearly'
-            ? "Yearly subscription for {$studentCount} student(s) with progressive discounts"
-            : "Monthly subscription for {$studentCount} student(s) with progressive discounts";
+            $studentCount = count($validStudentIds);
+            $amountInCents = $this->calculateSubscriptionAmount($studentCount, $subscriptionType);
 
-        $session = Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [
-                [
-                    'price_data' => [
-                        'currency' => 'usd',
-                        'product_data' => [
-                            'name' => "Piano Sessions " . ucfirst($subscriptionType) . " Subscription - {$studentCount} Student(s)",
-                            'description' => $planDescription,
+            // Use database transaction to ensure data consistency
+            return DB::transaction(function () use ($user, $validStudentIds, $subscriptionType, $studentCount, $amountInCents) {
+                // Create subscription record (store amount in dollars)
+                $subscription = Subscription::create([
+                    'user_id' => $user->id,
+                    'amount' => $amountInCents / 100,
+                    'student_count' => $studentCount,
+                    'subscription_type' => $subscriptionType,
+                    'status' => 'pending',
+                    'student_ids' => $validStudentIds,
+                ]);
+
+                $planDescription = $subscriptionType === 'yearly'
+                    ? "Yearly subscription for {$studentCount} student(s) with progressive discounts"
+                    : "Monthly subscription for {$studentCount} student(s) with progressive discounts";
+
+                $session = Session::create([
+                    'payment_method_types' => ['card'],
+                    'line_items' => [
+                        [
+                            'price_data' => [
+                                'currency' => 'usd',
+                                'product_data' => [
+                                    'name' => "Piano Sessions " . ucfirst($subscriptionType) . " Subscription - {$studentCount} Student(s)",
+                                    'description' => $planDescription,
+                                ],
+                                'unit_amount' => $amountInCents, // Already in cents
+                            ],
+                            'quantity' => 1,
                         ],
-                        'unit_amount' => $amountInCents, // Already in cents
                     ],
-                    'quantity' => 1,
-                ],
-            ],
-            'mode' => 'payment',
-            'success_url' => route('parent.payment.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('parent.payment.failed') . '?session_id={CHECKOUT_SESSION_ID}',
-            'metadata' => [
-                'subscription_id' => $subscription->id,
+                    'mode' => 'payment',
+                    'success_url' => route('parent.payment.success') . '?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url' => route('parent.payment.failed') . '?session_id={CHECKOUT_SESSION_ID}',
+                    'metadata' => [
+                        'subscription_id' => $subscription->id,
+                        'user_id' => $user->id,
+                        'student_count' => $studentCount,
+                        'subscription_type' => $subscriptionType,
+                    ],
+                ]);
+
+                // Update subscription with session ID
+                $subscription->update([
+                    'stripe_session_id' => $session->id,
+                ]);
+
+                Log::info('Stripe checkout session created', [
+                    'subscription_id' => $subscription->id,
+                    'session_id' => $session->id,
+                    'user_id' => $user->id,
+                    'student_count' => $studentCount,
+                    'amount' => $amountInCents / 100,
+                ]);
+
+                return $session;
+            });
+        } catch (\Exception $e) {
+            Log::error('Failed to create Stripe checkout session', [
                 'user_id' => $user->id,
-                'student_count' => $studentCount,
+                'student_ids' => $studentIds,
                 'subscription_type' => $subscriptionType,
-            ],
-        ]);
-
-        // Update subscription with session ID
-        $subscription->update([
-            'stripe_session_id' => $session->id,
-        ]);
-
-        return $session;
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -118,38 +151,70 @@ class StripeService
      */
     public function handleSuccessfulPayment(string $sessionId): Subscription
     {
-        $session = Session::retrieve($sessionId);
+        try {
+            $session = Session::retrieve($sessionId);
 
-        $subscription = Subscription::where('stripe_session_id', $sessionId)->firstOrFail();
+            $subscription = Subscription::where('stripe_session_id', $sessionId)->firstOrFail();
 
-        $subscription->update([
-            'status' => 'completed',
-            'stripe_payment_intent_id' => $session->payment_intent,
-            'paid_at' => now(),
-        ]);
-
-        // Update students' subscription status
-        if ($subscription->student_ids) {
-            foreach ($subscription->student_ids as $studentId) {
-                $student = \App\Models\Student::find($studentId);
-                if ($student) {
-                    $isYearly = $subscription->subscription_type === 'yearly';
-                    $subscriptionEndDate = $isYearly ? now()->addYear() : now()->addMonth();
-
-                    // Update student subscription data
-                    $student->update([
-                        'is_subscribed' => true,
-                        'subscription_expires_at' => $subscriptionEndDate,
-                        'sessions_remaining' => $isYearly ? 48 : 4, // 48 sessions per year (4 per month) or 4 per month
-                    ]);
-
-                    // Attach student to subscription
-                    $subscription->students()->attach($studentId);
-                }
+            // Check if already processed
+            if ($subscription->status === 'completed') {
+                Log::info('Payment already processed', ['session_id' => $sessionId]);
+                return $subscription;
             }
-        }
 
-        return $subscription;
+            return DB::transaction(function () use ($subscription, $session, $sessionId) {
+                $subscription->update([
+                    'status' => 'completed',
+                    'stripe_payment_intent_id' => $session->payment_intent,
+                    'paid_at' => now(),
+                ]);
+
+                // Update students' subscription status
+                if ($subscription->student_ids) {
+                    foreach ($subscription->student_ids as $studentId) {
+                        $student = \App\Models\Student::find($studentId);
+                        if ($student) {
+                            $isYearly = $subscription->subscription_type === 'yearly';
+                            $subscriptionEndDate = $isYearly ? now()->addYear() : now()->addMonth();
+                            $sessionsToAdd = $isYearly ? 48 : 4;
+
+                            // Update student subscription data
+                            $student->update([
+                                'is_subscribed' => true,
+                                'subscription_expires_at' => $subscriptionEndDate,
+                                'sessions_remaining' => $sessionsToAdd,
+                            ]);
+
+                            // Attach student to subscription
+                            $subscription->students()->attach($studentId);
+
+                            Log::info('Student subscription activated', [
+                                'student_id' => $studentId,
+                                'student_name' => $student->name,
+                                'subscription_id' => $subscription->id,
+                                'sessions_added' => $sessionsToAdd,
+                                'expires_at' => $subscriptionEndDate,
+                            ]);
+                        }
+                    }
+                }
+
+                Log::info('Payment processed successfully', [
+                    'subscription_id' => $subscription->id,
+                    'session_id' => $sessionId,
+                    'amount' => $subscription->amount,
+                    'student_count' => $subscription->student_count,
+                ]);
+
+                return $subscription;
+            });
+        } catch (\Exception $e) {
+            Log::error('Failed to handle successful payment', [
+                'session_id' => $sessionId,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -157,34 +222,25 @@ class StripeService
      */
     public function handleFailedPayment(string $sessionId): Subscription
     {
-        $subscription = Subscription::where('stripe_session_id', $sessionId)->firstOrFail();
+        try {
+            $subscription = Subscription::where('stripe_session_id', $sessionId)->firstOrFail();
 
-        $subscription->update([
-            'status' => 'failed',
-        ]);
+            $subscription->update([
+                'status' => 'failed',
+            ]);
 
-        return $subscription;
-    }
+            Log::info('Payment marked as failed', [
+                'subscription_id' => $subscription->id,
+                'session_id' => $sessionId,
+            ]);
 
-    /**
-     * Test method to verify pricing calculation
-     * This can be removed in production
-     */
-    public function testPricingCalculation(): array
-    {
-        $results = [];
-        $discountPercentage = (float) env('DISCOUNT_PERCENTAGE', 10);
-
-        for ($i = 1; $i <= 5; $i++) {
-            $results[] = [
-                'student_count' => $i,
-                'monthly_amount' => $this->calculateSubscriptionAmount($i, 'monthly'),
-                'yearly_amount' => $this->calculateSubscriptionAmount($i, 'yearly'),
-                'monthly_base_price' => env('MONTHLY_SUBSCRIBE_PRICE', env('SUBSCRIBE_PRICE', 29.99)),
-                'yearly_base_price' => env('YEARLY_SUBSCRIBE_PRICE', 299.99),
-                'discount_percentage' => $discountPercentage,
-            ];
+            return $subscription;
+        } catch (\Exception $e) {
+            Log::error('Failed to handle failed payment', [
+                'session_id' => $sessionId,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
         }
-        return $results;
     }
 }
