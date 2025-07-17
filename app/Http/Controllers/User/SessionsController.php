@@ -4,13 +4,11 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
-use App\Models\Lesson;
-use App\Models\Homework;
+use App\Models\StudentSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Carbon\Carbon;
-use App\Models\StudentSession;
 
 class SessionsController extends Controller
 {
@@ -122,7 +120,7 @@ class SessionsController extends Controller
         // Get sessions for this student in the specified month
         $sessions = StudentSession::where('student_id', $student->id)
             ->whereBetween('scheduled_at', [$startOfMonth, $endOfMonth])
-            ->with(['instructor', 'homework'])
+            ->with(['instructor'])
             ->orderBy('scheduled_at', 'asc')
             ->get()
             ->map(function ($session, $index) {
@@ -135,8 +133,6 @@ class SessionsController extends Controller
                     'duration' => '60 min', // Assuming all sessions are 60 minutes
                     'status' => $session->status,
                     'type' => 'private', // Assuming all sessions are private
-                    'hasHomework' => $session->homework->count() > 0,
-                    'homeworkStatus' => $this->getHomeworkStatus($session),
                 ];
             });
 
@@ -184,40 +180,7 @@ class SessionsController extends Controller
         ]);
     }
 
-    /**
-     * Show homework for a specific session
-     */
-    public function homework(Request $request, Student $student, string $sessionId): \Inertia\Response
-    {
-        // Check if the student belongs to the authenticated user
-        if ($student->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized access to student homework');
-        }
 
-        $session = StudentSession::where('id', $sessionId)
-            ->where('student_id', $student->id)
-            ->with(['homework'])
-            ->firstOrFail();
-
-        return Inertia::render('student/HomeworkSubmission', [
-            'studentId' => $student->id,
-            'sessionId' => $sessionId,
-            'studentName' => $student->name,
-            'sessionNumber' => $session->id, // Using session ID as session number
-            'homework' => $session->homework->map(function ($hw) {
-                return [
-                    'id' => $hw->id,
-                    'title' => $hw->title,
-                    'description' => $hw->description,
-                    'dueDate' => $hw->due_date->format('F j, Y'),
-                    'isSubmitted' => $hw->is_submitted,
-                    'submissionNotes' => $hw->submission_notes,
-                    'submissionFilePath' => $hw->submission_file_path,
-                    'submittedAt' => $hw->submitted_at?->format('F j, Y g:i A'),
-                ];
-            }),
-        ]);
-    }
 
     /**
      * Generate available months for filtering
@@ -241,27 +204,5 @@ class SessionsController extends Controller
         }
 
         return $months;
-    }
-
-    /**
-     * Get homework status for a session
-     */
-    private function getHomeworkStatus(StudentSession $session): string
-    {
-        $homework = $session->homework->first();
-
-        if (!$homework) {
-            return 'none';
-        }
-
-        if ($homework->is_submitted) {
-            return 'submitted';
-        }
-
-        if ($homework->isOverdue()) {
-            return 'overdue';
-        }
-
-        return 'pending';
     }
 }

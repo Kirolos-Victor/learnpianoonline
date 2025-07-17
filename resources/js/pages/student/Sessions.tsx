@@ -6,19 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BookOpen, Calendar, CreditCard, Music4 } from 'lucide-react';
+import { Calendar, CreditCard, Music4 } from 'lucide-react';
 
 interface Student {
     id: string;
     name: string;
     slug: string;
     sessions_remaining: number;
-}
-
-interface Homework {
-    id: string;
-    title: string;
-    is_submitted: boolean;
 }
 
 interface StudentSession {
@@ -28,7 +22,6 @@ interface StudentSession {
     completed_at: string | null;
     status: string;
     notes: string | null;
-    homework: Homework[];
 }
 
 interface SessionsSharedData extends Omit<SharedData, 'subscribePrice'> {
@@ -53,7 +46,7 @@ const Sessions = () => {
                 <div className="absolute inset-0 bg-[url('/images/hero-pattern.svg')] bg-center opacity-10" />
                 <div className="relative container mx-auto px-4">
                     <h1 className="mb-4 font-fredoka text-4xl font-bold text-white md:text-5xl">🎹 {student.name}'s Sessions</h1>
-                    <p className="mb-8 text-lg text-blue-100">Track your piano learning journey and access your homework assignments.</p>
+                    <p className="mb-8 text-lg text-blue-100">Track your piano learning journey and session history.</p>
                 </div>
             </section>
 
@@ -184,31 +177,6 @@ const Sessions = () => {
                                             {session.notes && (
                                                 <div className="mb-4">
                                                     <p className="text-sm text-gray-600">{session.notes}</p>
-                                                </div>
-                                            )}
-
-                                            {session.homework.length > 0 && (
-                                                <div>
-                                                    <h4 className="mb-2 font-medium text-gray-900">Homework</h4>
-                                                    <ul className="space-y-2">
-                                                        {session.homework.map((hw) => (
-                                                            <li key={hw.id}>
-                                                                <Link
-                                                                    href={route('homework.submission', {
-                                                                        student: student.slug,
-                                                                        sessionId: session.id,
-                                                                    })}
-                                                                    className="flex items-center text-sm text-blue-600 hover:text-blue-800"
-                                                                >
-                                                                    <BookOpen className="mr-2 h-4 w-4" />
-                                                                    {hw.title}
-                                                                    {hw.is_submitted && (
-                                                                        <Badge className="ml-2 bg-green-100 text-green-800">Submitted</Badge>
-                                                                    )}
-                                                                </Link>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
                                                 </div>
                                             )}
                                         </CardContent>

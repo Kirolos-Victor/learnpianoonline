@@ -18,7 +18,7 @@ class DashboardController extends Controller
         }
 
         // Load relationships
-        $student->load(['instructor', 'lessons.instructor', 'homework.lesson']);
+        $student->load(['instructor', 'studentSessions.instructor']);
 
         // Format student data
         $formattedStudent = [
@@ -38,52 +38,29 @@ class DashboardController extends Controller
             ] : null,
         ];
 
-        // Format lessons data
-        $lessons = $student->lessons()
+        // Format sessions data
+        $sessions = $student->studentSessions()
             ->with('instructor')
             ->orderBy('scheduled_at', 'desc')
             ->take(10)
             ->get()
-            ->map(function ($lesson) {
+            ->map(function ($session) {
                 return [
-                    'id' => $lesson->id,
-                    'title' => 'Piano Lesson #' . $lesson->id,
-                    'instructor' => $lesson->instructor->name ?? 'Not assigned',
-                    'date' => $lesson->scheduled_at->format('M j, Y'),
-                    'time' => $lesson->scheduled_at->format('g:i A'),
-                    'status' => $lesson->status,
+                    'id' => $session->id,
+                    'title' => 'Piano Session #' . $session->id,
+                    'instructor' => $session->instructor->name ?? 'Not assigned',
+                    'date' => $session->scheduled_at->format('M j, Y'),
+                    'time' => $session->scheduled_at->format('g:i A'),
+                    'status' => $session->status,
                     'type' => 'private', // Default type
-                    'scheduledAt' => $lesson->scheduled_at->toISOString(),
-                ];
-            });
-
-        // Format homework data
-        $homework = $student->homework()
-            ->with('lesson')
-            ->orderBy('due_date', 'desc')
-            ->take(10)
-            ->get()
-            ->map(function ($hw) {
-                $dueDate = $hw->due_date;
-                $now = now();
-
-                return [
-                    'id' => $hw->id,
-                    'title' => $hw->title,
-                    'dueDate' => $dueDate->format('M j, Y'),
-                    'isSubmitted' => $hw->is_submitted,
-                    'lessonTitle' => $hw->lesson->title ?? 'Piano Lesson #' . $hw->lesson_id,
-                    'description' => $hw->description,
-                    'isOverdue' => !$hw->is_submitted && $dueDate->isPast(),
-                    'isDueSoon' => !$hw->is_submitted && $dueDate->diffInHours($now) <= 24 && $dueDate->isFuture(),
+                    'scheduledAt' => $session->scheduled_at->toISOString(),
                 ];
             });
 
         // Student data structure
         $studentData = [
             'student' => $formattedStudent,
-            'lessons' => $lessons,
-            'homework' => $homework,
+            'sessions' => $sessions,
         ];
 
         return Inertia::render('student/Home', [

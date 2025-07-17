@@ -17,7 +17,7 @@ const Pricing = () => {
     const monthlyFeatures = [
         '4 Live 1-on-1 piano lessons per month (45 min each)',
         'Personalized monthly curriculum',
-        'Weekly homework assignments',
+        'Personalized homework assignments from your teacher',
         'Detailed instructor feedback',
         'Flexible lesson scheduling',
         'Access to practice materials',
@@ -30,7 +30,7 @@ const Pricing = () => {
     const yearlyFeatures = [
         '48 Live 1-on-1 piano lessons per year (45 min each)',
         'Personalized yearly curriculum',
-        'Weekly homework assignments',
+        'Personalized homework assignments from your teacher',
         'Priority instructor support',
         'Advanced lesson scheduling',
         'Premium practice materials & resources',
@@ -92,7 +92,7 @@ const Pricing = () => {
                 <title>Piano Lessons Pricing - Learn Piano Online</title>
                 <meta
                     name="description"
-                    content={`Affordable piano lessons starting at $${monthlySubscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum, homework assignments, and expert feedback.`}
+                    content={`Affordable piano lessons starting at $${monthlySubscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum, custom homework assignments, and expert feedback.`}
                 />
                 <meta
                     name="keywords"

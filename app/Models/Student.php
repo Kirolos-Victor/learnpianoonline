@@ -147,28 +147,4 @@ class Student extends Model
     {
         return $this->belongsToMany(Subscription::class);
     }
-
-    /**
-     * Get all homework assigned to this student
-     */
-    public function homework()
-    {
-        return $this->hasMany(Homework::class);
-    }
-
-    /**
-     * Get pending homework for this student
-     */
-    public function pendingHomework()
-    {
-        return $this->homework()->where('is_submitted', false);
-    }
-
-    /**
-     * Get submitted homework for this student
-     */
-    public function submittedHomework()
-    {
-        return $this->homework()->where('is_submitted', true);
-    }
 }

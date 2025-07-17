@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import StudentLayout from '@/layouts/student-layout';
 import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { AlertTriangle, ArrowLeft, BookOpen, CheckCircle, Clock, Music, Star, Upload } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, Music, Star } from 'lucide-react';
 
 interface Student {
     id: string;
@@ -32,21 +32,9 @@ interface Session {
     status: string;
 }
 
-interface Homework {
-    id: string;
-    title: string;
-    dueDate: string;
-    isSubmitted: boolean;
-    lessonTitle: string;
-    description?: string;
-    isOverdue: boolean;
-    isDueSoon: boolean;
-}
-
 interface StudentData {
     student: Student;
     sessions: Session[];
-    homework: Homework[];
 }
 
 interface StudentHomeSharedData extends Omit<SharedData, 'subscribePrice'> {
@@ -60,9 +48,6 @@ const StudentHome = () => {
 
     const currentSessions = studentData?.sessions || [];
     const upcomingSession = currentSessions.find((session) => session.status === 'pending');
-    const pendingHomework = studentData?.homework?.filter((hw) => !hw.isSubmitted) || [];
-    const overdueHomework = pendingHomework.filter((hw) => hw.isOverdue);
-    const dueSoonHomework = pendingHomework.filter((hw) => hw.isDueSoon && !hw.isOverdue);
 
     // If student is not subscribed, show subscription benefits
     if (!student.isSubscribed) {
@@ -213,98 +198,6 @@ const StudentHome = () => {
                                     </div>
                                     <h3 className="font-fredoka text-xl font-bold text-fun-purple">{upcomingSession.title}</h3>
                                     <p className="font-comic text-fun-purple/80">with {upcomingSession.instructor}</p>
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        {/* Homework Section */}
-                        {pendingHomework.length > 0 && (
-                            <Card className="shadow-fun rounded-3xl border-fun-orange/20 bg-gradient-to-br from-fun-orange/10 to-fun-pink/10">
-                                <CardHeader className="text-center">
-                                    <div className="animate-gentle-bounce mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-fun-orange">
-                                        <BookOpen className="h-8 w-8 text-white" />
-                                    </div>
-                                    <CardTitle className="font-fredoka text-2xl text-fun-orange">📚 Your Piano Homework!</CardTitle>
-                                    <CardDescription className="font-comic text-lg text-fun-orange/80">
-                                        Time to practice and show off your skills!
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    {overdueHomework.length > 0 && (
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-center space-x-2">
-                                                <AlertTriangle className="h-5 w-5 text-red-500" />
-                                                <span className="font-comic text-lg font-bold text-red-500">Overdue Homework</span>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                                {overdueHomework.map((homework) => (
-                                                    <Card key={homework.id} className="border-red-200 bg-red-50">
-                                                        <CardContent className="p-4">
-                                                            <div className="flex items-center justify-between">
-                                                                <div className="text-left">
-                                                                    <h4 className="font-fredoka text-sm font-bold text-red-700">{homework.title}</h4>
-                                                                    <p className="font-comic text-xs text-red-600">Due: {homework.dueDate}</p>
-                                                                </div>
-                                                                <Button
-                                                                    onClick={() =>
-                                                                        router.visit(
-                                                                            route('student.homework', {
-                                                                                student: student.slug,
-                                                                                lessonId: homework.id,
-                                                                            }),
-                                                                        )
-                                                                    }
-                                                                    size="sm"
-                                                                    className="bg-red-500 text-white hover:bg-red-600"
-                                                                >
-                                                                    <Upload className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {dueSoonHomework.length > 0 && (
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-center space-x-2">
-                                                <Clock className="h-5 w-5 text-fun-orange" />
-                                                <span className="font-comic text-lg font-bold text-fun-orange">Due Soon</span>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                                {dueSoonHomework.map((homework) => (
-                                                    <Card key={homework.id} className="border-fun-orange/20 bg-fun-orange/10">
-                                                        <CardContent className="p-4">
-                                                            <div className="flex items-center justify-between">
-                                                                <div className="text-left">
-                                                                    <h4 className="font-fredoka text-sm font-bold text-fun-orange">
-                                                                        {homework.title}
-                                                                    </h4>
-                                                                    <p className="font-comic text-xs text-fun-orange/80">Due: {homework.dueDate}</p>
-                                                                </div>
-                                                                <Button
-                                                                    onClick={() =>
-                                                                        router.visit(
-                                                                            route('student.homework', {
-                                                                                student: student.slug,
-                                                                                lessonId: homework.id,
-                                                                            }),
-                                                                        )
-                                                                    }
-                                                                    size="sm"
-                                                                    className="bg-fun-orange text-white hover:bg-fun-orange/90"
-                                                                >
-                                                                    <Upload className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
                                 </CardContent>
                             </Card>
                         )}

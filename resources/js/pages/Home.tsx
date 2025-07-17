@@ -13,8 +13,8 @@ const Home = () => {
         },
         {
             icon: Music,
-            title: 'Fun Homework Assignments',
-            description: 'Practice what you learn with creative, age-appropriate homework.',
+            title: 'Personalized Homework',
+            description: 'Get custom practice assignments from your teacher during each lesson.',
             color: 'bg-fun-blue',
         },
         {
@@ -51,7 +51,7 @@ const Home = () => {
     const testimonials = [
         {
             name: 'Emma, Age 8',
-            text: 'I love my piano lessons! My teacher is so nice and helps me with my homework!',
+            text: 'I love my piano lessons! My teacher gives me perfect homework that helps me practice exactly what I need!',
             level: 'Beginner Student',
         },
         {
@@ -76,6 +76,10 @@ const Home = () => {
             answer: "You'll have one fun lesson per week with your teacher! 📅",
         },
         {
+            question: 'How does homework work?',
+            answer: 'Your teacher gives you personalized practice assignments during each lesson! 📝',
+        },
+        {
             question: 'Can I stop anytime?',
             answer: 'Yes! You can cancel anytime - no worries! 😊',
         },
@@ -91,7 +95,7 @@ const Home = () => {
                 <title>Learn Piano Online - Live 1-on-1 Piano Lessons</title>
                 <meta
                     name="description"
-                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Personalized curriculum, flexible scheduling, and expert feedback. Start your musical journey today!"
+                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Get personalized curriculum, custom homework assignments, and expert feedback. Start your musical journey today!"
                 />
                 <meta
                     name="keywords"
@@ -100,13 +104,16 @@ const Home = () => {
                 <meta property="og:title" content="Learn Piano Online - Live 1-on-1 Piano Lessons" />
                 <meta
                     property="og:description"
-                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Personalized curriculum and flexible scheduling."
+                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Get personalized curriculum, custom homework assignments, and expert feedback."
                 />
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://learnpianoonline.com" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Learn Piano Online - Live 1-on-1 Piano Lessons" />
-                <meta name="twitter:description" content="Learn piano online with live 1-on-1 lessons from professional teachers." />
+                <meta
+                    name="twitter:description"
+                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Get personalized curriculum, custom homework assignments, and expert feedback."
+                />
                 <link rel="canonical" href="https://learnpianoonline.com" />
             </Head>
             <div className="min-h-screen">
@@ -119,7 +126,7 @@ const Home = () => {
                                 <span className="block font-comic text-2xl md:text-4xl">with Real Teachers! 🎹</span>
                             </h1>
                             <p className="mx-auto mb-8 max-w-3xl font-comic text-xl text-white md:text-2xl">
-                                Weekly 1-on-1 lessons, fun homework, and helpful feedback from your own piano teacher.
+                                Weekly 1-on-1 lessons with personalized homework assignments and helpful feedback from your own piano teacher.
                             </p>
                             <div className="mb-8 flex flex-wrap justify-center gap-3">
                                 {skillLevels.map((level, index) => (

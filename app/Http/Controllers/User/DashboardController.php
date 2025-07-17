@@ -4,8 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
-use App\Models\Lesson;
-use App\Models\Homework;
+use App\Models\StudentSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -81,39 +80,21 @@ class DashboardController extends Controller
      */
     public function getStudentData(Student $student)
     {
-        // Get lessons for this student
-        $lessons = Lesson::where('student_id', $student->id)
+        // Get sessions for this student
+        $sessions = StudentSession::where('student_id', $student->id)
             ->with(['instructor'])
             ->orderBy('scheduled_at', 'desc')
             ->get()
-            ->map(function ($lesson) {
+            ->map(function ($session) {
                 return [
-                    'id' => $lesson->id,
-                    'title' => $this->generateLessonTitle($lesson),
-                    'instructor' => $lesson->instructor->name,
-                    'date' => $lesson->scheduled_at->format('F j, Y'),
-                    'time' => $lesson->scheduled_at->format('g:i A'),
-                    'status' => $lesson->status,
-                    'type' => 'private', // Assuming all lessons are private for now
-                    'scheduledAt' => $lesson->scheduled_at->toISOString(),
-                ];
-            });
-
-        // Get homework for this student
-        $homework = Homework::where('student_id', $student->id)
-            ->with(['lesson'])
-            ->orderBy('due_date', 'asc')
-            ->get()
-            ->map(function ($hw) {
-                return [
-                    'id' => $hw->id,
-                    'title' => $hw->title,
-                    'dueDate' => $hw->due_date->format('F j, Y'),
-                    'isSubmitted' => $hw->is_submitted,
-                    'lessonTitle' => $hw->lesson ? $this->generateLessonTitle($hw->lesson) : 'Unknown Lesson',
-                    'description' => $hw->description,
-                    'isOverdue' => $hw->isOverdue(),
-                    'isDueSoon' => $hw->isDueSoon(),
+                    'id' => $session->id,
+                    'title' => $this->generateSessionTitle($session),
+                    'instructor' => $session->instructor->name,
+                    'date' => $session->scheduled_at->format('F j, Y'),
+                    'time' => $session->scheduled_at->format('g:i A'),
+                    'status' => $session->status,
+                    'type' => 'private', // Assuming all sessions are private for now
+                    'scheduledAt' => $session->scheduled_at->toISOString(),
                 ];
             });
 
@@ -134,8 +115,7 @@ class DashboardController extends Controller
                     'name' => $student->instructor->name,
                 ] : null,
             ],
-            'lessons' => $lessons,
-            'homework' => $homework,
+            'sessions' => $sessions,
         ];
     }
 
@@ -182,12 +162,12 @@ class DashboardController extends Controller
     }
 
     /**
-     * Generate a lesson title based on lesson data
+     * Generate a session title based on session data
      */
-    private function generateLessonTitle(Lesson $lesson): string
+    private function generateSessionTitle(StudentSession $session): string
     {
-        // Generate lesson title based on lesson number
-        $lessonNumber = $lesson->id;
-        return "Lesson #{$lessonNumber}";
+        // Generate session title based on session number
+        $sessionNumber = $session->id;
+        return "Session #{$sessionNumber}";
     }
 }

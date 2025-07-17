@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
-class StudentSessionController extends Controller
+class SessionController extends Controller
 {
     public function index(Request $request, Student $student): \Inertia\Response
     {
@@ -22,7 +22,7 @@ class StudentSessionController extends Controller
         $selectedMonth = $request->input('month', now()->format('Y-m'));
 
         // Load student with instructor and sessions
-        $student->load(['instructor', 'studentSessions.instructor', 'studentSessions.homework']);
+        $student->load(['instructor', 'studentSessions.instructor']);
 
         // Get sessions data for this specific student
         $sessionsData = $this->getStudentSessionsData($student, $selectedMonth);
@@ -48,7 +48,7 @@ class StudentSessionController extends Controller
         $sessions = StudentSession::where('student_id', $student->id)
             ->whereYear('scheduled_at', $year)
             ->whereMonth('scheduled_at', $monthNum)
-            ->with(['instructor', 'homework'])
+            ->with(['instructor'])
             ->orderBy('scheduled_at')
             ->get()
             ->map(function ($session, $index) {
@@ -61,8 +61,6 @@ class StudentSessionController extends Controller
                     'duration' => '60 min', // Assuming all sessions are 60 minutes
                     'status' => $session->status,
                     'type' => 'private', // Assuming all sessions are private
-                    'hasHomework' => $session->homework->count() > 0,
-                    'homeworkStatus' => $this->getHomeworkStatus($session),
                 ];
             });
 
@@ -91,27 +89,5 @@ class StudentSessionController extends Controller
         }
 
         return $months;
-    }
-
-    /**
-     * Get homework status for a session
-     */
-    private function getHomeworkStatus(StudentSession $session): string
-    {
-        $homework = $session->homework->first();
-
-        if (!$homework) {
-            return 'none';
-        }
-
-        if ($homework->is_submitted) {
-            return 'submitted';
-        }
-
-        if ($homework->isOverdue()) {
-            return 'overdue';
-        }
-
-        return 'pending';
     }
 }

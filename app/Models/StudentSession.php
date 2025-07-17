@@ -129,12 +129,4 @@ class StudentSession extends Model
             'notes' => 'Replacement session for cancelled session on ' . $this->scheduled_at->format('Y-m-d'),
         ]);
     }
-
-    /**
-     * Get homework assigned for this session
-     */
-    public function homework()
-    {
-        return $this->hasMany(Homework::class);
-    }
 }

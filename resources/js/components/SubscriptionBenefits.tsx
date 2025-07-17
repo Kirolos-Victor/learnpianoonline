@@ -43,8 +43,8 @@ const SubscriptionBenefits = ({ studentName, subscribePrice, studentSlug }: Subs
         },
         {
             icon: FileText,
-            title: 'Fun Homework',
-            description: 'Practice assignments that are actually fun! 📝',
+            title: 'Personalized Homework',
+            description: 'Get custom practice assignments from your teacher! 📝',
             color: 'bg-fun-cyan',
         },
     ];
@@ -62,7 +62,7 @@ const SubscriptionBenefits = ({ studentName, subscribePrice, studentSlug }: Subs
                         {studentName} needs a subscription! 👑
                     </CardTitle>
                     <CardDescription className="font-comic text-xl text-fun-orange/80">
-                        Subscribe to get fun piano lessons and cool homework!
+                        Subscribe to get fun piano lessons with personalized homework assignments!
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

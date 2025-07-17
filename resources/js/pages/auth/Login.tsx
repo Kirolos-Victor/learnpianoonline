@@ -34,7 +34,7 @@ const Login = () => {
                 <title>Login - Learn Piano Online</title>
                 <meta
                     name="description"
-                    content="Sign in to your piano lesson account. Access your personalized lessons, homework assignments, and progress tracking dashboard."
+                    content="Sign in to your piano lesson account. Access your personalized lessons, custom homework assignments, and progress tracking dashboard."
                 />
                 <meta name="keywords" content="piano lesson login, sign in piano lessons, piano student login, online piano account" />
                 <meta property="og:title" content="Login - Learn Piano Online" />

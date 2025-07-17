@@ -4,12 +4,10 @@ namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
-use App\Models\Lesson;
-use App\Models\Homework;
+use App\Models\StudentSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use App\Models\StudentSession;
 
 class DashboardController extends Controller
 {
@@ -18,7 +16,7 @@ class DashboardController extends Controller
         $instructor = auth()->user();
 
         // Get today's sessions for the instructor
-        $todaysSessions = StudentSession::with(['student', 'homework'])
+        $todaysSessions = StudentSession::with(['student'])
             ->where('instructor_id', $instructor->id)
             ->whereDate('scheduled_at', today())
             ->orderBy('scheduled_at')

@@ -11,6 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('homework');
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
         Schema::create('homework', function (Blueprint $table) {
             $table->id();
             $table->string('title');
@@ -24,13 +32,5 @@ return new class extends Migration
             $table->dateTime('submitted_at')->nullable();
             $table->timestamps();
         });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('homework');
     }
 };

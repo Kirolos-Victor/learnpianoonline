@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import InstructorLayout from '@/layouts/instructor-layout';
 import { cn } from '@/lib/utils';
 import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle, Ban, BookOpen, Calendar, CheckCircle, Clock, History, Users, XCircle } from 'lucide-react';
+import { AlertTriangle, Ban, BookOpen, Calendar, CheckCircle, Clock, History, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface TodaysSession {
@@ -141,19 +141,6 @@ const InstructorDashboard = ({ todaysSessions, dashboardStats }: Props) => {
                         <CardContent>
                             <div className="text-3xl font-bold text-orange-900">{dashboardStats.pendingSessions}</div>
                             <p className="text-sm text-orange-700">Pending Sessions</p>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                            <CardTitle className="text-sm font-medium text-green-900">Homework</CardTitle>
-                            <div className="rounded-full bg-green-200 p-2">
-                                <Users className="h-4 w-4 text-green-700" />
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-green-900">{dashboardStats.totalPendingHomework}</div>
-                            <p className="text-sm text-green-700">This month</p>
                         </CardContent>
                     </Card>
                 </div>
