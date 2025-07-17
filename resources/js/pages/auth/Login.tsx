@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { Heart, LoaderCircle, Music, Sparkles, Star } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 type LoginForm = {
@@ -29,7 +29,74 @@ const Login = () => {
     };
 
     return (
-        <div className="bg-piano-gradient flex min-h-screen items-center justify-center px-6">
+        <div className="bg-piano-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+            {/* Animated Background Elements */}
+            <div className="pointer-events-none absolute inset-0">
+                {/* Floating Music Notes */}
+                <div className="animate-float-slow absolute top-20">
+                    <Music className="h-8 w-8 text-white/20" />
+                </div>
+                <div className="animate-float-medium absolute top-40 right-20">
+                    <Music className="h-6 w-6 text-white/30" />
+                </div>
+                <div className="animate-float-fast absolute bottom-32">
+                    <Music className="h-10 w-10 text-white/25" />
+                </div>
+                <div className="animate-float-slow absolute top-60 left-1/4">
+                    <Music className="h-7 w-7 text-white/15" />
+                </div>
+                <div className="animate-float-medium absolute right-1/4 bottom-20">
+                    <Music className="h-5 w-5 text-white/35" />
+                </div>
+
+                {/* Floating Stars */}
+                <div className="animate-float-fast absolute top-32 right-10">
+                    <Star className="h-4 w-4 fill-current text-yellow-300" />
+                </div>
+                <div className="animate-float-slow absolute bottom-40 left-1/3">
+                    <Star className="h-6 w-6 fill-current text-yellow-200" />
+                </div>
+                <div className="animate-float-medium absolute top-80 right-1/4">
+                    <Star className="h-3 w-3 fill-current text-yellow-400" />
+                </div>
+
+                {/* Floating Hearts */}
+                <div className="animate-float-medium absolute top-24 left-1/4">
+                    <Heart className="h-5 w-5 fill-current text-pink-300" />
+                </div>
+                <div className="animate-float-slow absolute right-16 bottom-60">
+                    <Heart className="h-4 w-4 fill-current text-pink-200" />
+                </div>
+                <div className="animate-float-fast absolute top-72">
+                    <Heart className="h-6 w-6 fill-current text-pink-400" />
+                </div>
+
+                {/* Floating Sparkles */}
+                <div className="animate-float-fast absolute top-48 right-1">
+                    <Sparkles className="h-4 w-4 text-blue-300/40" />
+                </div>
+                <div className="animate-float-slow absolute bottom-32 left-1/4">
+                    <Sparkles className="h-5 w-5 text-blue-200/30" />
+                </div>
+                <div className="animate-float-medium absolute top-96 right-20">
+                    <Sparkles className="h-3 w-3 text-blue-400/35" />
+                </div>
+
+                {/* Additional Music Icons */}
+                <div className="animate-float-slow absolute top-16 right-1/4">
+                    <div className="text-2xl text-white/20">♪</div>
+                </div>
+                <div className="animate-float-medium absolute bottom-48">
+                    <div className="text-xl text-white/25">♫</div>
+                </div>
+                <div className="animate-float-fast absolute top-32 left-1">
+                    <div className="text-3xl text-white/15">♩</div>
+                </div>
+                <div className="animate-float-slow absolute right-10 bottom-16">
+                    <div className="text-lg text-white/30">♬</div>
+                </div>
+            </div>
+
             <Head>
                 <title>Login - Learn Piano Online</title>
                 <meta
@@ -45,14 +112,15 @@ const Login = () => {
                 <meta name="twitter:description" content="Sign in to your piano lesson account." />
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
-            <div className="w-full max-w-md">
+
+            <div className="relative z-10 w-full max-w-md">
                 <div className="mb-8 text-center">
                     <Link href={route('home.index')} className="flex cursor-pointer justify-center">
                         <Logo size="lg" className="justify-center" />
                     </Link>
                 </div>
 
-                <Card className="border-teal/20 bg-white shadow-xl">
+                <Card className="border-teal/20 bg-white/95 shadow-2xl backdrop-blur-sm">
                     <CardHeader>
                         <CardTitle className="font-playfair text-navy text-center text-2xl">Welcome Back</CardTitle>
                         <CardDescription className="text-warm-gray-600 text-center">Sign in to continue your piano journey</CardDescription>
@@ -99,9 +167,13 @@ const Login = () => {
                                 />
                                 <Label htmlFor="remember">Remember me</Label>
                             </div>
-                            <Button type="submit" className="w-full bg-teal-400 text-white hover:bg-teal-600" disabled={processing}>
-                                {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                                Sign In
+                            <Button
+                                type="submit"
+                                className="w-full bg-teal-400 text-white transition-all duration-300 hover:bg-teal-600"
+                                disabled={processing}
+                            >
+                                {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                                <Music className="mr-2 h-4 w-4" /> Sign In
                             </Button>
                         </form>
 
@@ -117,6 +189,59 @@ const Login = () => {
                     </CardContent>
                 </Card>
             </div>
+
+            <style>{`
+                @keyframes float-slow {
+                    0%, 100% { transform: translateY(0) rotate(0deg); }
+                    50% { transform: translateY(-20px) rotate(5deg); }
+                }
+                @keyframes float-medium {
+                    0%, 100% { transform: translateY(0) rotate(0deg); }
+                    50% { transform: translateY(-15px) rotate(-3deg); }
+                }
+                @keyframes float-fast {
+                    0%, 100% { transform: translateY(0) rotate(0deg); }
+                    50% { transform: translateY(-10px) rotate(2deg); }
+                }
+                @keyframes fade-in {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slide-up {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-float-slow {
+                    animation: float-slow 6s ease-in-out infinite;
+                }
+                .animate-float-medium {
+                    animation: float-medium 4s ease-in-out infinite;
+                }
+                .animate-float-fast {
+                    animation: float-fast 3s ease-in-out infinite;
+                }
+                .animate-fade-in {
+                    animation: fade-in 1s ease-out;
+                }
+                .animate-slide-up {
+                    animation: slide-up 0.8s ease-out;
+                }
+                .animate-fade-in-delay-1 {
+                    animation: fade-in 0.6s ease-out 0.2s both;
+                }
+                .animate-fade-in-delay-2 {
+                    animation: fade-in 0.6s ease-out 0.4s both;
+                }
+                .animate-fade-in-delay-3 {
+                    animation: fade-in 0.6s ease-out 0.6s both;
+                }
+                .animate-fade-in-delay-4 {
+                    animation: fade-in 0.6s ease-out 0.8s both;
+                }
+                .animate-fade-in-delay-5 {
+                    animation: fade-in 0.6s ease-out 1s both;
+                }
+            `}</style>
         </div>
     );
 };
