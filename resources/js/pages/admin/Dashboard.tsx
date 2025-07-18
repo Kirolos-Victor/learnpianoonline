@@ -248,7 +248,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-green-600">${stats.total_revenue?.toFixed(2) || '0.00'}</div>
+                        <div className="text-3xl font-bold text-green-600">${(Number(stats.total_revenue) || 0).toFixed(2)}</div>
                         <p className="mt-2 text-sm text-gray-600">Revenue in selected date range</p>
                     </CardContent>
                 </Card>
@@ -261,10 +261,10 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-blue-600">{stats.average_students_per_subscription?.toFixed(1) || '0.0'}</div>
+                        <div className="text-3xl font-bold text-blue-600">{(Number(stats.average_students_per_subscription) || 0).toFixed(1)}</div>
                         <p className="mt-2 text-sm text-gray-600">Avg students per subscription in period</p>
                         <div className="mt-2 text-sm text-muted-foreground">
-                            Avg amount: ${stats.average_subscription_amount?.toFixed(2) || '0.00'}
+                            Avg amount: ${(Number(stats.average_subscription_amount) || 0).toFixed(2)}
                         </div>
                     </CardContent>
                 </Card>
@@ -320,7 +320,7 @@ const AdminDashboard = ({ stats, recentSubscriptions, filters }: Props) => {
                                     <div className="text-right">
                                         <div className="flex items-center space-x-4">
                                             <div>
-                                                <p className="font-semibold text-green-600">${subscription.amount.toFixed(2)}</p>
+                                                <p className="font-semibold text-green-600">${(Number(subscription.amount) || 0).toFixed(2)}</p>
                                                 <p className="text-sm text-gray-600">
                                                     {subscription.student_count} student{subscription.student_count !== 1 ? 's' : ''}
                                                 </p>

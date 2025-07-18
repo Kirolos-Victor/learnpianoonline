@@ -58,7 +58,7 @@ class DashboardController extends Controller
                 ->whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
             'total_sessions_remaining' => Student::whereBetween('created_at', [$startDateTime, $endDateTime])
-                ->sum('sessions_remaining'),
+                ->sum('sessions_remaining') ?? 0,
 
             // Sessions (filtered by creation/update date)
             'total_sessions' => StudentSession::whereBetween('created_at', [$startDateTime, $endDateTime])
@@ -95,17 +95,17 @@ class DashboardController extends Controller
             // Revenue statistics in period
             'total_revenue' => Subscription::where('status', 'completed')
                 ->whereBetween('paid_at', [$startDateTime, $endDateTime])
-                ->sum('amount'),
+                ->sum('amount') ?? 0,
 
             // Average subscription amount in period
             'average_subscription_amount' => Subscription::where('status', 'completed')
                 ->whereBetween('paid_at', [$startDateTime, $endDateTime])
-                ->avg('amount'),
+                ->avg('amount') ?? 0,
 
             // Average students per subscription in period
             'average_students_per_subscription' => Subscription::where('status', 'completed')
                 ->whereBetween('paid_at', [$startDateTime, $endDateTime])
-                ->avg('student_count'),
+                ->avg('student_count') ?? 0,
         ];
 
         // Recent activities (last 10 activities in date range)
