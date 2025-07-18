@@ -1,11 +1,13 @@
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import StudentLayout from '@/layouts/student-layout';
 import { SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowLeft, Calendar, CreditCard, Music4 } from 'lucide-react';
+import { ArrowLeft, Calendar, CreditCard, FileText, Music4 } from 'lucide-react';
 
 interface Instructor {
     id: string;
@@ -429,17 +431,12 @@ const Sessions = () => {
                                                     Session #
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                                                    Date
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                                                    Time
+                                                    Date & Time
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                                                     Instructor
                                                 </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                                                    Type
-                                                </th>
+
                                                 <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                                                     Status
                                                 </th>
@@ -447,7 +444,7 @@ const Sessions = () => {
                                                     Completed At
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                                                    Notes
+                                                    Notes & Homework
                                                 </th>
                                             </tr>
                                         </thead>
@@ -457,10 +454,18 @@ const Sessions = () => {
                                                     <td className="px-6 py-4 font-medium whitespace-nowrap text-gray-900">
                                                         Session {session.sessionNumber}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{session.scheduled_date}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{session.scheduled_time}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{session.instructor?.name || '-'}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{session.type}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm">
+                                                            <div className="font-medium">{session.scheduled_date}</div>
+                                                            <div className="text-gray-500">
+                                                                {session.scheduled_day} • {session.scheduled_time}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        {session.instructor?.name || student.instructor?.name || '-'}
+                                                    </td>
+
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <Badge className={getStatusBadgeColor(session.status)}>{getStatusText(session.status)}</Badge>
                                                     </td>
@@ -476,9 +481,25 @@ const Sessions = () => {
                                                             : '-'}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="max-w-xs truncate text-sm text-gray-900" title={session.notes || ''}>
-                                                            {session.notes || '-'}
-                                                        </div>
+                                                        <Dialog>
+                                                            <DialogTrigger asChild>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    className="h-10 w-10 border-blue-200 bg-blue-50 p-0 hover:bg-blue-100"
+                                                                >
+                                                                    <span className="sr-only">View notes and homework</span>
+                                                                    <FileText className="h-5 w-5 text-blue-600" />
+                                                                </Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent>
+                                                                <DialogHeader>
+                                                                    <DialogTitle>Notes & Homework for Session {session.sessionNumber}</DialogTitle>
+                                                                    <DialogDescription>
+                                                                        {session.notes || 'No notes or homework available for this session.'}
+                                                                    </DialogDescription>
+                                                                </DialogHeader>
+                                                            </DialogContent>
+                                                        </Dialog>
                                                     </td>
                                                 </tr>
                                             ))}

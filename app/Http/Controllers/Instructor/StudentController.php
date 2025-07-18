@@ -80,7 +80,7 @@ class StudentController extends Controller
                 return [
                     'id' => $session->id,
                     'instructor_name' => $session->instructor->name,
-                    'scheduled_date' => $session->scheduled_at->format('M d, Y'),
+                    'scheduled_date' => $session->scheduled_at->format('F j, Y'),
                     'scheduled_time' => $session->scheduled_at->format('h:i A'),
                     'completed_at' => $session->completed_at?->toDateTimeString(),
                     'status' => $session->status,

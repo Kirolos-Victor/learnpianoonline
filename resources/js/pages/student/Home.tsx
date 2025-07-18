@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import StudentLayout from '@/layouts/student-layout';
 import { SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { ArrowLeft, BookOpen, CheckCircle, Music, Star } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, Music, Star, User } from 'lucide-react';
 
 interface Student {
     id: string;
@@ -56,7 +56,7 @@ const StudentHome = () => {
                 <div className="min-h-screen bg-background">
                     <Head title={`${student.name}'s Piano Journey`}></Head>
 
-                    {/* Header */}
+                    {/* Fun Header */}
                     <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
                         <div className="pointer-events-none absolute inset-0">
                             <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
@@ -86,7 +86,6 @@ const StudentHome = () => {
                                     </div>
                                 </div>
 
-                                {/* Back to Parent Dashboard Button */}
                                 <Button
                                     className="shadow-float mt-4 rounded-full bg-white/20 px-6 py-3 font-comic text-lg text-white transition-all duration-200 hover:scale-105 hover:bg-white hover:text-fun-purple md:mt-0"
                                     onClick={() => router.visit(route('parent.dashboard'))}
@@ -113,7 +112,7 @@ const StudentHome = () => {
             <div className="min-h-screen bg-background">
                 <Head title={`${student.name}'s Piano Dashboard`}></Head>
 
-                {/* Header */}
+                {/* Fun Header */}
                 <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
                     <div className="pointer-events-none absolute inset-0">
                         <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
@@ -140,7 +139,6 @@ const StudentHome = () => {
                                 </div>
                             </div>
 
-                            {/* Back to Parent Dashboard Button */}
                             <Button
                                 className="shadow-float mt-4 rounded-full bg-white/20 px-6 py-3 font-comic text-lg text-white transition-all duration-200 hover:scale-105 hover:bg-white hover:text-fun-purple md:mt-0"
                                 onClick={() => router.visit(route('parent.dashboard'))}
@@ -155,7 +153,7 @@ const StudentHome = () => {
                 <div className="container mx-auto px-6 py-8">
                     {/* Dashboard Content */}
                     <div className="mx-auto max-w-6xl space-y-8">
-                        {/* Quick Stats */}
+                        {/* Fun Stats */}
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                             <Card className="shadow-float rounded-2xl border-2 border-fun-purple/20 bg-white">
                                 <CardContent className="p-6 text-center">
@@ -167,37 +165,61 @@ const StudentHome = () => {
 
                             <Card className="shadow-float rounded-2xl border-2 border-fun-green/20 bg-white">
                                 <CardContent className="p-6 text-center">
-                                    <CheckCircle className="mx-auto mb-4 h-12 w-12 text-fun-green" />
-                                    <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-green">Subscription</h3>
-                                    <p className="font-comic text-sm font-bold text-fun-green">
-                                        {student.subscriptionType === 'monthly' ? 'Monthly' : 'Yearly'} Plan
-                                    </p>
+                                    <User className="mx-auto mb-4 h-12 w-12 text-fun-green" />
+                                    <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-green">Instructor</h3>
+                                    <p className="font-comic text-sm font-bold text-fun-green">{student.instructor?.name || 'Not assigned'}</p>
                                 </CardContent>
                             </Card>
 
                             <Card className="shadow-float rounded-2xl border-2 border-fun-blue/20 bg-white">
                                 <CardContent className="p-6 text-center">
-                                    <Star className="mx-auto mb-4 h-12 w-12 text-fun-blue" />
-                                    <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-blue">Instructor</h3>
-                                    <p className="font-comic text-sm font-bold text-fun-blue">{student.instructor?.name || 'Not assigned'}</p>
+                                    <CheckCircle className="mx-auto mb-4 h-12 w-12 text-fun-blue" />
+                                    <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-blue">Status</h3>
+                                    <p className="font-comic text-sm font-bold text-fun-blue">Active</p>
                                 </CardContent>
                             </Card>
                         </div>
+
+                        {/* Instructor Assignment Notice */}
+                        {!student.instructor && (
+                            <Card className="mb-6 bg-gradient-to-r from-fun-yellow to-fun-orange text-white">
+                                <CardHeader>
+                                    <CardTitle className="font-fredoka text-2xl text-fun-yellow">🎹 Waiting for Your Instructor! 🌟</CardTitle>
+                                    <CardDescription className="text-white/80">
+                                        We're working on assigning you the perfect piano instructor!
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="font-comic text-fun-yellow/90">
+                                        Don't worry! We'll assign you an instructor soon and you'll be able to see your upcoming sessions here. Your
+                                        parent will be notified once your instructor is assigned.
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         {/* Next Session */}
                         {upcomingSession && (
                             <Card className="mb-6 bg-gradient-to-r from-fun-purple to-fun-blue text-white">
                                 <CardHeader>
-                                    <CardTitle className="font-fredoka text-2xl text-fun-purple">🎹 Your Next Session! 🌟</CardTitle>
-                                    <CardDescription className="text-white/80">Get ready for your upcoming piano session!</CardDescription>
+                                    <CardTitle className="font-fredoka text-2xl text-white">🎹 Your Next Session! 🌟</CardTitle>
+                                    <CardDescription className="text-white/90">Get ready for your upcoming piano session!</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="mb-4 flex flex-wrap gap-2">
-                                        <Badge className="bg-fun-purple text-white">📅 {upcomingSession.date}</Badge>
-                                        <Badge className="bg-fun-blue text-white">🕐 {upcomingSession.time}</Badge>
+                                        <Badge className="bg-white font-bold text-fun-purple">📅 {upcomingSession.date}</Badge>
+                                        <Badge className="bg-white font-bold text-fun-blue">🕐 {upcomingSession.time}</Badge>
                                     </div>
-                                    <h3 className="font-fredoka text-xl font-bold text-fun-purple">{upcomingSession.title}</h3>
-                                    <p className="font-comic text-fun-purple/80">with {upcomingSession.instructor}</p>
+                                    <h3 className="font-fredoka text-xl font-bold text-white">{upcomingSession.title}</h3>
+                                    <p className="font-comic text-white/90">
+                                        with{' '}
+                                        {upcomingSession.instructor !== 'Not assigned'
+                                            ? upcomingSession.instructor
+                                            : student.instructor?.name || 'Instructor to be assigned'}
+                                    </p>
+                                    {!student.instructor && (
+                                        <p className="mt-2 font-comic font-bold text-yellow-300">⚠️ Instructor will be assigned soon</p>
+                                    )}
                                 </CardContent>
                             </Card>
                         )}

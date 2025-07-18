@@ -41,15 +41,15 @@ class DashboardController extends Controller
         // Format sessions data
         $sessions = $student->studentSessions()
             ->with('instructor')
-            ->orderBy('scheduled_at', 'desc')
+            ->orderBy('scheduled_at', 'asc') // Order by ascending to get the next session first
             ->take(10)
             ->get()
-            ->map(function ($session) {
+            ->map(function ($session, $index) {
                 return [
                     'id' => $session->id,
-                    'title' => 'Piano Session #' . $session->id,
+                    'title' => 'Piano Session #' . ($index + 1),
                     'instructor' => $session->instructor->name ?? 'Not assigned',
-                    'date' => $session->scheduled_at->format('M j, Y'),
+                    'date' => $session->scheduled_at->format('F j, Y'), // Changed to full month name format
                     'time' => $session->scheduled_at->format('g:i A'),
                     'status' => $session->status,
                     'type' => 'private', // Default type

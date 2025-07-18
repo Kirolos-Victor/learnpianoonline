@@ -134,7 +134,7 @@ class StudentController extends Controller
                     'id' => $session->id,
                     'instructor_name' => $session->instructor->name,
                     'scheduled_at' => $session->scheduled_at,
-                    'scheduled_date' => $session->scheduled_at->format('M d, Y'),
+                    'scheduled_date' => $session->scheduled_at->format('F j, Y'),
                     'scheduled_time' => $session->scheduled_at->format('h:i A'),
                     'completed_at' => $session->completed_at?->toDateTimeString(),
                     'status' => $session->status,
