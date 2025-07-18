@@ -13,11 +13,11 @@ import { useEffect, useState } from 'react';
 
 interface Student {
     id: string;
+    slug: string;
     user_id: string;
     name: string;
     email: string;
     sessions_remaining: number;
-    subscription_months: number;
     subscription_expires_at: string | null;
     created_at: string;
 }
@@ -101,8 +101,8 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
         if (!selectedStudent || !selectedInstructorId) return;
 
         setProcessing(true);
-        router.post(
-            route('admin.pending-subscribers.assign-instructor', { id: selectedStudent.id }),
+        router.patch(
+            route('admin.pending-subscribers.assign-instructor', { slug: selectedStudent.slug }),
             {
                 instructor_id: selectedInstructorId,
             },
@@ -203,10 +203,7 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
                                                         <Badge className="bg-green-100 text-green-800">Subscribed</Badge>
                                                         <div className="flex items-center text-xs text-gray-600">
                                                             <Calendar className="mr-1 h-3 w-3" />
-                                                            {student.subscription_months} months
-                                                            {student.subscription_expires_at && (
-                                                                <span className="ml-1 text-gray-500">(until {student.subscription_expires_at})</span>
-                                                            )}
+                                                            Expires {student.subscription_expires_at || 'Unknown'}
                                                         </div>
                                                     </div>
                                                 </td>
@@ -299,7 +296,7 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
                                     <strong>Sessions Remaining:</strong> {selectedStudent.sessions_remaining}
                                 </p>
                                 <p className="text-sm text-gray-600">
-                                    <strong>Subscription:</strong> {selectedStudent.subscription_months} months
+                                    <strong>Subscription:</strong> Expires {selectedStudent.subscription_expires_at || 'Unknown'}
                                 </p>
                             </div>
                         )}

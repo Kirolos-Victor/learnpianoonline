@@ -40,14 +40,6 @@ class StudentController extends Controller
 
         // Transform the data
         $students->getCollection()->transform(function ($student) {
-            // Calculate subscription months
-            $subscriptionMonths = 0;
-            if ($student->is_subscribed && $student->subscription_expires_at) {
-                $createdAt = $student->created_at;
-                $expiresAt = $student->subscription_expires_at;
-                $subscriptionMonths = $createdAt->diffInMonths($expiresAt);
-            }
-
             return [
                 'id' => $student->id,
                 'slug' => $student->slug,
@@ -56,7 +48,6 @@ class StudentController extends Controller
                 'email' => $student->user->email,
                 'sessions_remaining' => $student->sessions_remaining,
                 'is_subscribed' => $student->is_subscribed,
-                'subscription_months' => $subscriptionMonths,
                 'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
                 'instructor_id' => $student->instructor_id,
                 'instructor_name' => $student->instructor?->name,
@@ -220,21 +211,13 @@ class StudentController extends Controller
 
         // Transform the data
         $students->getCollection()->transform(function ($student) {
-            // Calculate subscription months
-            $subscriptionMonths = 0;
-            if ($student->is_subscribed && $student->subscription_expires_at) {
-                $createdAt = $student->created_at;
-                $expiresAt = $student->subscription_expires_at;
-                $subscriptionMonths = $createdAt->diffInMonths($expiresAt);
-            }
-
             return [
                 'id' => $student->id,
+                'slug' => $student->slug,
                 'user_id' => $student->user_id,
                 'name' => $student->user->name,
                 'email' => $student->user->email,
                 'sessions_remaining' => $student->sessions_remaining,
-                'subscription_months' => $subscriptionMonths,
                 'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
                 'created_at' => $student->created_at->format('M d, Y'),
             ];

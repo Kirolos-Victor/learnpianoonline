@@ -20,7 +20,6 @@ interface Student {
     email: string;
     sessions_remaining: number;
     is_subscribed: boolean;
-    subscription_months: number;
     subscription_expires_at: string | null;
     instructor_id: string | null;
     instructor_name: string | null;
@@ -309,15 +308,10 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                                                         >
                                                             {student.is_subscribed ? 'Subscribed' : 'Not Subscribed'}
                                                         </Badge>
-                                                        {student.is_subscribed && (
+                                                        {student.is_subscribed && student.subscription_expires_at && (
                                                             <div className="flex items-center text-xs text-gray-600">
                                                                 <Calendar className="mr-1 h-3 w-3" />
-                                                                {student.subscription_months} months
-                                                                {student.subscription_expires_at && (
-                                                                    <span className="ml-1 text-gray-500">
-                                                                        (until {student.subscription_expires_at})
-                                                                    </span>
-                                                                )}
+                                                                Expires {student.subscription_expires_at}
                                                             </div>
                                                         )}
                                                     </div>
