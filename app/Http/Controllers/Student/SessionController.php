@@ -38,13 +38,12 @@ class SessionController extends Controller
                     'id' => $student->instructor->id,
                     'name' => $student->instructor->name,
                 ] : null,
-                'parent_timezone' => $student->user->timezone ?? 'UTC',
-                'preferred_time' => $student->preferred_time ? $student->preferred_time->format('H:i') : null,
                 'day_of_week' => $student->day_of_week,
             ],
             'sessions' => $sessionsData,
             'selectedMonth' => $selectedMonth,
-            'availableMonths' => $this->getAvailableMonths($student),
+            'availableYears' => $this->getAvailableYears($student),
+            'availableMonths' => $this->getAvailableMonths(),
         ]);
     }
 
@@ -106,24 +105,35 @@ class SessionController extends Controller
     }
 
     /**
-     * Generate available months for filtering
+     * Generate available years for filtering (from student creation to current year)
      */
-    private function getAvailableMonths(Student $student): array
+    private function getAvailableYears(Student $student): array
     {
-        $months = [];
-        $currentDate = Carbon::now();
+        $years = [];
+        $currentYear = Carbon::now()->year;
+        $studentCreatedYear = $student->created_at->year;
 
-        // Add last 6 months
-        for ($i = 6; $i >= 1; $i--) {
-            $months[] = $currentDate->copy()->subMonths($i)->format('Y-m');
+        // Start from student creation year, go to current year
+        for ($year = $studentCreatedYear; $year <= $currentYear; $year++) {
+            $years[] = $year;
         }
 
-        // Add current month
-        $months[] = $currentDate->format('Y-m');
+        return $years;
+    }
 
-        // Add next 2 months
-        for ($i = 1; $i <= 2; $i++) {
-            $months[] = $currentDate->copy()->addMonths($i)->format('Y-m');
+    /**
+     * Generate available months for filtering (all 12 months)
+     */
+    private function getAvailableMonths(): array
+    {
+        $months = [];
+
+        // All 12 months
+        for ($month = 1; $month <= 12; $month++) {
+            $months[] = [
+                'value' => str_pad($month, 2, '0', STR_PAD_LEFT),
+                'label' => Carbon::create()->month($month)->format('F')
+            ];
         }
 
         return $months;
