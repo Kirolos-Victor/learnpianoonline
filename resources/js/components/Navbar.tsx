@@ -23,7 +23,7 @@ const Navbar = () => {
     // Student interface navigation items (only 2 pages as requested)
     const studentInterfaceNavItems = [
         { name: 'student.dashboard', label: 'My Piano Home', icon: Home },
-        { name: 'student.lessons', label: 'Lessons', icon: BookOpen },
+        { name: 'student.sessions', label: 'Sessions', icon: BookOpen },
     ];
 
     // Parent navigation items
@@ -103,10 +103,10 @@ const Navbar = () => {
                                             const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
                                             return route('student.dashboard', { student: studentSlug });
                                         }
-                                        if (isStudentPage() && item.name === 'student.lessons') {
+                                        if (isStudentPage() && item.name === 'student.sessions') {
                                             // Get current student slug from URL
                                             const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
-                                            return route('student.lessons', { student: studentSlug });
+                                            return route('student.sessions', { student: studentSlug });
                                         }
                                         return route(item.name);
                                     };
@@ -204,10 +204,10 @@ const Navbar = () => {
                                                     const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
                                                     return route('student.dashboard', { student: studentSlug });
                                                 }
-                                                if (isStudentPage() && item.name === 'student.lessons') {
+                                                if (isStudentPage() && item.name === 'student.sessions') {
                                                     // Get current student slug from URL
                                                     const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
-                                                    return route('student.lessons', { student: studentSlug });
+                                                    return route('student.sessions', { student: studentSlug });
                                                 }
                                                 return route(item.name);
                                             };

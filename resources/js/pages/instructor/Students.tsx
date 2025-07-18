@@ -199,10 +199,10 @@ const InstructorStudents = ({ students }: Props) => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <Link href={route('instructor.student.lessons', student.slug)}>
+                                                <Link href={route('instructor.student.sessions', student.slug)}>
                                                     <Button variant="outline" size="sm">
                                                         <Eye className="mr-2 h-4 w-4" />
-                                                        View Lessons
+                                                        View Sessions
                                                     </Button>
                                                 </Link>
                                             </td>

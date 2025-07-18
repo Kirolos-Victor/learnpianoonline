@@ -185,8 +185,8 @@ class StripeService
                                 'sessions_remaining' => $sessionsToAdd,
                             ]);
 
-                            // Attach student to subscription
-                            $subscription->students()->attach($studentId);
+                            // Attach student to subscription with timestamp
+                            $subscription->students()->attach($studentId, ['created_at' => now()]);
 
                             Log::info('Student subscription activated', [
                                 'student_id' => $studentId,

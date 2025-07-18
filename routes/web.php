@@ -12,7 +12,7 @@ use App\Http\Controllers\Parent\StudentController as ParentStudentController;
 use App\Http\Controllers\Parent\ContactController as ParentContactController;
 use App\Http\Controllers\Parent\SubscriptionController as ParentSubscriptionController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
-use App\Http\Controllers\Student\LessonController as StudentLessonController;
+
 use App\Http\Controllers\Student\SessionController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
@@ -51,7 +51,7 @@ Route::middleware(['auth', 'parent'])->prefix('parent')->name('parent.')->group(
 // Student routes (require authentication and parent role)
 Route::middleware(['auth', 'parent'])->prefix('student')->name('student.')->group(function () {
     Route::get('{student:slug}', [StudentDashboardController::class, 'index'])->name('dashboard');
-    Route::get('{student:slug}/sessions', [SessionController::class, 'index'])->name('student.sessions');
+    Route::get('{student:slug}/sessions', [SessionController::class, 'index'])->name('sessions');
 });
 
 // Legacy routes (for backward compatibility - redirect to appropriate parent/student routes)

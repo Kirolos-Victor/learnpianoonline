@@ -21,14 +21,27 @@ class SessionController extends Controller
         // Get selected month from request or default to current month
         $selectedMonth = $request->input('month', now()->format('Y-m'));
 
-        // Load student with instructor and sessions
-        $student->load(['instructor', 'studentSessions.instructor']);
+        // Load student with instructor, user (parent), and sessions
+        $student->load(['instructor', 'user', 'studentSessions.instructor']);
 
         // Get sessions data for this specific student
         $sessionsData = $this->getStudentSessionsData($student, $selectedMonth);
 
         return Inertia::render('student/Sessions', [
-            'student' => $student,
+            'student' => [
+                'id' => $student->id,
+                'name' => $student->name,
+                'slug' => $student->slug,
+                'sessions_remaining' => $student->sessions_remaining,
+                'is_subscribed' => $student->is_subscribed,
+                'instructor' => $student->instructor ? [
+                    'id' => $student->instructor->id,
+                    'name' => $student->instructor->name,
+                ] : null,
+                'parent_timezone' => $student->user->timezone ?? 'UTC',
+                'preferred_time' => $student->preferred_time ? $student->preferred_time->format('H:i') : null,
+                'day_of_week' => $student->day_of_week,
+            ],
             'sessions' => $sessionsData,
             'selectedMonth' => $selectedMonth,
             'availableMonths' => $this->getAvailableMonths($student),
@@ -44,6 +57,9 @@ class SessionController extends Controller
         $year = substr($month, 0, 4);
         $monthNum = substr($month, 5, 2);
 
+        // Get parent's timezone for conversion
+        $parentTimezone = $student->user->timezone ?? 'UTC';
+
         // Get sessions for this student in the specified month
         $sessions = StudentSession::where('student_id', $student->id)
             ->whereYear('scheduled_at', $year)
@@ -51,16 +67,38 @@ class SessionController extends Controller
             ->with(['instructor'])
             ->orderBy('scheduled_at')
             ->get()
-            ->map(function ($session, $index) {
+            ->map(function ($session, $index) use ($parentTimezone) {
+                // Convert scheduled time to parent's timezone
+                $scheduledInParentTimezone = $session->scheduled_at->setTimezone($parentTimezone);
+
+                // Convert completed time to parent's timezone if exists
+                $completedInParentTimezone = $session->completed_at
+                    ? $session->completed_at->setTimezone($parentTimezone)
+                    : null;
+
                 return [
                     'id' => $session->id,
                     'sessionNumber' => $index + 1, // Sequential session number for the month
-                    'instructor' => $session->instructor->name ?? 'Not assigned',
-                    'date' => $session->scheduled_at->format('F j, Y'),
-                    'time' => $session->scheduled_at->format('g:i A'),
+                    'instructor' => $session->instructor ? [
+                        'id' => $session->instructor->id,
+                        'name' => $session->instructor->name,
+                    ] : null,
+                    'scheduled_at' => $session->scheduled_at->toISOString(),
+                    'scheduled_date' => $scheduledInParentTimezone->format('F j, Y'),
+                    'scheduled_time' => $scheduledInParentTimezone->format('g:i A'),
+                    'scheduled_day' => $scheduledInParentTimezone->format('l'),
+                    'completed_at' => $completedInParentTimezone ? $completedInParentTimezone->toISOString() : null,
+                    'completed_date' => $completedInParentTimezone ? $completedInParentTimezone->format('F j, Y') : null,
+                    'completed_time' => $completedInParentTimezone ? $completedInParentTimezone->format('g:i A') : null,
                     'duration' => '60 min', // Assuming all sessions are 60 minutes
                     'status' => $session->status,
+                    'notes' => $session->notes,
+                    'screenshot_path' => $session->screenshot_path,
                     'type' => 'private', // Assuming all sessions are private
+                    'is_completed' => $session->status === 'completed',
+                    'is_pending' => $session->status === 'pending',
+                    'is_cancelled' => $session->status === 'cancelled',
+                    'is_missed' => $session->status === 'missed',
                 ];
             });
 

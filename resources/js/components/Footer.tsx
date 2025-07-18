@@ -27,7 +27,7 @@ const Footer = () => {
             if (isStudentPage()) {
                 return [
                     { name: 'student.dashboard', label: 'My Piano Home', icon: '🏠' },
-                    { name: 'student.lessons', label: 'Lessons', icon: '🎵' },
+                    { name: 'student.sessions', label: 'Sessions', icon: '🎵' },
                 ];
             }
             return [
@@ -105,10 +105,10 @@ const Footer = () => {
                                         const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
                                         return route('student.dashboard', { student: studentSlug });
                                     }
-                                    if (isStudentPage() && link.name === 'student.lessons') {
+                                    if (isStudentPage() && link.name === 'student.sessions') {
                                         // Get current student slug from URL
                                         const studentSlug = window.location.pathname.split('/student/')[1]?.split('/')[0];
-                                        return route('student.lessons', { student: studentSlug });
+                                        return route('student.sessions', { student: studentSlug });
                                     }
                                     return route(link.name);
                                 };

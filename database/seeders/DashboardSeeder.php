@@ -44,6 +44,8 @@ class DashboardSeeder extends Seeder
             'sessions_remaining' => 8,
             'subscription_expires_at' => Carbon::now()->addMonths(2),
             'instructor_id' => $instructor->id,
+            'day_of_week' => 'monday',
+            'preferred_time' => '14:00',
         ]);
 
         $student2 = Student::create([
@@ -54,6 +56,8 @@ class DashboardSeeder extends Seeder
             'has_piano' => false,
             'sessions_remaining' => 0,
             'instructor_id' => null,
+            'day_of_week' => 'tuesday',
+            'preferred_time' => '15:00',
         ]);
 
         $student3 = Student::create([
@@ -65,6 +69,8 @@ class DashboardSeeder extends Seeder
             'sessions_remaining' => 12,
             'subscription_expires_at' => Carbon::now()->addYear(),
             'instructor_id' => $instructor->id,
+            'day_of_week' => 'wednesday',
+            'preferred_time' => '16:00',
         ]);
 
         // Create sessions for subscribed students
