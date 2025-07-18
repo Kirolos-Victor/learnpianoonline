@@ -55,6 +55,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is a parent
+     */
+    public function isParent(): bool
+    {
+        return $this->role === 'parent';
+    }
+
+    /**
      * Check if user is an instructor
      */
     public function isInstructor(): bool

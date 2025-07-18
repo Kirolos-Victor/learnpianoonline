@@ -185,6 +185,9 @@ class StripeService
                                 'sessions_remaining' => $sessionsToAdd,
                             ]);
 
+                            // Create student sessions based on subscription type
+                            $this->createStudentSessions($student, $sessionsToAdd, $subscription->subscription_type);
+
                             // Attach student to subscription with timestamp
                             $subscription->students()->attach($studentId, ['created_at' => now()]);
 
@@ -215,6 +218,79 @@ class StripeService
             ]);
             throw $e;
         }
+    }
+
+    /**
+     * Create student sessions for a newly subscribed student
+     */
+    private function createStudentSessions(\App\Models\Student $student, int $sessionCount, string $subscriptionType): void
+    {
+        try {
+            $sessions = [];
+            $startDate = now()->addWeek(); // Start sessions one week from now
+
+            // Calculate session frequency based on subscription type
+            if ($subscriptionType === 'yearly') {
+                // 48 sessions per year = ~1 session per week
+                $intervalDays = 7;
+            } else {
+                // 4 sessions per month = ~1 session per week
+                $intervalDays = 7;
+            }
+
+            for ($i = 0; $i < $sessionCount; $i++) {
+                $scheduledAt = $startDate->copy()->addDays($i * $intervalDays);
+
+                // Schedule sessions on weekdays (Monday to Friday) between 9 AM and 6 PM
+                $scheduledAt = $this->adjustToWeekday($scheduledAt);
+
+                $sessions[] = [
+                    'student_id' => $student->id,
+                    'instructor_id' => null, // Will be assigned by admin later
+                    'scheduled_at' => $scheduledAt,
+                    'status' => 'pending',
+                    'notes' => 'Session created from subscription - instructor to be assigned',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            // Insert all sessions in batches
+            \App\Models\StudentSession::insert($sessions);
+
+            Log::info('Student sessions created', [
+                'student_id' => $student->id,
+                'student_name' => $student->name,
+                'session_count' => $sessionCount,
+                'subscription_type' => $subscriptionType,
+                'first_session_date' => $startDate->format('Y-m-d'),
+                'last_session_date' => $startDate->addDays(($sessionCount - 1) * $intervalDays)->format('Y-m-d'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to create student sessions', [
+                'student_id' => $student->id,
+                'session_count' => $sessionCount,
+                'subscription_type' => $subscriptionType,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Adjust date to fall on a weekday and within business hours
+     */
+    private function adjustToWeekday(\Carbon\Carbon $date): \Carbon\Carbon
+    {
+        // If it's weekend, move to next Monday
+        if ($date->isWeekend()) {
+            $date->next('Monday');
+        }
+
+        // Set time to a reasonable hour (2 PM as default)
+        $date->setTime(14, 0, 0);
+
+        return $date;
     }
 
     /**

@@ -102,17 +102,35 @@ class StudentSession extends Model
     }
 
     /**
+     * Check if session has an instructor assigned
+     */
+    public function hasInstructor(): bool
+    {
+        return !is_null($this->instructor_id);
+    }
+
+    /**
+     * Assign an instructor to this session
+     */
+    public function assignInstructor(int $instructorId): void
+    {
+        $this->update([
+            'instructor_id' => $instructorId,
+            'notes' => $this->notes ? $this->notes . ' - Instructor assigned' : 'Instructor assigned',
+        ]);
+    }
+
+    /**
      * Schedule a replacement session one week after the latest scheduled session
      */
     private function scheduleReplacementSession(): void
     {
-        if (!$this->student || !$this->instructor) {
+        if (!$this->student) {
             return;
         }
 
         // Find the latest scheduled session for this student
         $latestSession = StudentSession::where('student_id', $this->student->id)
-            ->where('instructor_id', $this->instructor_id)
             ->orderBy('scheduled_at', 'desc')
             ->first();
 
@@ -123,7 +141,7 @@ class StudentSession extends Model
 
         StudentSession::create([
             'student_id' => $this->student->id,
-            'instructor_id' => $this->instructor_id,
+            'instructor_id' => $this->instructor_id, // Can be null
             'scheduled_at' => $replacementDateTime,
             'status' => 'pending',
             'notes' => 'Replacement session for cancelled session on ' . $this->scheduled_at->format('Y-m-d'),
