@@ -15,9 +15,9 @@ interface Message {
     message: string;
     sender_name: string;
     receiver_name: string;
-    sender_type: 'user' | 'student';
+    sender_type: 'instructor' | 'user' | 'student';
     sender_id: number;
-    receiver_type: 'user' | 'student';
+    receiver_type: 'instructor' | 'user' | 'student';
     receiver_id: number;
     created_at: string;
 }
@@ -75,7 +75,7 @@ export function InstructorChatDashboard() {
                 selectedConversation &&
                 (e.newMessage.sender_id === selectedConversation.student.id || e.newMessage.receiver_id === selectedConversation.student.id)
             ) {
-                setMessages((prev) => [...prev, e.newMessage]);
+                setMessages((prev) => [...(prev || []), e.newMessage]);
             }
         });
     };
@@ -248,17 +248,12 @@ export function InstructorChatDashboard() {
                                     messages.map((message) => (
                                         <div
                                             key={message.id}
-                                            className={cn(
-                                                'flex',
-                                                message.sender_id === selectedConversation?.student.id ? 'justify-end' : 'justify-start',
-                                            )}
+                                            className={cn('flex', message.sender_type === 'instructor' ? 'justify-end' : 'justify-start')}
                                         >
                                             <div
                                                 className={cn(
                                                     'max-w-[70%] rounded-lg px-3 py-2 text-sm',
-                                                    message.sender_id === selectedConversation?.student.id
-                                                        ? 'bg-primary text-primary-foreground'
-                                                        : 'bg-muted',
+                                                    message.sender_type === 'instructor' ? 'bg-primary text-primary-foreground' : 'bg-muted',
                                                 )}
                                             >
                                                 <div className="mb-1 text-xs font-medium">{message.sender_name}</div>

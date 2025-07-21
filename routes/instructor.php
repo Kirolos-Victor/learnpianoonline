@@ -21,7 +21,7 @@ Route::group(['prefix' => 'instructor', 'middleware' => ['auth', 'instructor']],
 
 // Instructor chat routes
 Route::middleware(['auth', 'instructor'])->prefix('instructor/chat')->name('instructor.chat.')->group(function () {
-    Route::get('conversations', [App\Http\Controllers\Instructor\ChatController::class, 'conversations'])->name('conversations');
+    Route::get('conversations', [App\Http\Controllers\Instructor\ChatController::class, 'getConversations'])->name('conversations');
     Route::get('students/{studentId}/messages', [App\Http\Controllers\Instructor\ChatController::class, 'getMessages'])->name('messages');
     Route::post('students/{studentId}/messages', [App\Http\Controllers\Instructor\ChatController::class, 'sendMessage'])->name('send-message');
 });
