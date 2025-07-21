@@ -30,7 +30,7 @@ class RedirectBasedOnRole
                 return redirect()->route('admin.dashboard');
             } elseif ($role === 'instructor' && !str_starts_with($currentPath, 'instructor')) {
                 return redirect()->route('instructor.dashboard');
-            } elseif ($role === 'parent' && !str_starts_with($currentPath, 'parent') && !str_starts_with($currentPath, 'student')) {
+            } elseif ($role === 'parent' && !str_starts_with($currentPath, 'parent') && !str_starts_with($currentPath, 'student') && !str_starts_with($currentPath, 'chat')) {
                 return redirect()->route('parent.dashboard');
             }
         }

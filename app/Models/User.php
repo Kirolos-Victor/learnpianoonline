@@ -181,4 +181,32 @@ class User extends Authenticatable
 
         return implode(', ', $parts);
     }
+
+    /**
+     * Get messages sent by this user
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id')->where('sender_type', 'user');
+    }
+
+    /**
+     * Get messages received by this user
+     */
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id')->where('receiver_type', 'user');
+    }
+
+    /**
+     * Get all messages for this user (sent and received)
+     */
+    public function messages()
+    {
+        return Message::where(function ($query) {
+            $query->where('sender_type', 'user')->where('sender_id', $this->id);
+        })->orWhere(function ($query) {
+            $query->where('receiver_type', 'user')->where('receiver_id', $this->id);
+        })->orderBy('created_at', 'asc');
+    }
 }

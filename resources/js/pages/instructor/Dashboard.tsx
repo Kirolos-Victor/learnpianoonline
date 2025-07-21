@@ -7,8 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import InstructorLayout from '@/layouts/instructor-layout';
 import { cn } from '@/lib/utils';
-import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle, Ban, BookOpen, Calendar, CheckCircle, Clock, History, XCircle } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { AlertTriangle, Ban, BookOpen, Calendar, CheckCircle, Clock, History, MessageCircle, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface TodaysSession {
@@ -73,14 +73,17 @@ const InstructorDashboard = ({ todaysSessions, dashboardStats }: Props) => {
                     break;
             }
 
-            post(route(routeName, selectedSessionId), {
-                data: { notes },
-                onSuccess: () => {
-                    setIsDialogOpen(false);
-                    setSelectedSessionId(null);
-                    setNotes('');
+            router.post(
+                route(routeName, selectedSessionId),
+                { notes },
+                {
+                    onSuccess: () => {
+                        setIsDialogOpen(false);
+                        setSelectedSessionId(null);
+                        setNotes('');
+                    },
                 },
-            });
+            );
         }
     };
 
@@ -90,8 +93,22 @@ const InstructorDashboard = ({ todaysSessions, dashboardStats }: Props) => {
 
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                <p className="mt-2 text-gray-600">Overview of your students and today's lessons</p>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+                        <p className="mt-2 text-gray-600">Overview of your students and today's lessons</p>
+                    </div>
+                    <Link
+                        href={route('instructor.chat')}
+                        className={buttonVariants({
+                            variant: 'outline',
+                            size: 'sm',
+                        })}
+                    >
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                        Chat with Students
+                    </Link>
+                </div>
             </div>
 
             {/* Stats Overview */}

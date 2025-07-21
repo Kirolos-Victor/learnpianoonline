@@ -26,10 +26,14 @@ Route::get('contact', [ContactController::class, 'index'])->name('contact.index'
 // Payment routes
 Route::post('payment/webhook', [PaymentController::class, 'webhook'])->name('payment.webhook');
 
-// Test route for pricing calculation (remove in production)
-Route::get('test-pricing', function (App\Services\StripeService $stripeService) {
-    return response()->json($stripeService->testPricingCalculation());
+// Chat routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/chat/student/{studentSlug}/conversation', [App\Http\Controllers\Student\ChatController::class, 'getConversation'])->name('chat.student-conversation');
+    Route::get('/chat/student/{studentSlug}/messages', [App\Http\Controllers\Student\ChatController::class, 'getMessages'])->name('chat.student-messages');
+    Route::post('/chat/student/{studentSlug}/messages', [App\Http\Controllers\Student\ChatController::class, 'sendMessage'])->name('chat.student-send-message');
+    Route::get('/chat/conversations', [App\Http\Controllers\Student\ChatController::class, 'conversations'])->name('chat.conversations');
 });
+
 
 // Parent routes (require authentication and parent role)
 Route::middleware(['auth', 'parent'])->prefix('parent')->name('parent.')->group(function () {

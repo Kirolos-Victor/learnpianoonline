@@ -52,7 +52,7 @@ const StudentHome = () => {
     // If student is not subscribed, show subscription benefits
     if (!student.isSubscribed) {
         return (
-            <StudentLayout>
+            <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.isSubscribed}>
                 <div className="min-h-screen bg-background">
                     <Head title={`${student.name}'s Piano Journey`}></Head>
 
@@ -108,7 +108,7 @@ const StudentHome = () => {
 
     // If student is subscribed, show dashboard
     return (
-        <StudentLayout>
+        <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.isSubscribed}>
             <div className="min-h-screen bg-background">
                 <Head title={`${student.name}'s Piano Dashboard`}></Head>
 

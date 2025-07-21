@@ -147,4 +147,32 @@ class Student extends Model
     {
         return $this->belongsToMany(Subscription::class);
     }
+
+    /**
+     * Get messages sent by this student
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id')->where('sender_type', 'student');
+    }
+
+    /**
+     * Get messages received by this student
+     */
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id')->where('receiver_type', 'student');
+    }
+
+    /**
+     * Get all messages for this student (sent and received)
+     */
+    public function messages()
+    {
+        return Message::where(function ($query) {
+            $query->where('sender_type', 'student')->where('sender_id', $this->id);
+        })->orWhere(function ($query) {
+            $query->where('receiver_type', 'student')->where('receiver_id', $this->id);
+        })->orderBy('created_at', 'asc');
+    }
 }

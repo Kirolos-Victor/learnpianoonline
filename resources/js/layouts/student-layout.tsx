@@ -1,3 +1,4 @@
+import { ChatButton } from '@/components/ChatButton';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import { type BreadcrumbItem } from '@/types';
@@ -6,9 +7,11 @@ import { type ReactNode } from 'react';
 interface StudentLayoutProps {
     children: ReactNode;
     breadcrumbs?: BreadcrumbItem[];
+    currentStudentSlug?: string;
+    isSubscribed?: boolean;
 }
 
-export default ({ children, breadcrumbs }: StudentLayoutProps) => (
+export default ({ children, breadcrumbs, currentStudentSlug, isSubscribed = false }: StudentLayoutProps) => (
     <div className="flex min-h-screen flex-col">
         <Navbar></Navbar>
         <main className="flex-grow">
@@ -19,5 +22,6 @@ export default ({ children, breadcrumbs }: StudentLayoutProps) => (
             <div className="relative">{children}</div>
         </main>
         <Footer></Footer>
+        <ChatButton currentStudentSlug={currentStudentSlug} isSubscribed={isSubscribed} />
     </div>
 );

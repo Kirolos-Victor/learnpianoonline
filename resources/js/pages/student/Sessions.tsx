@@ -115,7 +115,7 @@ const Sessions = () => {
     // If student is not subscribed, show subscription prompt
     if (!student.is_subscribed) {
         return (
-            <StudentLayout>
+            <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.is_subscribed}>
                 <div className="min-h-screen bg-background">
                     <Head title={`${student.name}'s Sessions`} />
 
@@ -205,7 +205,7 @@ const Sessions = () => {
     // If student is subscribed but not assigned an instructor
     if (student.is_subscribed && !student.instructor) {
         return (
-            <StudentLayout>
+            <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.is_subscribed}>
                 <div className="min-h-screen bg-background">
                     <Head title={`${student.name}'s Sessions`} />
 
@@ -290,7 +290,7 @@ const Sessions = () => {
 
     // If student is subscribed and has an instructor, show sessions
     return (
-        <StudentLayout>
+        <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.is_subscribed}>
             <div className="min-h-screen bg-background">
                 <Head title={`${student.name}'s Sessions`} />
 

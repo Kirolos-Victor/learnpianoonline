@@ -1,0 +1,142 @@
+<?php
+
+namespace App\Http\Controllers\Instructor;
+
+use App\Events\MessageSent;
+use App\Http\Controllers\Controller;
+use App\Models\Message;
+use App\Models\Student;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+class ChatController extends Controller
+{
+    /**
+     * Get conversations for the instructor
+     */
+    public function getConversations(Request $request): JsonResponse
+    {
+        $instructor = $request->user();
+
+        // Get all students assigned to this instructor
+        $students = Student::where('instructor_id', $instructor->id)
+            ->with('user')
+            ->get();
+
+        $conversations = $students->map(function ($student) use ($instructor) {
+            // Get last message between instructor and student
+            $lastMessage = Message::betweenUserAndStudent($instructor->id, $student->id)
+                ->latest()
+                ->first();
+
+            return [
+                'student' => [
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'slug' => $student->slug,
+                ],
+                'parent' => [
+                    'id' => $student->user->id,
+                    'name' => $student->user->name,
+                ],
+                'last_message' => $lastMessage ? [
+                    'message' => $lastMessage->message,
+                    'sender_type' => $lastMessage->sender_type,
+                    'sender_id' => $lastMessage->sender_id,
+                    'created_at' => $lastMessage->created_at->toISOString(),
+                ] : null,
+                'last_message_at' => $lastMessage ? $lastMessage->created_at->toISOString() : null,
+            ];
+        })
+            ->sortByDesc('last_message_at')
+            ->values();
+
+        return response()->json($conversations);
+    }
+
+    /**
+     * Get messages between instructor and student
+     */
+    public function getMessages(Request $request, int $studentId): JsonResponse
+    {
+        $instructor = $request->user();
+
+        // Find the student and ensure they're assigned to this instructor
+        $student = Student::where('id', $studentId)
+            ->where('instructor_id', $instructor->id)
+            ->with('user')
+            ->first();
+
+        if (!$student) {
+            return response()->json(['error' => 'Student not found or not assigned to you'], 404);
+        }
+
+        // Get messages between instructor and student
+        $messages = Message::betweenUserAndStudent($instructor->id, $student->id)
+            ->with(['sender', 'receiver'])
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'sender_type' => $message->sender_type,
+                    'sender_id' => $message->sender_id,
+                    'receiver_type' => $message->receiver_type,
+                    'receiver_id' => $message->receiver_id,
+                    'sender_name' => $message->sender_name,
+                    'receiver_name' => $message->receiver_name,
+                    'message' => $message->message,
+                    'created_at' => $message->created_at->toISOString(),
+                ];
+            });
+
+        return response()->json([
+            'student' => [
+                'id' => $student->id,
+                'name' => $student->name,
+                'slug' => $student->slug,
+            ],
+            'parent' => [
+                'id' => $student->user->id,
+                'name' => $student->user->name,
+            ],
+            'messages' => $messages,
+        ]);
+    }
+
+    /**
+     * Send a message from instructor to student
+     */
+    public function sendMessage(Request $request, int $studentId): JsonResponse
+    {
+        $request->validate([
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $instructor = $request->user();
+
+        // Find the student and ensure they're assigned to this instructor
+        $student = Student::where('id', $studentId)
+            ->where('instructor_id', $instructor->id)
+            ->first();
+
+        if (!$student) {
+            return response()->json(['error' => 'Student not found or not assigned to you'], 404);
+        }
+
+        // Save message to DB
+        $message = Message::create([
+            'sender_type' => 'instructor',
+            'sender_id' => $instructor->id,
+            'receiver_type' => 'student',
+            'receiver_id' => $student->id,
+            'message' => $request->message,
+        ]);
+
+        // Fire the message event
+        broadcast(new MessageSent($message->load(['sender', 'receiver'])))->toOthers();
+
+        return response()->json(['status' => 'Message sent!']);
+    }
+}
