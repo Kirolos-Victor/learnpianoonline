@@ -15,8 +15,13 @@ class RedirectBasedOnRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Skip redirection for logout route and other auth routes
-        if ($request->routeIs('logout') || $request->routeIs('login') || $request->routeIs('register')) {
+        // Skip redirection for logout route, auth routes, and broadcasting auth
+        if (
+            $request->routeIs('logout') ||
+            $request->routeIs('login') ||
+            $request->routeIs('register') ||
+            $request->is('broadcasting/auth')
+        ) {
             return $next($request);
         }
 

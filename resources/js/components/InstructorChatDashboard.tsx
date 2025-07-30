@@ -64,20 +64,58 @@ export function InstructorChatDashboard() {
 
     const user = auth.user;
 
+    const scrollToBottom = () => {
+        const messagesContainer = document.querySelector('.messages-container');
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    };
+
     const connectWebSocket = () => {
         if (!user) return;
 
         // Listen to the instructor's private channel
         const channelName = `chat.${user.id}`;
-        window.Echo?.private(channelName).listen('MessageSent', (e: any) => {
-            // Only add message if it belongs to the selected conversation
-            if (
-                selectedConversation &&
-                (e.newMessage.sender_id === selectedConversation.student.id || e.newMessage.receiver_id === selectedConversation.student.id)
-            ) {
-                setMessages((prev) => [...(prev || []), e.newMessage]);
-            }
-        });
+        console.log('Connecting to WebSocket channel:', channelName);
+
+        // Disconnect from any existing channel first
+        try {
+            window.Echo?.leave(channelName);
+        } catch (e) {
+            console.log('No existing channel to leave');
+        }
+
+        // Connect to the channel
+        window.Echo?.private(channelName)
+            .listen('MessageSent', (e: any) => {
+                // Always add messages to currently selected conversation if it matches
+                // or if this message involves the current instructor
+                const isForInstructor =
+                    (e.newMessage.receiver_id === user.id && e.newMessage.receiver_type === 'user') ||
+                    (e.newMessage.sender_id === user.id && e.newMessage.sender_type === 'instructor');
+
+                const isForSelectedConversation =
+                    selectedConversation &&
+                    (e.newMessage.sender_id === selectedConversation.student.id || e.newMessage.receiver_id === selectedConversation.student.id);
+
+                if (isForInstructor || isForSelectedConversation) {
+                    setMessages((prev) => {
+                        // Check if message already exists to prevent duplicates
+                        const messageExists = prev.some((msg) => msg.id === e.newMessage.id);
+                        if (messageExists) {
+                            return prev;
+                        }
+                        return [...prev, e.newMessage];
+                    });
+                }
+
+                // Only update conversations list occasionally, not on every message
+                // getConversations(); // Removed to prevent excessive API calls
+                scrollToBottom(); // Scroll to bottom when a new message arrives
+            })
+            .error((error: any) => {
+                console.error('WebSocket connection error:', error);
+            });
     };
 
     const getMessages = async () => {
@@ -107,16 +145,33 @@ export function InstructorChatDashboard() {
     };
 
     const sendMessage = async () => {
-        if (!newMessage.trim() || !selectedConversation) return;
+        if (!newMessage.trim() || !selectedConversation || !user) return;
 
         try {
+            const message = newMessage.trim();
+            setNewMessage('');
+
+            // Add temporary message immediately
+            const tempMessage: Message = {
+                id: Date.now(),
+                message: message,
+                sender_name: user.name,
+                receiver_name: selectedConversation.student.name,
+                sender_type: 'instructor',
+                sender_id: user.id,
+                receiver_type: 'student',
+                receiver_id: selectedConversation.student.id,
+                created_at: new Date().toISOString(),
+            };
+            setMessages((prev) => [...(prev || []), tempMessage]);
+
             await axios.post(`/instructor/chat/students/${selectedConversation.student.id}/messages`, {
-                message: newMessage.trim(),
+                message: message,
             });
 
-            setNewMessage('');
-            await getMessages();
+            // Don't call getMessages() here - WebSocket will handle the update
         } catch (err: any) {
+            console.error('Error sending message:', err);
             // Handle error silently
         }
     };
@@ -138,21 +193,28 @@ export function InstructorChatDashboard() {
 
     useEffect(() => {
         getConversations();
+        connectWebSocket();
     }, []);
 
     useEffect(() => {
         if (selectedConversation) {
             getMessages();
-            connectWebSocket();
         }
+    }, [selectedConversation]);
 
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    useEffect(() => {
+        // Cleanup WebSocket connection when component unmounts
         return () => {
             if (user) {
                 const channelName = `chat.${user.id}`;
                 window.Echo?.leave(channelName);
             }
         };
-    }, [selectedConversation, user]);
+    }, [user]);
 
     const filteredConversations = conversations.filter((conv) => conv.student.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -235,7 +297,7 @@ export function InstructorChatDashboard() {
                     ) : (
                         <>
                             {/* Messages */}
-                            <div className="flex-1 space-y-2 overflow-y-auto p-4">
+                            <div className="messages-container flex-1 space-y-2 overflow-y-auto p-4">
                                 {loading ? (
                                     <div className="flex h-full items-center justify-center">
                                         <div className="text-muted-foreground">Loading...</div>

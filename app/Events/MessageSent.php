@@ -47,7 +47,7 @@ class MessageSent implements ShouldBroadcast
         $channels = [];
 
         // Add sender's channel
-        if ($this->message->sender_type === 'user') {
+        if ($this->message->sender_type === 'user' || $this->message->sender_type === 'instructor') {
             $channels[] = new PrivateChannel('chat.' . $this->message->sender_id);
         } elseif ($this->message->sender_type === 'student') {
             // For students, broadcast to their parent's channel

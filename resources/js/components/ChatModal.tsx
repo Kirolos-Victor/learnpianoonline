@@ -59,15 +59,59 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
     const connectWebSocket = () => {
         if (!user || !instructorId) return;
 
-        // Listen to the instructor's private channel
-        const channelName = `chat.${instructorId}`;
-        window.Echo?.private(channelName).listen('MessageSent', (e: any) => {
-            // Only add message if it belongs to this conversation (sender or receiver is current user)
-            if (e.newMessage.sender_id === user.id || e.newMessage.receiver_id === user.id) {
-                setMessages((prev) => [...(prev || []), e.newMessage]);
-                setTimeout(scrollToBottom, 0);
+        // Student needs to listen to TWO channels:
+        // 1. Instructor's channel (chat.{instructorId}) - for messages they send
+        // 2. Their parent's channel (chat.{user.id}) - for messages they receive
+
+        const instructorChannelName = `chat.${instructorId}`;
+        const parentChannelName = `chat.${user.id}`;
+
+        // Disconnect from any existing channels first
+        try {
+            window.Echo?.leave(instructorChannelName);
+            window.Echo?.leave(parentChannelName);
+        } catch (e) {
+            console.log('No existing channels to leave');
+        }
+
+        // Connect to instructor's channel
+        window.Echo?.private(instructorChannelName)
+            .listen('MessageSent', (e: any) => {
+                handleIncomingMessage(e);
+            })
+            .error((error: any) => {
+                console.error('Student WebSocket connection error (instructor channel):', error);
+            });
+
+        // Connect to parent's channel (for receiving messages)
+        window.Echo?.private(parentChannelName)
+            .listen('MessageSent', (e: any) => {
+                handleIncomingMessage(e);
+            })
+            .error((error: any) => {
+                console.error('Student WebSocket connection error (parent channel):', error);
+            });
+    };
+
+    const handleIncomingMessage = (e: any) => {
+        if (!user) return;
+
+        console.log('Current user.id:', user.id, 'Instructor ID:', instructorId);
+        console.log('Message sender_id:', e.newMessage.sender_id, 'sender_type:', e.newMessage.sender_type);
+        console.log('Message receiver_id:', e.newMessage.receiver_id, 'receiver_type:', e.newMessage.receiver_type);
+
+        // Always add the message - let's see what happens
+        setMessages((prev) => {
+            // Check if message already exists to prevent duplicates
+            const messageExists = prev.some((msg) => msg.id === e.newMessage.id);
+            if (messageExists) {
+                console.log('Message already exists, skipping');
+                return prev;
             }
+            console.log('Adding message to UI:', e.newMessage);
+            return [...prev, e.newMessage];
         });
+        setTimeout(scrollToBottom, 0);
     };
 
     const getConversation = async () => {
@@ -159,8 +203,9 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
         }
 
         return () => {
-            if (instructorId) {
+            if (instructorId && user) {
                 window.Echo?.leave(`chat.${instructorId}`);
+                window.Echo?.leave(`chat.${user.id}`);
             }
         };
     }, [instructorId, user]);
@@ -228,11 +273,11 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
                                         messages.map((message) => (
                                             <div
                                                 key={message.id}
-                                                className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+                                                className={`flex ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
                                             >
                                                 <div
                                                     className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
-                                                        message.sender_id === user.id
+                                                        message.sender_id === user?.id
                                                             ? 'bg-primary text-primary-foreground'
                                                             : 'bg-muted text-foreground'
                                                     }`}
