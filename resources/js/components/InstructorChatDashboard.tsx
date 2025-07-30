@@ -151,20 +151,7 @@ export function InstructorChatDashboard() {
             const message = newMessage.trim();
             setNewMessage('');
 
-            // Add temporary message immediately
-            const tempMessage: Message = {
-                id: Date.now(),
-                message: message,
-                sender_name: user.name,
-                receiver_name: selectedConversation.student.name,
-                sender_type: 'instructor',
-                sender_id: user.id,
-                receiver_type: 'student',
-                receiver_id: selectedConversation.student.id,
-                created_at: new Date().toISOString(),
-            };
-            setMessages((prev) => [...(prev || []), tempMessage]);
-
+            // Send to server - WebSocket will handle the real-time update
             await axios.post(`/instructor/chat/students/${selectedConversation.student.id}/messages`, {
                 message: message,
             });
@@ -307,23 +294,27 @@ export function InstructorChatDashboard() {
                                         <div className="text-muted-foreground">No messages yet</div>
                                     </div>
                                 ) : (
-                                    messages.map((message) => (
-                                        <div
-                                            key={message.id}
-                                            className={cn('flex', message.sender_type === 'instructor' ? 'justify-end' : 'justify-start')}
-                                        >
-                                            <div
-                                                className={cn(
-                                                    'max-w-[70%] rounded-lg px-3 py-2 text-sm',
-                                                    message.sender_type === 'instructor' ? 'bg-primary text-primary-foreground' : 'bg-muted',
-                                                )}
-                                            >
-                                                <div className="mb-1 text-xs font-medium">{message.sender_name}</div>
-                                                <div>{message.message}</div>
-                                                <div className="mt-1 text-xs opacity-70">{formatTime(message.created_at)}</div>
+                                    messages.map((message) => {
+                                        // Determine if this is the instructor's own message
+                                        const isInstructorMessage = message.sender_type === 'instructor';
+
+                                        return (
+                                            <div key={message.id} className={cn('flex', isInstructorMessage ? 'justify-end' : 'justify-start')}>
+                                                <div
+                                                    className={cn(
+                                                        'max-w-[70%] rounded-lg px-3 py-2 text-sm',
+                                                        isInstructorMessage ? 'bg-primary text-primary-foreground' : 'bg-muted',
+                                                    )}
+                                                >
+                                                    <div className="mb-1 text-xs font-medium">
+                                                        {isInstructorMessage ? 'You' : selectedConversation?.student.name || 'Student'}
+                                                    </div>
+                                                    <div>{message.message}</div>
+                                                    <div className="mt-1 text-xs opacity-70">{formatTime(message.created_at)}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 )}
                             </div>
 

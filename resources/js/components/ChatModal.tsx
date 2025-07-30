@@ -96,19 +96,13 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
     const handleIncomingMessage = (e: any) => {
         if (!user) return;
 
-        console.log('Current user.id:', user.id, 'Instructor ID:', instructorId);
-        console.log('Message sender_id:', e.newMessage.sender_id, 'sender_type:', e.newMessage.sender_type);
-        console.log('Message receiver_id:', e.newMessage.receiver_id, 'receiver_type:', e.newMessage.receiver_type);
-
-        // Always add the message - let's see what happens
+        // Always add the message - WebSocket handles real-time updates
         setMessages((prev) => {
             // Check if message already exists to prevent duplicates
             const messageExists = prev.some((msg) => msg.id === e.newMessage.id);
             if (messageExists) {
-                console.log('Message already exists, skipping');
                 return prev;
             }
-            console.log('Adding message to UI:', e.newMessage);
             return [...prev, e.newMessage];
         });
         setTimeout(scrollToBottom, 0);
@@ -162,21 +156,7 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
             const message = newMessage.trim();
             setNewMessage('');
 
-            // Add message to UI immediately
-            const tempMessage: Message = {
-                id: Date.now(),
-                message: message,
-                sender_name: user.name,
-                receiver_name: 'Instructor', // Will be updated from server response
-                sender_type: 'user',
-                sender_id: user.id,
-                receiver_type: 'user',
-                receiver_id: 0, // Will be updated from server response
-                created_at: new Date().toISOString(),
-            };
-            setMessages((prev) => [...(prev || []), tempMessage]);
-
-            // Send to server
+            // Send to server - WebSocket will handle the real-time update
             const response = await axios.post(`/chat/student/${currentStudentSlug}/messages`, { message });
         } catch (err: any) {
             setError('Failed to send message');
@@ -270,29 +250,30 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
                                             <p className="text-muted-foreground">No messages yet</p>
                                         </div>
                                     ) : (
-                                        messages.map((message) => (
-                                            <div
-                                                key={message.id}
-                                                className={`flex ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
-                                            >
-                                                <div
-                                                    className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
-                                                        message.sender_id === user?.id
-                                                            ? 'bg-primary text-primary-foreground'
-                                                            : 'bg-muted text-foreground'
-                                                    }`}
-                                                >
-                                                    <div className="mb-1 text-xs font-medium">{message.sender_name}</div>
-                                                    <div>{message.message}</div>
-                                                    <div className="mt-1 text-xs opacity-70">
-                                                        {new Date(message.created_at).toLocaleTimeString([], {
-                                                            hour: '2-digit',
-                                                            minute: '2-digit',
-                                                        })}
+                                        messages.map((message) => {
+                                            // Determine if this is the student's own message
+                                            // Student messages have sender_type: 'student' and match the current student
+                                            const isStudentMessage = message.sender_type === 'student';
+
+                                            return (
+                                                <div key={message.id} className={`flex ${isStudentMessage ? 'justify-end' : 'justify-start'}`}>
+                                                    <div
+                                                        className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                                                            isStudentMessage ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
+                                                        }`}
+                                                    >
+                                                        <div className="mb-1 text-xs font-medium">{isStudentMessage ? 'You' : 'Instructor'}</div>
+                                                        <div>{message.message}</div>
+                                                        <div className="mt-1 text-xs opacity-70">
+                                                            {new Date(message.created_at).toLocaleTimeString([], {
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                            })}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))
+                                            );
+                                        })
                                     )}
                                     <div ref={scrollRef} />
                                 </div>
