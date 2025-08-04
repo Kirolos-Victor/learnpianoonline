@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\DB;
 
 class StripeService
 {
+    /**
+     * Note: This service uses cumulative subscription management:
+     * - "Monthly" subscriptions = 30 days exactly
+     * - "Yearly" subscriptions = 360 days exactly (12 * 30)
+     * - Multiple subscriptions are cumulative (30 days + 30 days = 60 days total)
+     * - Always creates new subscription records for full billing history
+     * - Extends existing subscription time rather than replacing it
+     * This ensures consistent billing and complete transaction history.
+     */
+
     public function __construct()
     {
         Stripe::setApiKey(config('services.stripe.secret'));
@@ -65,14 +75,13 @@ class StripeService
     public function createCheckoutSession(User $user, array $studentIds, string $subscriptionType = 'monthly'): Session
     {
         try {
-            // Validate student ownership
+            // Validate student ownership (allow both subscribed and unsubscribed students)
             $validStudentIds = $user->students()
                 ->whereIn('id', $studentIds)
-                ->where('is_subscribed', false)
                 ->pluck('id')->toArray();
 
             if (count($validStudentIds) !== count($studentIds)) {
-                throw new \Exception('Invalid student selection or students already subscribed');
+                throw new \Exception('Invalid student selection or students do not belong to this user');
             }
 
             $studentCount = count($validStudentIds);
@@ -91,8 +100,8 @@ class StripeService
                 ]);
 
                 $planDescription = $subscriptionType === 'yearly'
-                    ? "Yearly subscription for {$studentCount} student(s) with progressive discounts"
-                    : "Monthly subscription for {$studentCount} student(s) with progressive discounts";
+                    ? "360-day subscription for {$studentCount} student(s) with progressive discounts"
+                    : "30-day subscription for {$studentCount} student(s) with progressive discounts";
 
                 $session = Session::create([
                     'payment_method_types' => ['card'],
@@ -175,14 +184,22 @@ class StripeService
                         $student = \App\Models\Student::find($studentId);
                         if ($student) {
                             $isYearly = $subscription->subscription_type === 'yearly';
-                            $subscriptionEndDate = $isYearly ? now()->addYear() : now()->addMonth();
+                            $daysToAdd = $isYearly ? 360 : 30;
                             $sessionsToAdd = $isYearly ? 48 : 4;
 
-                            // Update student subscription data
+                            // Calculate cumulative subscription end date
+                            $currentExpiration = $student->subscription_expires_at;
+                            $baseDate = $currentExpiration && $currentExpiration->isFuture()
+                                ? $currentExpiration
+                                : now();
+
+                            $newSubscriptionEndDate = $baseDate->copy()->addDays($daysToAdd);
+
+                            // Update student subscription data (cumulative)
                             $student->update([
                                 'is_subscribed' => true,
-                                'subscription_expires_at' => $subscriptionEndDate,
-                                'sessions_remaining' => $sessionsToAdd,
+                                'subscription_expires_at' => $newSubscriptionEndDate,
+                                'sessions_remaining' => $student->sessions_remaining + $sessionsToAdd,
                             ]);
 
                             // Create student sessions based on subscription type
@@ -191,12 +208,15 @@ class StripeService
                             // Attach student to subscription with timestamp
                             $subscription->students()->attach($studentId, ['created_at' => now()]);
 
-                            Log::info('Student subscription activated', [
+                            Log::info('Student subscription extended/activated', [
                                 'student_id' => $studentId,
                                 'student_name' => $student->name,
                                 'subscription_id' => $subscription->id,
                                 'sessions_added' => $sessionsToAdd,
-                                'expires_at' => $subscriptionEndDate,
+                                'total_sessions_remaining' => $student->sessions_remaining,
+                                'expires_at' => $newSubscriptionEndDate,
+                                'previous_expiration' => $currentExpiration?->format('Y-m-d H:i:s'),
+                                'is_extension' => $currentExpiration && $currentExpiration->isFuture(),
                             ]);
                         }
                     }
@@ -231,10 +251,10 @@ class StripeService
 
             // Calculate session frequency based on subscription type
             if ($subscriptionType === 'yearly') {
-                // 48 sessions per year = ~1 session per week
+                // 48 sessions per 360 days = ~1 session per week
                 $intervalDays = 7;
             } else {
-                // 4 sessions per month = ~1 session per week
+                // 4 sessions per 30 days = ~1 session per week
                 $intervalDays = 7;
             }
 

@@ -49,11 +49,25 @@ class StudentController extends Controller
         $availableDays = $this->getAvailableDays();
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|min:2',
             'age' => 'required|integer|min:5|max:100',
             'hasPiano' => 'required|boolean',
             'dayOfWeek' => 'required|string|in:' . implode(',', $availableDays),
             'preferredTime' => 'required|string',
+        ], [
+            'name.required' => 'Student name is required.',
+            'name.string' => 'Student name must be a valid text.',
+            'name.max' => 'Student name cannot exceed 255 characters.',
+            'name.min' => 'Student name must be at least 2 characters.',
+            'age.required' => 'Student age is required.',
+            'age.integer' => 'Student age must be a valid number.',
+            'age.min' => 'Student age must be at least 5 years old.',
+            'age.max' => 'Student age cannot exceed 100 years old.',
+            'hasPiano.required' => 'Piano access selection is required.',
+            'hasPiano.boolean' => 'Piano access must be yes or no.',
+            'dayOfWeek.required' => 'Preferred day selection is required.',
+            'dayOfWeek.in' => 'Please select a valid day from the available options.',
+            'preferredTime.required' => 'Preferred time selection is required.',
         ]);
 
         $student = Auth::user()->students()->create([
@@ -77,11 +91,25 @@ class StudentController extends Controller
         $availableDays = $this->getAvailableDays();
 
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|min:2',
             'age' => 'required|integer|min:5|max:100',
             'hasPiano' => 'required|boolean',
             'dayOfWeek' => 'required|string|in:' . implode(',', $availableDays),
             'preferredTime' => 'required|string',
+        ], [
+            'name.required' => 'Student name is required.',
+            'name.string' => 'Student name must be a valid text.',
+            'name.max' => 'Student name cannot exceed 255 characters.',
+            'name.min' => 'Student name must be at least 2 characters.',
+            'age.required' => 'Student age is required.',
+            'age.integer' => 'Student age must be a valid number.',
+            'age.min' => 'Student age must be at least 5 years old.',
+            'age.max' => 'Student age cannot exceed 100 years old.',
+            'hasPiano.required' => 'Piano access selection is required.',
+            'hasPiano.boolean' => 'Piano access must be yes or no.',
+            'dayOfWeek.required' => 'Preferred day selection is required.',
+            'dayOfWeek.in' => 'Please select a valid day from the available options.',
+            'preferredTime.required' => 'Preferred time selection is required.',
         ]);
 
         $student->update([

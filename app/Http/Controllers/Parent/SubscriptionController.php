@@ -26,11 +26,11 @@ class SubscriptionController extends Controller
         // Get all students for this user
         $allStudents = $user->students()->get();
 
-        // Separate unsubscribed and subscribed students
+        // Separate unsubscribed and subscribed students for display purposes
         $unsubscribedStudents = $allStudents->where('is_subscribed', false);
         $subscribedStudents = $allStudents->where('is_subscribed', true);
 
-        // Always show all unsubscribed students for bulk subscription capability
+        // Only show unsubscribed students for new subscriptions
         $availableStudents = $unsubscribedStudents;
         $isSingleStudent = false;
 
@@ -43,19 +43,17 @@ class SubscriptionController extends Controller
                 return redirect()->route('parent.students')->with('error', 'Student not found or access denied');
             }
 
-            if ($selectedStudent->is_subscribed) {
-                return redirect()->route('parent.students')->with('error', 'Student is already subscribed');
-            }
+            // Allow subscription extension - no need to check if already subscribed
         }
 
         // Handle multiple student selection (bulk)
         $selectedStudentSlugs = null;
         if ($studentSlugs) {
             $slugsArray = explode(',', $studentSlugs);
-            $selectedStudents = $allStudents->whereIn('slug', $slugsArray)->where('is_subscribed', false);
+            $selectedStudents = $allStudents->whereIn('slug', $slugsArray);
 
             if ($selectedStudents->isEmpty()) {
-                return redirect()->route('parent.students')->with('error', 'No valid unsubscribed students found');
+                return redirect()->route('parent.students')->with('error', 'No valid students found');
             }
 
             $selectedStudentSlugs = $studentSlugs; // Pass the original comma-separated string
@@ -112,6 +110,7 @@ class SubscriptionController extends Controller
                 return [
                     'id' => $student->id,
                     'name' => $student->name,
+                    'slug' => $student->slug,
                     'age' => $student->age,
                     'is_subscribed' => $student->is_subscribed,
                     'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),

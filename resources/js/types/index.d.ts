@@ -72,6 +72,7 @@ export interface SubscriptionPageProps {
     subscribedStudents?: Array<{
         id: number;
         name: string;
+        slug: string;
         age: number;
         is_subscribed: boolean;
         subscription_expires_at?: string;

@@ -104,31 +104,6 @@ export default function Students({ students, availableTimeSlots, availableDays }
         e.preventDefault();
 
         setErrors({});
-
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.name.trim()) {
-            newErrors.name = 'Student name is required';
-        }
-
-        const age = parseInt(formData.age);
-        if (!formData.age || isNaN(age) || age < 5 || age > 100) {
-            newErrors.age = 'Age must be between 5 and 100 years';
-        }
-
-        if (!formData.dayOfWeek) {
-            newErrors.dayOfWeek = 'Please select a preferred day';
-        }
-
-        if (!formData.preferredTime) {
-            newErrors.preferredTime = 'Please select a preferred time';
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
-
         setIsSubmitting(true);
 
         if (editingStudent) {
@@ -361,7 +336,6 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                                 type="text"
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                required
                                                 className="mt-1"
                                             />
                                             <InputError message={errors.name} />
@@ -375,7 +349,6 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                                 max="100"
                                                 value={formData.age}
                                                 onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                                                required
                                                 className="mt-1"
                                             />
                                             <InputError message={errors.age} />
@@ -534,22 +507,32 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                     </div>
 
                                     {student.isSubscribed && (
-                                        <div className="mt-1 flex items-center justify-between text-sm">
-                                            <span className="text-gray-500">Sessions:</span>
-                                            <span className="font-medium">{student.sessionsRemaining}</span>
-                                        </div>
+                                        <>
+                                            <div className="mt-1 flex items-center justify-between text-sm">
+                                                <span className="text-gray-500">Sessions:</span>
+                                                <span className="font-medium">{student.sessionsRemaining}</span>
+                                            </div>
+                                            {student.subscriptionEndDate && (
+                                                <div className="mt-1 flex items-center justify-between text-sm">
+                                                    <span className="text-gray-500">Expires:</span>
+                                                    <span className="font-medium text-blue-600">{student.subscriptionEndDate}</span>
+                                                </div>
+                                            )}
+                                        </>
                                     )}
 
-                                    {!student.isSubscribed && (
-                                        <div className="mt-3">
-                                            <Button
-                                                onClick={() => handleSingleSubscribe(student.slug)}
-                                                className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-                                            >
-                                                Subscribe Now
-                                            </Button>
-                                        </div>
-                                    )}
+                                    <div className="mt-3">
+                                        <Button
+                                            onClick={() => handleSingleSubscribe(student.slug)}
+                                            className={`inline-flex w-full items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+                                                student.isSubscribed
+                                                    ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                                                    : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+                                            }`}
+                                        >
+                                            {student.isSubscribed ? 'Extend Subscription' : 'Subscribe Now'}
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 {student.instructor && (

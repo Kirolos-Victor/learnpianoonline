@@ -102,6 +102,10 @@ class ChatController extends Controller
     {
         $request->validate([
             'message' => 'required|string|max:1000',
+        ], [
+            'message.required' => 'Message content is required.',
+            'message.string' => 'Message must be valid text.',
+            'message.max' => 'Message cannot exceed 1000 characters.',
         ]);
 
         // Find the student by slug

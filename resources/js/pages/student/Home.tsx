@@ -182,15 +182,15 @@ const StudentHome = () => {
 
                         {/* Instructor Assignment Notice */}
                         {!student.instructor && (
-                            <Card className="mb-6 bg-gradient-to-r from-fun-yellow to-fun-orange text-white">
+                            <Card className="mb-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg">
                                 <CardHeader>
-                                    <CardTitle className="font-fredoka text-2xl text-fun-yellow">🎹 Waiting for Your Instructor! 🌟</CardTitle>
-                                    <CardDescription className="text-white/80">
+                                    <CardTitle className="font-fredoka text-2xl text-white">🎹 Waiting for Your Instructor! 🌟</CardTitle>
+                                    <CardDescription className="text-blue-100">
                                         We're working on assigning you the perfect piano instructor!
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="font-comic text-fun-yellow/90">
+                                    <p className="font-comic text-white">
                                         Don't worry! We'll assign you an instructor soon and you'll be able to see your upcoming sessions here. Your
                                         parent will be notified once your instructor is assigned.
                                     </p>

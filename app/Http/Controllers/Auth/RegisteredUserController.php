@@ -36,7 +36,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Determine if state/province is required based on country
-        $stateRequired = LocationService::countryRequiresStateSelection($request->country);
+        $stateRequired = $request->country ? LocationService::countryRequiresStateSelection($request->country) : false;
 
         $request->validate([
             'name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s\-\'\.]+$/',

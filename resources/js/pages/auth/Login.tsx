@@ -138,7 +138,6 @@ const Login = () => {
                                     onChange={(e) => setData('email', e.target.value)}
                                     placeholder="Enter your email"
                                     className="border-warm-gray-300 focus:border-teal"
-                                    required
                                 />
                                 <InputError message={errors.email} />
                             </div>
@@ -153,7 +152,6 @@ const Login = () => {
                                     onChange={(e) => setData('password', e.target.value)}
                                     placeholder="Enter your password"
                                     className="border-warm-gray-300 focus:border-teal"
-                                    required
                                 />
                                 <InputError message={errors.password} />
                             </div>

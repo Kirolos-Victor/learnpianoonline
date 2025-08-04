@@ -28,7 +28,7 @@ const Contact = () => {
         },
         {
             question: 'What if I miss a lesson?',
-            answer: 'Missed lessons without 24-hour notice cannot be rescheduled, but you can use your remaining lessons in the month.',
+            answer: 'Missed lessons without 24-hour notice cannot be rescheduled, but you can use your remaining lessons in your current subscription period.',
         },
         {
             question: 'Can I switch instructors?',

@@ -27,11 +27,11 @@ class PaymentController extends Controller
         // Get all students for this user (not assigned students for instructors)
         $allStudents = $user->students()->get();
 
-        // Separate unsubscribed and subscribed students
+        // Separate unsubscribed and subscribed students for display purposes
         $unsubscribedStudents = $allStudents->where('is_subscribed', false);
         $subscribedStudents = $allStudents->where('is_subscribed', true);
 
-        // Always show all unsubscribed students for bulk subscription capability
+        // Only show unsubscribed students for new subscriptions
         $availableStudents = $unsubscribedStudents;
         $isSingleStudent = false;
 
@@ -44,9 +44,7 @@ class PaymentController extends Controller
                 return redirect()->route('parent.students')->with('error', 'Student not found or access denied');
             }
 
-            if ($selectedStudent->is_subscribed) {
-                return redirect()->route('parent.students')->with('error', 'Student is already subscribed');
-            }
+            // Allow subscription extension - no need to check if already subscribed
         }
 
         // Generate pricing data for all possible combinations (1 to 5 students)
@@ -74,12 +72,15 @@ class PaymentController extends Controller
                     'slug' => $student->slug,
                     'age' => $student->age,
                     'is_subscribed' => $student->is_subscribed,
+                    'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
+                    'sessions_remaining' => $student->sessions_remaining,
                 ];
             }),
             'subscribedStudents' => $subscribedStudents->map(function ($student) {
                 return [
                     'id' => $student->id,
                     'name' => $student->name,
+                    'slug' => $student->slug,
                     'age' => $student->age,
                     'is_subscribed' => $student->is_subscribed,
                     'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
@@ -100,6 +101,13 @@ class PaymentController extends Controller
             'student_ids' => 'required|array|min:1',
             'student_ids.*' => 'exists:students,id',
             'subscription_type' => 'required|string|in:monthly,yearly',
+        ], [
+            'student_ids.required' => 'Please select at least one student for subscription.',
+            'student_ids.array' => 'Invalid student selection format.',
+            'student_ids.min' => 'Please select at least one student.',
+            'student_ids.*.exists' => 'One or more selected students are invalid.',
+            'subscription_type.required' => 'Please select a subscription type.',
+            'subscription_type.in' => 'Please select either monthly or yearly subscription.',
         ]);
 
         $user = $request->user();

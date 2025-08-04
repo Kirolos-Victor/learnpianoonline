@@ -160,7 +160,6 @@ const Register = ({ countries, countriesRequiringState }: Props) => {
                                     onChange={(e) => setData('name', e.target.value)}
                                     placeholder="Enter your full name"
                                     className="border-warm-gray-300 focus:border-teal mt-1"
-                                    required
                                 />
                                 <InputError message={errors.name} className="mt-1" />
                             </div>
@@ -176,7 +175,6 @@ const Register = ({ countries, countriesRequiringState }: Props) => {
                                     onChange={(e) => setData('email', e.target.value)}
                                     placeholder="Enter your email"
                                     className="border-warm-gray-300 focus:border-teal mt-1"
-                                    required
                                 />
                                 <InputError message={errors.email} className="mt-1" />
                             </div>
@@ -193,7 +191,6 @@ const Register = ({ countries, countriesRequiringState }: Props) => {
                                         onChange={(e) => setData('password', e.target.value)}
                                         placeholder="Create a password"
                                         className="border-warm-gray-300 focus:border-teal mt-1"
-                                        required
                                     />
                                     <InputError message={errors.password} className="mt-1" />
                                 </div>
@@ -208,7 +205,6 @@ const Register = ({ countries, countriesRequiringState }: Props) => {
                                         onChange={(e) => setData('password_confirmation', e.target.value)}
                                         placeholder="Confirm password"
                                         className="border-warm-gray-300 focus:border-teal mt-1"
-                                        required
                                     />
                                     <InputError message={errors.password_confirmation} className="mt-1" />
                                 </div>

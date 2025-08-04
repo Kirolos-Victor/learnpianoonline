@@ -33,25 +33,28 @@ const Subscription = () => {
 
     // Pre-select student(s) if provided via URL parameters
     useEffect(() => {
+        // Combine both available and subscribed students for selection
+        const allStudents = [...(availableStudents || []), ...(subscribedStudents || [])];
+
         if (isSingleStudent && availableStudents.length > 0) {
             setSelectedStudents([availableStudents[0].id]);
-        } else if (selectedStudentSlug && availableStudents.length > 0) {
-            // Pre-select the specific student if selectedStudentSlug is provided
-            const studentExists = availableStudents.find((student) => student.slug === selectedStudentSlug);
+        } else if (selectedStudentSlug && allStudents.length > 0) {
+            // Pre-select the specific student if selectedStudentSlug is provided (could be from either section)
+            const studentExists = allStudents.find((student) => student.slug === selectedStudentSlug);
             if (studentExists) {
                 setSelectedStudents([studentExists.id]);
             }
-        } else if (selectedStudentSlugs && availableStudents.length > 0) {
+        } else if (selectedStudentSlugs && allStudents.length > 0) {
             // Pre-select multiple students if selectedStudentSlugs is provided (for bulk selection)
             const slugsArray = selectedStudentSlugs.split(',');
-            const studentIds = availableStudents.filter((student) => slugsArray.includes(student.slug)).map((student) => student.id);
+            const studentIds = allStudents.filter((student) => slugsArray.includes(student.slug)).map((student) => student.id);
             if (studentIds.length > 0) {
                 setSelectedStudents(studentIds);
             }
         } else {
             setSelectedStudents([]);
         }
-    }, [isSingleStudent, selectedStudentSlug, selectedStudentSlugs, availableStudents]);
+    }, [isSingleStudent, selectedStudentSlug, selectedStudentSlugs, availableStudents, subscribedStudents]);
 
     const handleStudentToggle = (studentId: number) => {
         if (isSingleStudent) {
@@ -105,7 +108,18 @@ const Subscription = () => {
     };
 
     const getSelectedPricing = () => {
-        return pricingData.find((pricing) => pricing.student_count === selectedStudents.length);
+        if (selectedStudents.length === 0) return null;
+
+        // Try to find exact match first
+        const exactMatch = pricingData.find((pricing) => pricing.student_count === selectedStudents.length);
+        if (exactMatch) return exactMatch;
+
+        // If no exact match, find the closest higher tier or use the highest available
+        const sortedPricing = [...pricingData].sort((a, b) => a.student_count - b.student_count);
+        const higherTier = sortedPricing.find((pricing) => pricing.student_count > selectedStudents.length);
+
+        // If we have a higher tier, use it; otherwise use the highest tier available
+        return higherTier || sortedPricing[sortedPricing.length - 1];
     };
 
     const selectedPricing = getSelectedPricing();
@@ -115,7 +129,22 @@ const Subscription = () => {
     };
 
     const getCurrentAmount = () => {
-        return selectedPlan === 'yearly' ? selectedPricing?.yearly_amount || 0 : selectedPricing?.monthly_amount || 0;
+        if (!selectedPricing || selectedStudents.length === 0) return 0;
+
+        // If we're using a higher tier than selected students, calculate manually
+        if (selectedPricing.student_count !== selectedStudents.length) {
+            const basePrice = getCurrentBasePrice();
+            if (selectedStudents.length === 1) {
+                return basePrice;
+            } else {
+                // First student pays full price, additional students get 10% discount
+                const additionalStudents = selectedStudents.length - 1;
+                const discountedPrice = basePrice * 0.9; // 10% discount
+                return basePrice + additionalStudents * discountedPrice;
+            }
+        }
+
+        return selectedPlan === 'yearly' ? selectedPricing.yearly_amount : selectedPricing.monthly_amount;
     };
 
     const getCurrentBasePrice = () => {
@@ -131,9 +160,22 @@ const Subscription = () => {
     };
 
     const calculateMonthlySavings = () => {
-        if (selectedPlan === 'monthly') return 0;
-        const monthlyTotal = selectedPricing?.monthly_amount || 0;
-        const yearlyTotal = selectedPricing?.yearly_amount || 0;
+        if (selectedPlan === 'monthly' || selectedStudents.length === 0) return 0;
+
+        // Calculate what the monthly equivalent would cost
+        const monthlyBasePrice = parseFloat(monthlySubscribePrice);
+        let monthlyTotal;
+
+        if (selectedStudents.length === 1) {
+            monthlyTotal = monthlyBasePrice;
+        } else {
+            // First student pays full price, additional students get 10% discount
+            const additionalStudents = selectedStudents.length - 1;
+            const discountedMonthlyPrice = monthlyBasePrice * 0.9;
+            monthlyTotal = monthlyBasePrice + additionalStudents * discountedMonthlyPrice;
+        }
+
+        const yearlyTotal = getCurrentAmount();
         const monthlyEquivalent = yearlyTotal / 12;
         return monthlyTotal - monthlyEquivalent;
     };
@@ -153,8 +195,8 @@ const Subscription = () => {
                                         : selectedStudentSlugs
                                           ? `Subscribe ${selectedStudentSlugs.split(',').length} selected students and get a `
                                           : 'Subscribe your students and get a '}
-                                    <span className="font-bold text-green-700">10% discount</span> for each additional student you add to your
-                                    subscription.
+                                    <span className="rounded-md bg-orange-200 px-2 py-1 text-lg font-bold text-orange-800">10% DISCOUNT</span> for
+                                    each additional student you add to your subscription.
                                 </p>
                             </div>
                             {(selectedStudentSlug || selectedStudentSlugs) && (
@@ -197,7 +239,7 @@ const Subscription = () => {
                                                 <div>
                                                     <h3 className="font-semibold">Monthly Plan</h3>
                                                     <p className="text-2xl font-bold text-primary">${monthlySubscribePrice}</p>
-                                                    <p className="text-sm text-muted-foreground">per student / month</p>
+                                                    <p className="text-sm text-muted-foreground">per student / 30 days</p>
                                                 </div>
                                                 <div
                                                     className={`h-4 w-4 rounded-full border-2 ${
@@ -226,7 +268,7 @@ const Subscription = () => {
                                                 <div>
                                                     <h3 className="font-semibold">Yearly Plan</h3>
                                                     <p className="text-2xl font-bold text-primary">${yearlySubscribePrice}</p>
-                                                    <p className="text-sm text-muted-foreground">per student / year</p>
+                                                    <p className="text-sm text-muted-foreground">per student / 360 days</p>
                                                     <p className="text-sm font-medium text-green-600">
                                                         ${(parseFloat(yearlySubscribePrice) / 12).toFixed(2)}/month
                                                     </p>
@@ -260,7 +302,9 @@ const Subscription = () => {
                                     <CardDescription>
                                         <span className="mb-2 block">
                                             Base price: <b>${getCurrentBasePrice()}</b> per student ({selectedPlan}). For every additional student,
-                                            you get a <b>10% discount</b> off their price.
+                                            you get a{' '}
+                                            <span className="rounded bg-orange-200 px-1 py-0.5 font-bold text-orange-800">10% DISCOUNT</span> off
+                                            their price.
                                         </span>
                                         <span className="block">
                                             Example: 2 students = ${getCurrentBasePrice()} + ${getCurrentBasePrice()} × 0.9
@@ -295,7 +339,9 @@ const Subscription = () => {
                                         {selectedPlan === 'yearly' && (
                                             <div className="flex items-center space-x-2">
                                                 <Check className="h-4 w-4" />
-                                                <span className="font-medium text-green-600">Save up to 2 months of lessons with yearly plan!</span>
+                                                <span className="font-medium text-green-600">
+                                                    Save up to 2 months worth of lessons with yearly plan!
+                                                </span>
                                             </div>
                                         )}
                                     </div>
@@ -309,7 +355,7 @@ const Subscription = () => {
                                     Select Students to Subscribe
                                 </h2>
                                 <p className="mb-4 text-muted-foreground">
-                                    Choose which students you want to subscribe. You can select multiple students for better discounts.
+                                    Choose which unsubscribed students you want to subscribe. Multiple students get better discounts.
                                 </p>
                                 <Card>
                                     <CardHeader>
@@ -354,41 +400,70 @@ const Subscription = () => {
                                 </Card>
                             </div>
 
-                            {/* Subscribed Students Section */}
+                            {/* Extend Subscriptions Section */}
                             {subscribedStudents && subscribedStudents.length > 0 && (
                                 <div>
                                     <h2 className="mb-2 flex items-center text-xl font-bold">
                                         <Check className="mr-2 h-5 w-5 text-green-600" />
-                                        Subscribed Students
+                                        Extend Subscriptions
                                     </h2>
-                                    <p className="mb-4 text-muted-foreground">Your currently subscribed students and their subscription details.</p>
+                                    <p className="mb-4 text-muted-foreground">
+                                        Select subscribed students to extend their subscription time and add more sessions.
+                                    </p>
                                     <Card>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center justify-between">
+                                                <div className="flex items-center">
+                                                    <span className="font-semibold">Subscribed Students</span>
+                                                </div>
+                                                {subscribedStudents.length > 1 && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            const subscribedIds = subscribedStudents.map((s) => s.id);
+                                                            const allSelected = subscribedIds.every((id) => selectedStudents.includes(id));
+                                                            if (allSelected) {
+                                                                setSelectedStudents((prev) => prev.filter((id) => !subscribedIds.includes(id)));
+                                                            } else {
+                                                                setSelectedStudents((prev) => [...new Set([...prev, ...subscribedIds])]);
+                                                            }
+                                                        }}
+                                                        className="text-sm"
+                                                    >
+                                                        <CheckSquare className="mr-1 h-4 w-4" />
+                                                        {subscribedStudents.every((s) => selectedStudents.includes(s.id))
+                                                            ? 'Deselect All'
+                                                            : 'Select All'}
+                                                    </Button>
+                                                )}
+                                            </CardTitle>
+                                        </CardHeader>
                                         <CardContent>
                                             <div className="space-y-3">
                                                 {subscribedStudents.map((student) => (
-                                                    <div
-                                                        key={student.id}
-                                                        className="flex items-center justify-between rounded-lg border bg-green-50 p-3"
-                                                    >
-                                                        <div className="flex items-center space-x-3">
-                                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                                                                <span className="font-semibold text-green-700">
-                                                                    {student.name.charAt(0).toUpperCase()}
-                                                                </span>
+                                                    <div key={student.id} className="flex items-center space-x-3 rounded-lg border p-3">
+                                                        <Checkbox
+                                                            id={`subscribed-student-${student.id}`}
+                                                            checked={selectedStudents.includes(student.id)}
+                                                            onCheckedChange={() => handleStudentToggle(student.id)}
+                                                        />
+                                                        <label htmlFor={`subscribed-student-${student.id}`} className="flex-1 cursor-pointer">
+                                                            <div className="flex items-center justify-between">
+                                                                <div>
+                                                                    <div className="font-medium">{student.name}</div>
+                                                                    <div className="text-sm text-muted-foreground">Age: {student.age}</div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <div className="text-xs font-medium text-green-600">
+                                                                        {student.sessions_remaining} sessions left
+                                                                    </div>
+                                                                    <div className="text-xs text-muted-foreground">
+                                                                        Expires: {student.subscription_expires_at || 'N/A'}
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <div className="font-medium">{student.name}</div>
-                                                                <div className="text-sm text-muted-foreground">Age: {student.age}</div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <div className="text-sm font-medium text-green-700">
-                                                                Expires: {student.subscription_expires_at || 'N/A'}
-                                                            </div>
-                                                            <div className="text-xs text-muted-foreground">
-                                                                {student.sessions_remaining} sessions remaining
-                                                            </div>
-                                                        </div>
+                                                        </label>
                                                     </div>
                                                 ))}
                                             </div>
@@ -399,23 +474,26 @@ const Subscription = () => {
 
                             {/* Discount Information */}
                             {!isSingleStudent && (
-                                <Card className="border-green-200 bg-green-50">
+                                <Card className="border-2 border-orange-300 bg-gradient-to-r from-orange-50 to-yellow-50 shadow-lg">
                                     <CardHeader>
-                                        <CardTitle className="text-green-800">How Discounts Work</CardTitle>
+                                        <CardTitle className="text-xl font-bold text-orange-800">💰 Save Money with Multiple Students!</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="space-y-2 text-sm text-green-700">
-                                            <div className="flex items-center space-x-2">
-                                                <Check className="h-4 w-4" />
-                                                <span>1st student: Full price (${getCurrentBasePrice()})</span>
+                                        <div className="space-y-3 text-base font-medium">
+                                            <div className="flex items-center space-x-3">
+                                                <Check className="h-5 w-5 text-green-600" />
+                                                <span className="text-gray-800">1st student: Full price (${getCurrentBasePrice()})</span>
                                             </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Check className="h-4 w-4" />
-                                                <span>Additional students: {discountPercentage}% discount each</span>
+                                            <div className="flex items-center space-x-3">
+                                                <Check className="h-5 w-5 text-green-600" />
+                                                <span className="text-gray-800">
+                                                    Additional students:{' '}
+                                                    <span className="text-xl font-bold text-orange-600">{discountPercentage}% OFF</span> each
+                                                </span>
                                             </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Check className="h-4 w-4" />
-                                                <span>Maximum 5 students per subscription</span>
+                                            <div className="flex items-center space-x-3">
+                                                <Check className="h-5 w-5 text-green-600" />
+                                                <span className="text-gray-800">Maximum 5 students per subscription</span>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -438,31 +516,34 @@ const Subscription = () => {
                                         </div>
                                         <div className="flex justify-between">
                                             <span>{selectedPlan === 'yearly' ? 'Yearly' : 'Monthly'} Price</span>
-                                            <span className="font-semibold">${getCurrentAmount()}</span>
+                                            <span className="font-semibold">${getCurrentAmount().toFixed(2)}</span>
                                         </div>
-                                        {selectedPlan === 'yearly' && (
+                                        {selectedPlan === 'yearly' && selectedStudents.length > 0 && (
                                             <div className="flex justify-between text-blue-600">
                                                 <span>Monthly Equivalent</span>
                                                 <span>${(getCurrentAmount() / 12).toFixed(2)}/month</span>
                                             </div>
                                         )}
-                                        {selectedPricing && selectedPricing.student_count > 1 && (
-                                            <div className="flex justify-between text-green-600">
-                                                <span>Multi-Student Discount</span>
-                                                <span>-${calculateDiscount().toFixed(2)}</span>
+                                        {selectedStudents.length > 1 && (
+                                            <div className="flex justify-between rounded-lg border border-orange-300 bg-orange-100 px-3 py-2">
+                                                <span className="font-semibold text-orange-800">🎉 Multi-Student Discount</span>
+                                                <span className="text-lg font-bold text-orange-800">-${calculateDiscount().toFixed(2)}</span>
                                             </div>
                                         )}
-                                        {selectedPlan === 'yearly' && (
-                                            <div className="flex justify-between text-green-600">
-                                                <span>Yearly Savings</span>
-                                                <span>Save ${calculateMonthlySavings().toFixed(2)}/month</span>
+                                        {selectedPlan === 'yearly' && selectedStudents.length > 0 && calculateMonthlySavings() > 0 && (
+                                            <div className="flex justify-between rounded-lg border border-green-300 bg-green-100 px-3 py-2">
+                                                <span className="font-semibold text-green-800">💵 Yearly Plan Savings</span>
+                                                <span className="text-lg font-bold text-green-800">
+                                                    Save ${calculateMonthlySavings().toFixed(2)}/month
+                                                </span>
                                             </div>
                                         )}
                                         <div className="border-t pt-4">
                                             <div className="flex justify-between font-semibold">
                                                 <span>Total</span>
                                                 <span>
-                                                    ${getCurrentAmount()}/{selectedPlan === 'yearly' ? 'year' : 'month'}
+                                                    ${getCurrentAmount().toFixed(2)}
+                                                    {selectedStudents.length > 0 ? `/${selectedPlan === 'yearly' ? 'year' : 'month'}` : ''}
                                                 </span>
                                             </div>
                                         </div>
@@ -487,7 +568,22 @@ const Subscription = () => {
                                         ) : (
                                             <>
                                                 <CreditCard className="mr-2 h-4 w-4" />
-                                                Subscribe Now
+                                                {(() => {
+                                                    const hasSubscribedStudents = selectedStudents.some((id) =>
+                                                        subscribedStudents?.find((s) => s.id === id),
+                                                    );
+                                                    const hasUnsubscribedStudents = selectedStudents.some((id) =>
+                                                        availableStudents.find((s) => s.id === id),
+                                                    );
+
+                                                    if (hasSubscribedStudents && hasUnsubscribedStudents) {
+                                                        return 'Subscribe & Extend';
+                                                    } else if (hasSubscribedStudents) {
+                                                        return 'Extend Subscriptions';
+                                                    } else {
+                                                        return 'Subscribe Now';
+                                                    }
+                                                })()}
                                             </>
                                         )}
                                     </Button>
