@@ -23,6 +23,19 @@ interface Student {
     day_of_week: string;
     preferred_time: string | null;
     user_timezone: string;
+    timezone_conversion?: {
+        student_original: {
+            day: string;
+            time: string;
+            timezone: string;
+        };
+        instructor_converted: {
+            day: string;
+            time: string;
+            timezone: string;
+            full_datetime: string;
+        };
+    };
 }
 
 interface InstructorOption {
@@ -237,6 +250,7 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
                                         <tr>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Schedule & Timezone</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Subscription</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sessions</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -252,16 +266,44 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
-                                                    <div>
-                                                        <span className="text-gray-700">{student.email}</span>
-                                                        <div className="mt-1 text-xs text-gray-500">
-                                                            <div className="flex items-center">
-                                                                <Calendar className="mr-1 h-3 w-3" />
-                                                                {student.day_of_week} at {student.preferred_time || 'No time set'}
+                                                    <span className="text-gray-700">{student.email}</span>
+                                                </td>
+                                                <td className="px-4 py-2 whitespace-nowrap">
+                                                    {student.timezone_conversion ? (
+                                                        <div className="space-y-0.5">
+                                                            {/* Student's Original Time */}
+                                                            <div className="flex items-center text-xs">
+                                                                <Calendar className="mr-1 h-3 w-3 text-blue-500" />
+                                                                <span className="text-blue-600">
+                                                                    📍 {student.timezone_conversion.student_original.day} at{' '}
+                                                                    {student.timezone_conversion.student_original.time}
+                                                                </span>
                                                             </div>
-                                                            <div className="text-xs text-gray-400">Timezone: {student.user_timezone}</div>
+
+                                                            {/* Converted Preferred Timezone */}
+                                                            <div className="flex items-center text-xs">
+                                                                <Calendar className="mr-1 h-3 w-3 text-green-500" />
+                                                                <span className="text-green-600">
+                                                                    🌍 {student.timezone_conversion.instructor_converted.full_datetime}
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Timezone Indicator */}
+                                                            <div className="text-xs text-gray-400">
+                                                                ↻ {student.user_timezone} →{' '}
+                                                                {student.timezone_conversion.instructor_converted.timezone}
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    ) : student.preferred_time ? (
+                                                        <div className="flex items-center text-xs">
+                                                            <Calendar className="mr-1 h-3 w-3" />
+                                                            <span>
+                                                                {student.day_of_week} at {student.preferred_time}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-gray-400">No time set</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
                                                     <div className="space-y-1">
@@ -379,27 +421,27 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
                                 <div className="rounded-md bg-blue-50 p-3">
                                     <h4 className="mb-2 font-medium text-blue-900">Schedule Information:</h4>
 
-                                    {/* Original Student Time */}
-                                    <div className="mb-3 rounded bg-blue-100 p-2">
-                                        <p className="text-sm text-blue-800">
-                                            <strong>Student's Original:</strong> {selectedStudent.day_of_week} at{' '}
-                                            {selectedStudent.preferred_time || 'No time set'}
-                                        </p>
-                                        <p className="text-xs text-blue-600">📍 Student Timezone: {selectedStudent.user_timezone}</p>
-                                    </div>
-
-                                    {/* Converted Instructor Time */}
+                                    {/* Converted to Preferred Timezone */}
                                     {timezoneInfo.studentPreferredConverted ? (
                                         <div className="mb-2 rounded bg-green-100 p-2">
                                             <p className="text-sm text-green-800">
-                                                <strong>Converted to Instructor Time:</strong> {timezoneInfo.studentPreferredConverted.full_datetime}
+                                                <strong>Converted to Preferred Timezone:</strong>{' '}
+                                                {timezoneInfo.studentPreferredConverted.full_datetime}
                                             </p>
-                                            <p className="text-xs text-green-600">🌍 Instructor Timezone: {timezoneInfo.instructorTimezone}</p>
+                                            <p className="text-xs text-green-600">🌍 Preferred Timezone: {timezoneInfo.instructorTimezone}</p>
                                             <p className="text-xs text-green-600">
                                                 ↻ Converted from {selectedStudent.user_timezone} to {timezoneInfo.instructorTimezone}
                                             </p>
                                         </div>
-                                    ) : null}
+                                    ) : (
+                                        <div className="mb-2 rounded bg-blue-100 p-2">
+                                            <p className="text-sm text-blue-800">
+                                                <strong>Student's Time:</strong> {selectedStudent.day_of_week} at{' '}
+                                                {selectedStudent.preferred_time || 'No time set'}
+                                            </p>
+                                            <p className="text-xs text-blue-600">📍 Student Timezone: {selectedStudent.user_timezone}</p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {availableInstructors.length === 0 && !loadingInstructors && (

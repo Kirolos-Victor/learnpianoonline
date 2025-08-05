@@ -249,6 +249,39 @@ class StudentController extends Controller
 
         // Transform the data
         $students->getCollection()->transform(function ($student) {
+            $instructorTimezone = config('app.preferred_timezone', 'UTC');
+            $studentTimezone = $student->user->timezone ?? 'UTC';
+
+            // Convert student's preferred time to instructor's timezone if available
+            $timezoneConversion = null;
+            if ($student->day_of_week && $student->preferred_time) {
+                try {
+                    $convertedDateTime = $this->convertStudentTimeToInstructorTime(
+                        $student->day_of_week,
+                        $student->preferred_time,
+                        $studentTimezone,
+                        $instructorTimezone
+                    );
+
+                    $timezoneConversion = [
+                        'student_original' => [
+                            'day' => $student->day_of_week,
+                            'time' => Carbon::parse($student->preferred_time)->format('g:i A'),
+                            'timezone' => $studentTimezone,
+                        ],
+                        'instructor_converted' => [
+                            'day' => strtolower($convertedDateTime->format('l')),
+                            'time' => $convertedDateTime->format('g:i A'),
+                            'timezone' => $instructorTimezone,
+                            'full_datetime' => $convertedDateTime->format('l \a\t g:i A T'),
+                        ],
+                    ];
+                } catch (\Exception $e) {
+                    // If conversion fails, just use original data
+                    $timezoneConversion = null;
+                }
+            }
+
             return [
                 'id' => $student->id,
                 'slug' => $student->slug,
@@ -260,7 +293,8 @@ class StudentController extends Controller
                 'created_at' => $student->created_at->format('M d, Y'),
                 'day_of_week' => $student->day_of_week,
                 'preferred_time' => $student->preferred_time ? Carbon::parse($student->preferred_time)->format('g:i A') : null,
-                'user_timezone' => $student->user->timezone ?? 'UTC',
+                'user_timezone' => $studentTimezone,
+                'timezone_conversion' => $timezoneConversion,
             ];
         });
 
