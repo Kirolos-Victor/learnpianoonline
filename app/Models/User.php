@@ -28,6 +28,7 @@ class User extends Authenticatable
         'state_province',
         'country',
         'timezone',
+        'availability',
     ];
 
     /**
@@ -51,6 +52,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'availability' => 'array',
         ];
     }
 

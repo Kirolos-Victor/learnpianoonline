@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TablePagination } from '@/components/ui/table-pagination';
 import AdminLayout from '@/layouts/admin-layout';
-import dayjs from '@/lib/dayjs';
 import { Head, Link, router } from '@inertiajs/react';
 import { Calendar, Edit, GraduationCap, Search, UserCheck, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -24,6 +23,21 @@ interface Student {
     instructor_id: string | null;
     instructor_name: string | null;
     preferred_time: string | null;
+    day_of_week: string;
+    user_timezone: string;
+    timezone_conversion?: {
+        student_original: {
+            day: string;
+            time: string;
+            timezone: string;
+        };
+        instructor_converted: {
+            day: string;
+            time: string;
+            timezone: string;
+            full_datetime: string;
+        };
+    };
     created_at: string;
 }
 
@@ -282,7 +296,7 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Subscription</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sessions</th>
-                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Preferred Time</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Schedule & Timezone</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Instructor</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                         </tr>
@@ -322,10 +336,35 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
-                                                    {student.preferred_time ? (
+                                                    {student.timezone_conversion ? (
+                                                        <div className="space-y-1">
+                                                            {/* Student's Original Time */}
+                                                            <div className="flex items-center text-xs">
+                                                                <Calendar className="mr-1 h-3 w-3 text-blue-500" />
+                                                                <span className="text-blue-700">
+                                                                    📍 {student.timezone_conversion.student_original.day} at{' '}
+                                                                    {student.timezone_conversion.student_original.time}
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Converted Instructor Time */}
+                                                            <div className="flex items-center text-xs">
+                                                                <Calendar className="mr-1 h-3 w-3 text-green-500" />
+                                                                <span className="text-green-700">
+                                                                    🌍 {student.timezone_conversion.instructor_converted.full_datetime}
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Timezone Indicator */}
+                                                            <div className="text-xs text-gray-500">
+                                                                ↻ {student.user_timezone} →{' '}
+                                                                {student.timezone_conversion.instructor_converted.timezone}
+                                                            </div>
+                                                        </div>
+                                                    ) : student.preferred_time ? (
                                                         <div className="flex items-center">
                                                             <Calendar className="mr-2 h-4 w-4 text-gray-500" />
-                                                            <span>{dayjs.utc(student.preferred_time, 'HH:mm').tz(timezone).format('hh:mm A')}</span>
+                                                            <span>{student.preferred_time}</span>
                                                         </div>
                                                     ) : (
                                                         <span className="text-gray-400">Not set</span>

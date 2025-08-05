@@ -43,6 +43,7 @@ class InstructorController extends Controller
                     'name' => $instructor->name,
                     'email' => $instructor->email,
                     'is_active' => $instructor->is_active,
+                    'availability' => $instructor->availability ?? [],
                     'created_at' => $instructor->created_at,
                 ];
             });
@@ -75,6 +76,14 @@ class InstructorController extends Controller
             return redirect()->back()->withErrors(['email' => 'This user is already an instructor.']);
         }
 
+        // Check if parent has students - prevent if they do
+        $studentsCount = $user->students()->count();
+        if ($studentsCount > 0) {
+            return redirect()->back()->withErrors([
+                'email' => "Cannot add {$user->name} as instructor because they currently have {$studentsCount} student" . ($studentsCount > 1 ? 's' : '') . ". Parents with active students cannot be converted to instructors.",
+            ]);
+        }
+
         // Update user role to instructor
         $user->update([
             'role' => 'instructor',
@@ -102,6 +111,22 @@ class InstructorController extends Controller
         $instructor->update(['is_active' => true]);
 
         return redirect()->back()->with('success', 'Instructor activated successfully.');
+    }
+
+    public function updateAvailability(Request $request, $id): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'availability' => 'required|array',
+            'availability.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+        ]);
+
+        $instructor = User::where('role', 'instructor')->findOrFail($id);
+
+        $instructor->update([
+            'availability' => $request->availability,
+        ]);
+
+        return redirect()->back()->with('success', 'Instructor availability updated successfully.');
     }
 
     public function viewStudents($id): \Inertia\Response

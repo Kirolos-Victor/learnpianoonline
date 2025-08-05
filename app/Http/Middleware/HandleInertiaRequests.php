@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
             'monthlySubscribePrice' => env('MONTHLY_SUBSCRIBE_PRICE', 29.99),
             'yearlySubscribePrice' => env('YEARLY_SUBSCRIBE_PRICE', 299.99),
             'discountPercentage' => env('DISCOUNT_PERCENTAGE', 10),
+            'supportEmail' => env('SUPPORT_EMAIL', 'support@learnpianoonline.com'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),

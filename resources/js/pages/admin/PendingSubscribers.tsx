@@ -20,11 +20,15 @@ interface Student {
     sessions_remaining: number;
     subscription_expires_at: string | null;
     created_at: string;
+    day_of_week: string;
+    preferred_time: string | null;
+    user_timezone: string;
 }
 
 interface InstructorOption {
     id: string;
     name: string;
+    availability?: string[];
 }
 
 interface PaginationData {
@@ -64,6 +68,23 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
     const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
     const [selectedInstructorId, setSelectedInstructorId] = useState<string>('');
     const [processing, setProcessing] = useState(false);
+    const [availableInstructors, setAvailableInstructors] = useState<InstructorOption[]>([]);
+    const [loadingInstructors, setLoadingInstructors] = useState(false);
+    const [timezoneInfo, setTimezoneInfo] = useState<{
+        convertedTime?: string;
+        instructorTimezoneDay?: string;
+        studentPreferredConverted?: {
+            day: string;
+            time: string;
+            full_datetime: string;
+        };
+        originalStudentTime?: {
+            day: string;
+            time: string;
+            timezone: string;
+        };
+        instructorTimezone?: string;
+    }>({});
 
     // Debounced search effect
     useEffect(() => {
@@ -91,10 +112,45 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
         );
     };
 
-    const handleOpenAssignDialog = (student: Student) => {
+    const handleOpenAssignDialog = async (student: Student) => {
         setSelectedStudent(student);
         setSelectedInstructorId('');
         setIsAssignDialogOpen(true);
+        setLoadingInstructors(true);
+
+        try {
+            const response = await fetch('/admin/pending-subscribers/available-instructors', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({
+                    student_slug: student.slug,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setAvailableInstructors(data.instructors || []);
+                setTimezoneInfo({
+                    convertedTime: data.converted_time,
+                    instructorTimezoneDay: data.instructor_timezone_day,
+                    studentPreferredConverted: data.student_preferred_converted,
+                    originalStudentTime: data.original_student_time,
+                    instructorTimezone: data.instructor_timezone,
+                });
+            } else {
+                console.error('Failed to fetch available instructors');
+                setAvailableInstructors([]);
+            }
+        } catch (error) {
+            console.error('Error fetching available instructors:', error);
+            setAvailableInstructors([]);
+        } finally {
+            setLoadingInstructors(false);
+        }
     };
 
     const handleAssignInstructor = () => {
@@ -196,7 +252,16 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
-                                                    <span className="text-gray-700">{student.email}</span>
+                                                    <div>
+                                                        <span className="text-gray-700">{student.email}</span>
+                                                        <div className="mt-1 text-xs text-gray-500">
+                                                            <div className="flex items-center">
+                                                                <Calendar className="mr-1 h-3 w-3" />
+                                                                {student.day_of_week} at {student.preferred_time || 'No time set'}
+                                                            </div>
+                                                            <div className="text-xs text-gray-400">Timezone: {student.user_timezone}</div>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
                                                     <div className="space-y-1">
@@ -275,29 +340,86 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
                                     <SelectValue placeholder="Choose an instructor" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {instructors.map((instructor) => (
-                                        <SelectItem key={instructor.id} value={instructor.id}>
-                                            {instructor.name}
-                                        </SelectItem>
-                                    ))}
+                                    {loadingInstructors ? (
+                                        <div className="p-2 text-center text-gray-500">Loading available instructors...</div>
+                                    ) : availableInstructors.length > 0 ? (
+                                        <>
+                                            {availableInstructors.map((instructor) => (
+                                                <SelectItem key={instructor.id} value={instructor.id}>
+                                                    {instructor.name}
+                                                </SelectItem>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <div className="p-2 text-center text-gray-500">
+                                            No instructors available for this student's preferred time slot
+                                        </div>
+                                    )}
                                 </SelectContent>
                             </Select>
                         </div>
                         {selectedStudent && (
-                            <div className="rounded-md bg-gray-50 p-3">
-                                <h4 className="mb-2 font-medium text-gray-900">Student Details:</h4>
-                                <p className="text-sm text-gray-600">
-                                    <strong>Name:</strong> {selectedStudent.name}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                    <strong>Email:</strong> {selectedStudent.email}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                    <strong>Sessions Remaining:</strong> {selectedStudent.sessions_remaining}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                    <strong>Subscription:</strong> Expires {selectedStudent.subscription_expires_at || 'Unknown'}
-                                </p>
+                            <div className="space-y-3">
+                                <div className="rounded-md bg-gray-50 p-3">
+                                    <h4 className="mb-2 font-medium text-gray-900">Student Details:</h4>
+                                    <p className="text-sm text-gray-600">
+                                        <strong>Name:</strong> {selectedStudent.name}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        <strong>Email:</strong> {selectedStudent.email}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        <strong>Sessions Remaining:</strong> {selectedStudent.sessions_remaining}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        <strong>Subscription:</strong> Expires {selectedStudent.subscription_expires_at || 'Unknown'}
+                                    </p>
+                                </div>
+
+                                <div className="rounded-md bg-blue-50 p-3">
+                                    <h4 className="mb-2 font-medium text-blue-900">Schedule Information:</h4>
+
+                                    {/* Original Student Time */}
+                                    <div className="mb-3 rounded bg-blue-100 p-2">
+                                        <p className="text-sm text-blue-800">
+                                            <strong>Student's Original:</strong> {selectedStudent.day_of_week} at{' '}
+                                            {selectedStudent.preferred_time || 'No time set'}
+                                        </p>
+                                        <p className="text-xs text-blue-600">📍 Student Timezone: {selectedStudent.user_timezone}</p>
+                                    </div>
+
+                                    {/* Converted Instructor Time */}
+                                    {timezoneInfo.studentPreferredConverted ? (
+                                        <div className="mb-2 rounded bg-green-100 p-2">
+                                            <p className="text-sm text-green-800">
+                                                <strong>Converted to Instructor Time:</strong> {timezoneInfo.studentPreferredConverted.full_datetime}
+                                            </p>
+                                            <p className="text-xs text-green-600">🌍 Instructor Timezone: {timezoneInfo.instructorTimezone}</p>
+                                            <p className="text-xs text-green-600">
+                                                ↻ Converted from {selectedStudent.user_timezone} to {timezoneInfo.instructorTimezone}
+                                            </p>
+                                        </div>
+                                    ) : null}
+                                </div>
+
+                                {availableInstructors.length === 0 && !loadingInstructors && (
+                                    <div className="rounded-md bg-yellow-50 p-3">
+                                        <p className="text-sm text-yellow-800">
+                                            <strong>Note:</strong> No instructors are available for this student's preferred time slot. This could be
+                                            because:
+                                        </p>
+                                        <ul className="mt-1 list-inside list-disc text-xs text-yellow-700">
+                                            <li>
+                                                No instructors work on {timezoneInfo.studentPreferredConverted?.day || selectedStudent.day_of_week}
+                                            </li>
+                                            <li>
+                                                All instructors have conflicts at{' '}
+                                                {timezoneInfo.studentPreferredConverted?.time || selectedStudent.preferred_time}
+                                            </li>
+                                            <li>Student has no preferred time set</li>
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -307,10 +429,10 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
                         </Button>
                         <Button
                             onClick={handleAssignInstructor}
-                            disabled={processing || !selectedInstructorId}
+                            disabled={processing || !selectedInstructorId || loadingInstructors}
                             className="bg-blue-600 hover:bg-blue-700"
                         >
-                            {processing ? 'Assigning...' : 'Assign Instructor'}
+                            {processing ? 'Assigning...' : loadingInstructors ? 'Loading...' : 'Assign Instructor'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

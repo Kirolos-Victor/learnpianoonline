@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import TablePagination, { PaginationData } from '@/components/ui/table-pagination';
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Search, Shield, UserCheck, UserPlus, Users, UserX } from 'lucide-react';
+import { Calendar, Search, Shield, UserCheck, UserPlus, Users, UserX } from 'lucide-react';
 import { useState } from 'react';
 
 interface Instructor {
@@ -16,6 +17,7 @@ interface Instructor {
     name: string;
     email: string;
     is_active: boolean;
+    availability: string[];
     created_at: string;
 }
 
@@ -31,9 +33,20 @@ interface Props {
 
 const AdminInstructors = ({ instructors, filters }: Props) => {
     const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+    const [isAvailabilityDialogOpen, setIsAvailabilityDialogOpen] = useState(false);
+    const [selectedInstructor, setSelectedInstructor] = useState<Instructor | null>(null);
 
     const { data, setData, post, patch, processing, errors } = useForm({
         email: '',
+    });
+
+    const {
+        data: availabilityData,
+        setData: setAvailabilityData,
+        patch: patchAvailability,
+        processing: availabilityProcessing,
+    } = useForm({
+        availability: [] as string[],
     });
 
     const { data: filterData, setData: setFilterData } = useForm({
@@ -133,6 +146,33 @@ const AdminInstructors = ({ instructors, filters }: Props) => {
                 },
             });
         }
+    };
+
+    const handleEditAvailability = (instructor: Instructor) => {
+        setSelectedInstructor(instructor);
+        setAvailabilityData('availability', instructor.availability || []);
+        setIsAvailabilityDialogOpen(true);
+    };
+
+    const handleUpdateAvailability = () => {
+        if (!selectedInstructor) return;
+
+        patchAvailability(`/admin/instructors/${selectedInstructor.id}/availability`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsAvailabilityDialogOpen(false);
+                setSelectedInstructor(null);
+                setAvailabilityData('availability', []);
+                // Force a page refresh to get updated data
+                window.location.reload();
+            },
+        });
+    };
+
+    const handleDayToggle = (day: string) => {
+        const currentDays = availabilityData.availability;
+        const updatedDays = currentDays.includes(day) ? currentDays.filter((d) => d !== day) : [...currentDays, day];
+        setAvailabilityData('availability', updatedDays);
     };
 
     const activeInstructors = instructors.data.filter((instructor) => instructor.is_active);
@@ -287,6 +327,19 @@ const AdminInstructors = ({ instructors, filters }: Props) => {
                                         <p className="font-medium text-gray-900">{instructor.name}</p>
                                         <p className="text-sm text-gray-600">{instructor.email}</p>
                                         <p className="text-xs text-gray-500">Joined: {new Date(instructor.created_at).toLocaleDateString()}</p>
+                                        <div className="mt-1 flex flex-wrap gap-1">
+                                            {instructor.availability && instructor.availability.length > 0 ? (
+                                                instructor.availability.map((day) => (
+                                                    <Badge key={day} variant="secondary" className="text-xs capitalize">
+                                                        {day.substring(0, 3)}
+                                                    </Badge>
+                                                ))
+                                            ) : (
+                                                <Badge variant="outline" className="text-xs">
+                                                    No availability set
+                                                </Badge>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-2">
@@ -295,6 +348,14 @@ const AdminInstructors = ({ instructors, filters }: Props) => {
                                             <Users className="h-4 w-4" />
                                         </Button>
                                     </Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleEditAvailability(instructor)}
+                                        className="text-blue-600 hover:text-blue-700"
+                                    >
+                                        <Calendar className="h-4 w-4" />
+                                    </Button>
                                     {instructor.is_active ? (
                                         <Button
                                             variant="outline"
@@ -325,6 +386,40 @@ const AdminInstructors = ({ instructors, filters }: Props) => {
             <div className="mt-6">
                 <TablePagination data={instructors} onPageChange={handlePageChange} onPerPageChange={handlePerPageChange} />
             </div>
+
+            {/* Availability Dialog */}
+            <Dialog open={isAvailabilityDialogOpen} onOpenChange={setIsAvailabilityDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Instructor Availability</DialogTitle>
+                        <DialogDescription>Select the days when {selectedInstructor?.name} is available to conduct lessons.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 gap-3">
+                            {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                                <div key={day} className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id={day}
+                                        checked={availabilityData.availability.includes(day)}
+                                        onCheckedChange={() => handleDayToggle(day)}
+                                    />
+                                    <Label htmlFor={day} className="cursor-pointer capitalize">
+                                        {day}
+                                    </Label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsAvailabilityDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleUpdateAvailability} disabled={availabilityProcessing}>
+                            {availabilityProcessing ? 'Updating...' : 'Update Availability'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AdminLayout>
     );
 };

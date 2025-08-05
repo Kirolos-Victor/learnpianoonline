@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use App\Models\StudentSession;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class StudentController extends Controller
 {
@@ -40,6 +42,39 @@ class StudentController extends Controller
 
         // Transform the data
         $students->getCollection()->transform(function ($student) {
+            $instructorTimezone = config('app.preferred_timezone', 'UTC');
+            $studentTimezone = $student->user->timezone ?? 'UTC';
+
+            // Convert student's preferred time to instructor's timezone if available
+            $timezoneConversion = null;
+            if ($student->day_of_week && $student->preferred_time) {
+                try {
+                    $convertedDateTime = $this->convertStudentTimeToInstructorTime(
+                        $student->day_of_week,
+                        $student->preferred_time,
+                        $studentTimezone,
+                        $instructorTimezone
+                    );
+
+                    $timezoneConversion = [
+                        'student_original' => [
+                            'day' => $student->day_of_week,
+                            'time' => Carbon::parse($student->preferred_time)->format('g:i A'),
+                            'timezone' => $studentTimezone,
+                        ],
+                        'instructor_converted' => [
+                            'day' => strtolower($convertedDateTime->format('l')),
+                            'time' => $convertedDateTime->format('g:i A'),
+                            'timezone' => $instructorTimezone,
+                            'full_datetime' => $convertedDateTime->format('l \a\t g:i A T'),
+                        ],
+                    ];
+                } catch (\Exception $e) {
+                    // If conversion fails, just use original data
+                    $timezoneConversion = null;
+                }
+            }
+
             return [
                 'id' => $student->id,
                 'slug' => $student->slug,
@@ -51,7 +86,10 @@ class StudentController extends Controller
                 'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
                 'instructor_id' => $student->instructor_id,
                 'instructor_name' => $student->instructor?->name,
-                'preferred_time' => $student->preferred_time?->format('H:i'),
+                'preferred_time' => $student->preferred_time ? Carbon::parse($student->preferred_time)->format('g:i A') : null,
+                'day_of_week' => $student->day_of_week,
+                'user_timezone' => $studentTimezone,
+                'timezone_conversion' => $timezoneConversion,
                 'created_at' => $student->created_at->format('M d, Y'),
             ];
         });
@@ -220,10 +258,16 @@ class StudentController extends Controller
                 'sessions_remaining' => $student->sessions_remaining,
                 'subscription_expires_at' => $student->subscription_expires_at?->format('M d, Y'),
                 'created_at' => $student->created_at->format('M d, Y'),
+                'day_of_week' => $student->day_of_week,
+                'preferred_time' => $student->preferred_time ? Carbon::parse($student->preferred_time)->format('g:i A') : null,
+                'user_timezone' => $student->user->timezone ?? 'UTC',
             ];
         });
 
-        $instructors = User::where('role', 'instructor')->where('is_active', true)->get(['id', 'name']);
+        // Get all instructors (filtering will be done on frontend when assigning)
+        $instructors = User::where('role', 'instructor')
+            ->where('is_active', true)
+            ->get(['id', 'name', 'availability']);
 
         return Inertia::render('admin/PendingSubscribers', [
             'students' => $students,
@@ -256,5 +300,125 @@ class StudentController extends Controller
         $student->update(['instructor_id' => $instructor->id]);
 
         return redirect()->back()->with('success', 'Instructor assigned successfully. Student has been moved to the main students list.');
+    }
+
+    /**
+     * Get available instructors for a specific student based on their preferred time and day
+     */
+    public function getAvailableInstructors(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'student_slug' => 'required|string',
+        ]);
+
+        $student = Student::with('user')->where('slug', $request->student_slug)->firstOrFail();
+
+        if (!$student->day_of_week || !$student->preferred_time) {
+            return response()->json([
+                'instructors' => [],
+                'message' => 'Student has no preferred day or time set.',
+            ]);
+        }
+
+        // Get instructor's timezone (from .env)
+        $instructorTimezone = config('app.preferred_timezone', 'UTC');
+        $studentTimezone = $student->user->timezone ?? 'UTC';
+
+        // Convert student's preferred time to instructor's timezone
+        $studentPreferredDateTime = $this->convertStudentTimeToInstructorTime(
+            $student->day_of_week,
+            $student->preferred_time,
+            $studentTimezone,
+            $instructorTimezone
+        );
+
+        // Get the day in instructor's timezone
+        $instructorTimezoneDay = strtolower($studentPreferredDateTime->format('l'));
+
+        // Get instructors available on that day
+        $availableInstructors = User::where('role', 'instructor')
+            ->where('is_active', true)
+            ->whereJsonContains('availability', $instructorTimezoneDay)
+            ->get(['id', 'name', 'availability']);
+
+        // Filter out instructors who have conflicts at that time
+        $filteredInstructors = $availableInstructors->filter(function ($instructor) use ($studentPreferredDateTime) {
+            return !$this->hasScheduleConflict($instructor->id, $studentPreferredDateTime);
+        });
+
+        return response()->json([
+            'instructors' => $filteredInstructors->values(),
+            'converted_time' => $studentPreferredDateTime->format('Y-m-d g:i A T'),
+            'instructor_timezone_day' => $instructorTimezoneDay,
+            'student_preferred_converted' => [
+                'day' => $instructorTimezoneDay,
+                'time' => $studentPreferredDateTime->format('g:i A'),
+                'full_datetime' => $studentPreferredDateTime->format('l \a\t g:i A T'),
+            ],
+            'original_student_time' => [
+                'day' => $student->day_of_week,
+                'time' => Carbon::parse($student->preferred_time)->format('g:i A'),
+                'timezone' => $studentTimezone,
+            ],
+            'instructor_timezone' => $instructorTimezone,
+        ]);
+    }
+
+    /**
+     * Convert student's preferred time to instructor's timezone
+     */
+    private function convertStudentTimeToInstructorTime(string $dayOfWeek, string $preferredTime, string $studentTimezone, string $instructorTimezone): Carbon
+    {
+        // Create a datetime for the next occurrence of the student's preferred day/time in their timezone
+        $now = Carbon::now($studentTimezone);
+        $daysOfWeek = [
+            'sunday' => 0,
+            'monday' => 1,
+            'tuesday' => 2,
+            'wednesday' => 3,
+            'thursday' => 4,
+            'friday' => 5,
+            'saturday' => 6,
+            'satureday' => 6  // Handle misspelled Saturday
+        ];
+
+        $targetDayNumber = $daysOfWeek[strtolower($dayOfWeek)];
+        $currentDayNumber = $now->dayOfWeek;
+
+        // Calculate days to add to get to the target day
+        $daysToAdd = ($targetDayNumber - $currentDayNumber + 7) % 7;
+        if ($daysToAdd === 0) {
+            $daysToAdd = 7; // If it's the same day, get next week's occurrence
+        }
+
+        // Handle time format - could be full datetime or just time
+        $timeString = $preferredTime;
+        if (strpos($preferredTime, ' ') !== false) {
+            // If it's a full datetime, extract just the time part
+            $timeString = Carbon::parse($preferredTime)->format('H:i:s');
+        }
+
+        // Create the student's preferred datetime in their timezone
+        $studentDateTime = $now->copy()
+            ->addDays($daysToAdd)
+            ->setTimeFromTimeString($timeString);
+
+        // Convert to instructor's timezone
+        return $studentDateTime->setTimezone($instructorTimezone);
+    }
+
+    /**
+     * Check if instructor has a schedule conflict at the given time
+     */
+    private function hasScheduleConflict(int $instructorId, Carbon $dateTime): bool
+    {
+        // Check for existing sessions within 1 hour of the proposed time
+        $startTime = $dateTime->copy()->subMinutes(30);
+        $endTime = $dateTime->copy()->addMinutes(30);
+
+        return StudentSession::where('instructor_id', $instructorId)
+            ->where('status', '!=', 'cancelled')
+            ->whereBetween('scheduled_at', [$startTime, $endTime])
+            ->exists();
     }
 }

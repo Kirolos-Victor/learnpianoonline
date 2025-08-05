@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('state_province')->nullable();
             $table->string('country')->nullable();
             $table->string('timezone')->nullable();
+            $table->json('availability')->nullable();
             $table->timestamps();
         });
 

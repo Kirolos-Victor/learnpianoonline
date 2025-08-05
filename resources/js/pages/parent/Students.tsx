@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { WarningAlert } from '@/components/ui/warning-alert';
 import ParentLayout from '@/layouts/parent-layout';
-import { Head, router } from '@inertiajs/react';
-import { AlertCircle, Calendar, Clock, Edit2, Piano, PlusCircle, Trash2, User, Users } from 'lucide-react';
+import type { SharedData } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
+import { AlertCircle, Calendar, Clock, Edit2, Info, Piano, PlusCircle, Trash2, User, Users } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 
 interface Student {
@@ -82,6 +84,7 @@ const parseAvailableDays = (days: string[] | string): string[] => {
 };
 
 export default function Students({ students, availableTimeSlots, availableDays }: Props) {
+    const { supportEmail } = usePage<SharedData>().props;
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingStudent, setEditingStudent] = useState<Student | null>(null);
     const [formData, setFormData] = useState({
@@ -93,6 +96,9 @@ export default function Students({ students, availableTimeSlots, availableDays }
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showDeleteWarning, setShowDeleteWarning] = useState(false);
+    const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const parsedAvailableDays = parseAvailableDays(availableDays);
 
@@ -107,6 +113,15 @@ export default function Students({ students, availableTimeSlots, availableDays }
         setIsSubmitting(true);
 
         if (editingStudent) {
+            // If student has an instructor, prevent any updates
+            if (editingStudent.instructor) {
+                setErrors({
+                    general: `You cannot change the student information now since they were assigned to an instructor. Our support team is ready to help! Please contact us at ${supportEmail} and we'll assist you with any changes you need.`,
+                });
+                setIsSubmitting(false);
+                return;
+            }
+
             router.put(`/parent/students/${editingStudent.slug}`, formData, {
                 preserveScroll: true,
                 onSuccess: () => {
@@ -211,9 +226,30 @@ export default function Students({ students, availableTimeSlots, availableDays }
     };
 
     const handleDelete = (student: Student) => {
-        if (confirm('Are you sure you want to delete this student?')) {
-            router.delete(`/parent/students/${student.slug}`);
-        }
+        setStudentToDelete(student);
+        setShowDeleteWarning(true);
+    };
+
+    const confirmDelete = () => {
+        if (!studentToDelete) return;
+
+        setIsDeleting(true);
+        router.delete(`/parent/students/${studentToDelete.slug}`, {
+            onSuccess: () => {
+                setShowDeleteWarning(false);
+                setStudentToDelete(null);
+                setIsDeleting(false);
+            },
+            onError: () => {
+                setIsDeleting(false);
+            },
+        });
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteWarning(false);
+        setStudentToDelete(null);
+        setIsDeleting(false);
     };
 
     const studentsWithoutAvailability = students.filter((s) => !s.dayOfWeek || !s.preferredTime);
@@ -312,12 +348,18 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                         <div className="flex items-center">
                                             <AlertCircle className="mr-2 h-5 w-5 text-red-600" />
                                             <div>
-                                                <h3 className="font-medium text-red-800">Please fix the following errors:</h3>
-                                                <ul className="mt-2 list-inside list-disc text-red-700">
-                                                    {Object.entries(errors).map(([field, message]) => (
-                                                        <li key={field}>{message}</li>
-                                                    ))}
-                                                </ul>
+                                                <h3 className="font-medium text-red-800">
+                                                    {errors.general ? 'Action Not Allowed' : 'Please fix the following errors:'}
+                                                </h3>
+                                                {errors.general ? (
+                                                    <p className="mt-1 text-red-700">{errors.general}</p>
+                                                ) : (
+                                                    <ul className="mt-2 list-inside list-disc text-red-700">
+                                                        {Object.entries(errors).map(([field, message]) => (
+                                                            <li key={field}>{message}</li>
+                                                        ))}
+                                                    </ul>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -336,7 +378,8 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                                 type="text"
                                                 value={formData.name}
                                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                className="mt-1"
+                                                className={`mt-1 ${editingStudent && editingStudent.instructor ? 'cursor-not-allowed bg-gray-100' : ''}`}
+                                                disabled={editingStudent && editingStudent.instructor ? true : false}
                                             />
                                             <InputError message={errors.name} />
                                         </div>
@@ -349,7 +392,8 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                                 max="100"
                                                 value={formData.age}
                                                 onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                                                className="mt-1"
+                                                className={`mt-1 ${editingStudent && editingStudent.instructor ? 'cursor-not-allowed bg-gray-100' : ''}`}
+                                                disabled={editingStudent && editingStudent.instructor ? true : false}
                                             />
                                             <InputError message={errors.age} />
                                         </div>
@@ -368,7 +412,8 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                                     id="hasPiano"
                                                     checked={formData.hasPiano}
                                                     onCheckedChange={(checked) => setFormData({ ...formData, hasPiano: checked as boolean })}
-                                                    className="h-5 w-5"
+                                                    className={`h-5 w-5 ${editingStudent && editingStudent.instructor ? 'cursor-not-allowed opacity-50' : ''}`}
+                                                    disabled={editingStudent && editingStudent.instructor ? true : false}
                                                 />
                                                 <div>
                                                     <Label htmlFor="hasPiano" className="cursor-pointer text-base font-medium text-gray-900">
@@ -389,14 +434,40 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                         <Calendar className="mr-2 h-5 w-5" />
                                         Lesson Availability *
                                     </h3>
+
+                                    {editingStudent && editingStudent.instructor ? (
+                                        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                                            <div className="flex items-start">
+                                                <Info className="mt-0.5 mr-2 h-5 w-5 flex-shrink-0 text-blue-600" />
+                                                <div>
+                                                    <h4 className="font-medium text-blue-800">Student Assigned to Instructor</h4>
+                                                    <p className="mt-1 text-sm text-blue-700">
+                                                        {editingStudent.name} has been assigned to instructor {editingStudent.instructor.name}.
+                                                        <strong>
+                                                            You cannot change the student information now since they were assigned to an instructor.
+                                                        </strong>
+                                                        Our dedicated support team is here to help! Please reach out to us at{' '}
+                                                        <a href={`mailto:${supportEmail}`} className="text-blue-800 underline hover:text-blue-900">
+                                                            {supportEmail}
+                                                        </a>{' '}
+                                                        and we'll assist you with any changes you need.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : null}
+
                                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                         <div>
                                             <Label htmlFor="dayOfWeek">Preferred Day *</Label>
                                             <Select
                                                 value={formData.dayOfWeek}
                                                 onValueChange={(value) => setFormData({ ...formData, dayOfWeek: value })}
+                                                disabled={editingStudent && editingStudent.instructor ? true : false}
                                             >
-                                                <SelectTrigger className="mt-1">
+                                                <SelectTrigger
+                                                    className={`mt-1 ${editingStudent && editingStudent.instructor ? 'cursor-not-allowed bg-gray-100' : ''}`}
+                                                >
                                                     <SelectValue placeholder="Select a day" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -414,8 +485,11 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                             <Select
                                                 value={formData.preferredTime}
                                                 onValueChange={(value) => setFormData({ ...formData, preferredTime: value })}
+                                                disabled={editingStudent && editingStudent.instructor ? true : false}
                                             >
-                                                <SelectTrigger className="mt-1">
+                                                <SelectTrigger
+                                                    className={`mt-1 ${editingStudent && editingStudent.instructor ? 'cursor-not-allowed bg-gray-100' : ''}`}
+                                                >
                                                     <SelectValue placeholder="Select a time" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -432,7 +506,11 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                 </div>
 
                                 <div className="flex gap-4">
-                                    <Button type="submit" className="bg-green-600 hover:bg-green-700" disabled={isSubmitting}>
+                                    <Button
+                                        type="submit"
+                                        className="bg-green-600 hover:bg-green-700"
+                                        disabled={isSubmitting || (editingStudent && editingStudent.instructor ? true : false)}
+                                    >
                                         {isSubmitting ? 'Saving...' : editingStudent ? 'Update Student' : 'Add Student'}
                                     </Button>
                                     <Button type="button" variant="outline" onClick={resetForm} disabled={isSubmitting}>
@@ -451,9 +529,21 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <CardTitle className="text-lg">{student.name}</CardTitle>
+                                        {student.instructor && (
+                                            <div className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                                                Instructor Assigned
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex gap-2">
-                                        <Button size="sm" variant="outline" onClick={() => handleEdit(student)}>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => handleEdit(student)}
+                                            disabled={student.instructor ? true : false}
+                                            className={student.instructor ? 'cursor-not-allowed opacity-50' : ''}
+                                            title={student.instructor ? 'Cannot edit - student assigned to instructor' : 'Edit student'}
+                                        >
                                             <Edit2 className="h-4 w-4" />
                                         </Button>
                                         <Button
@@ -536,9 +626,19 @@ export default function Students({ students, availableTimeSlots, availableDays }
                                 </div>
 
                                 {student.instructor && (
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <User className="mr-2 h-4 w-4" />
-                                        Instructor: {student.instructor.name}
+                                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+                                        <div className="flex items-start">
+                                            <User className="mt-0.5 mr-2 h-4 w-4 flex-shrink-0 text-blue-600" />
+                                            <div>
+                                                <div className="text-sm font-medium text-blue-800">Assigned to: {student.instructor.name}</div>
+                                                <div className="mt-1 text-xs text-blue-700">
+                                                    Cannot change info now - assigned to instructor. Need changes? Contact support at{' '}
+                                                    <a href={`mailto:${supportEmail}`} className="text-blue-800 underline hover:text-blue-900">
+                                                        {supportEmail}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </CardContent>
@@ -558,6 +658,21 @@ export default function Students({ students, availableTimeSlots, availableDays }
                     </div>
                 )}
             </div>
+
+            <WarningAlert
+                isOpen={showDeleteWarning}
+                onClose={cancelDelete}
+                onConfirm={confirmDelete}
+                title="Delete Student"
+                description={
+                    studentToDelete?.isSubscribed
+                        ? `If you delete ${studentToDelete?.name}, you won't be able to recover their subscription. This action cannot be undone and any remaining sessions will be lost.`
+                        : `Are you sure you want to delete ${studentToDelete?.name}? This action cannot be undone.`
+                }
+                confirmText="Yes, Delete Student"
+                cancelText="Cancel"
+                isLoading={isDeleting}
+            />
         </ParentLayout>
     );
 }
