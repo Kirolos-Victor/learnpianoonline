@@ -417,7 +417,7 @@ class StudentController extends Controller
         $endTime = $dateTime->copy()->addMinutes(30);
 
         return StudentSession::where('instructor_id', $instructorId)
-            ->where('status', '!=', 'cancelled')
+            ->where('status', '=', 'pending')
             ->whereBetween('scheduled_at', [$startTime, $endTime])
             ->exists();
     }
