@@ -10,7 +10,7 @@
 .env
 .env.backup
 .env.production
-!.env.example
+.env.example
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
@@ -23,3 +23,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Ignore database seeders
+/database/seeders/*.php
