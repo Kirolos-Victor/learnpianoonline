@@ -256,7 +256,29 @@ export default function Students({ students, availableTimeSlots, availableDays }
 
     return (
         <ParentLayout>
-            <Head title="Students" />
+            <Head>
+                <title>Manage Students - Learn Piano Online</title>
+                <meta
+                    name="description"
+                    content="Manage your children's piano learning profiles. Add students, update preferences, and oversee their musical education journey with our online piano lessons."
+                />
+                <meta
+                    name="keywords"
+                    content="manage students, piano students, online piano lessons, music education, piano learning, student profiles, virtual piano lessons"
+                />
+                <meta property="og:title" content="Manage Students - Learn Piano Online" />
+                <meta
+                    property="og:description"
+                    content="Manage your children's piano learning profiles. Add students, update preferences, and oversee their musical education journey."
+                />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content="Manage Students - Learn Piano Online" />
+                <meta
+                    name="twitter:description"
+                    content="Manage your children's piano learning profiles. Add students, update preferences, and oversee their musical education journey."
+                />
+            </Head>
 
             <div className="mx-auto max-w-7xl p-6">
                 <div className="mb-6">

@@ -117,7 +117,43 @@ const Sessions = () => {
         return (
             <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.is_subscribed}>
                 <div className="min-h-screen bg-background">
-                    <Head title={`${student.name}'s Sessions`} />
+                    <Head>
+                        <title>
+                            {student.is_subscribed ? `${student.name}'s Piano Sessions` : `${student.name}'s Piano Sessions`} - Learn Piano Online
+                        </title>
+                        <meta
+                            name="description"
+                            content={
+                                student.is_subscribed
+                                    ? `Track ${student.name}'s piano learning progress! View session history, upcoming lessons, and achievements. ${student.sessions_remaining} sessions remaining.`
+                                    : `Subscribe to access ${student.name}'s piano sessions! View lesson history, track progress, and manage your musical journey.`
+                            }
+                        />
+                        <meta
+                            name="keywords"
+                            content={`piano sessions, ${student.name}, piano lessons, session history, piano progress, online piano lessons, music education`}
+                        />
+                        <meta property="og:title" content={`${student.name}'s Piano Sessions - Learn Piano Online`} />
+                        <meta
+                            property="og:description"
+                            content={
+                                student.is_subscribed
+                                    ? `Track ${student.name}'s piano learning progress! View session history and upcoming lessons.`
+                                    : `Subscribe to access ${student.name}'s piano sessions and track your musical progress.`
+                            }
+                        />
+                        <meta property="og:type" content="website" />
+                        <meta name="twitter:card" content="summary" />
+                        <meta name="twitter:title" content={`${student.name}'s Piano Sessions - Learn Piano Online`} />
+                        <meta
+                            name="twitter:description"
+                            content={
+                                student.is_subscribed
+                                    ? `Track ${student.name}'s piano learning progress! View session history and upcoming lessons.`
+                                    : `Subscribe to access ${student.name}'s piano sessions and track your musical progress.`
+                            }
+                        />
+                    </Head>
 
                     {/* Header */}
                     <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
@@ -207,7 +243,43 @@ const Sessions = () => {
         return (
             <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.is_subscribed}>
                 <div className="min-h-screen bg-background">
-                    <Head title={`${student.name}'s Sessions`} />
+                    <Head>
+                        <title>
+                            {student.is_subscribed ? `${student.name}'s Piano Sessions` : `${student.name}'s Piano Sessions`} - Learn Piano Online
+                        </title>
+                        <meta
+                            name="description"
+                            content={
+                                student.is_subscribed
+                                    ? `Track ${student.name}'s piano learning progress! View session history, upcoming lessons, and achievements. ${student.sessions_remaining} sessions remaining.`
+                                    : `Subscribe to access ${student.name}'s piano sessions! View lesson history, track progress, and manage your musical journey.`
+                            }
+                        />
+                        <meta
+                            name="keywords"
+                            content={`piano sessions, ${student.name}, piano lessons, session history, piano progress, online piano lessons, music education`}
+                        />
+                        <meta property="og:title" content={`${student.name}'s Piano Sessions - Learn Piano Online`} />
+                        <meta
+                            property="og:description"
+                            content={
+                                student.is_subscribed
+                                    ? `Track ${student.name}'s piano learning progress! View session history and upcoming lessons.`
+                                    : `Subscribe to access ${student.name}'s piano sessions and track your musical progress.`
+                            }
+                        />
+                        <meta property="og:type" content="website" />
+                        <meta name="twitter:card" content="summary" />
+                        <meta name="twitter:title" content={`${student.name}'s Piano Sessions - Learn Piano Online`} />
+                        <meta
+                            name="twitter:description"
+                            content={
+                                student.is_subscribed
+                                    ? `Track ${student.name}'s piano learning progress! View session history and upcoming lessons.`
+                                    : `Subscribe to access ${student.name}'s piano sessions and track your musical progress.`
+                            }
+                        />
+                    </Head>
 
                     {/* Header */}
                     <section className="bg-rainbow-gradient relative overflow-hidden py-16 text-white">
@@ -292,7 +364,43 @@ const Sessions = () => {
     return (
         <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.is_subscribed}>
             <div className="min-h-screen bg-background">
-                <Head title={`${student.name}'s Sessions`} />
+                <Head>
+                    <title>
+                        {student.is_subscribed ? `${student.name}'s Piano Sessions` : `${student.name}'s Piano Sessions`} - Learn Piano Online
+                    </title>
+                    <meta
+                        name="description"
+                        content={
+                            student.is_subscribed
+                                ? `Track ${student.name}'s piano learning progress! View session history, upcoming lessons, and achievements. ${student.sessions_remaining} sessions remaining.`
+                                : `Subscribe to access ${student.name}'s piano sessions! View lesson history, track progress, and manage your musical journey.`
+                        }
+                    />
+                    <meta
+                        name="keywords"
+                        content={`piano sessions, ${student.name}, piano lessons, session history, piano progress, online piano lessons, music education`}
+                    />
+                    <meta property="og:title" content={`${student.name}'s Piano Sessions - Learn Piano Online`} />
+                    <meta
+                        property="og:description"
+                        content={
+                            student.is_subscribed
+                                ? `Track ${student.name}'s piano learning progress! View session history and upcoming lessons.`
+                                : `Subscribe to access ${student.name}'s piano sessions and track your musical progress.`
+                        }
+                    />
+                    <meta property="og:type" content="website" />
+                    <meta name="twitter:card" content="summary" />
+                    <meta name="twitter:title" content={`${student.name}'s Piano Sessions - Learn Piano Online`} />
+                    <meta
+                        name="twitter:description"
+                        content={
+                            student.is_subscribed
+                                ? `Track ${student.name}'s piano learning progress! View session history and upcoming lessons.`
+                                : `Subscribe to access ${student.name}'s piano sessions and track your musical progress.`
+                        }
+                    />
+                </Head>
 
                 {/* Header */}
                 <section className="bg-rainbow-gradient relative overflow-hidden py-16 text-white">

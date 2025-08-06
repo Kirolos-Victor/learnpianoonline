@@ -4,7 +4,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { Heart, Music, Star } from 'lucide-react';
 
 const Footer = () => {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, supportEmail, supportPhone } = usePage<SharedData>().props;
 
     // Check if we're on a student page
     const isStudentPage = () => {
@@ -134,9 +134,9 @@ const Footer = () => {
                             Contact Us
                         </h3>
                         <ul className="space-y-3 text-white/90">
-                            <li className="font-comic text-lg">📧 hello@mypianoclass.net</li>
-                            <li className="font-comic text-lg">📞 1-800-PIANO-FUN</li>
-                            <li className="font-comic text-sm text-white/70">Available Mon-Fri 9AM-6PM</li>
+                            <li className="font-comic text-lg">📧 {supportEmail}</li>
+                            <li className="font-comic text-lg">📞 {supportPhone}</li>
+                            <li className="font-comic text-sm text-white/70">Response within 48 hours</li>
                             <li className="font-comic text-sm text-white/70">🌟 We love helping young musicians!</li>
                         </ul>
                     </div>

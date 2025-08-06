@@ -29,6 +29,7 @@ export interface SharedData {
     yearlySubscribePrice: string;
     discountPercentage: number;
     supportEmail: string;
+    supportPhone: string;
     quote: { message: string; author: string };
     auth: Auth;
     ziggy: Config & { location: string };

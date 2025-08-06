@@ -95,7 +95,7 @@ const PaymentFailed = () => {
                                             <RefreshCw className="mr-2 h-4 w-4" />
                                             Try Again
                                         </Button>
-                                        <Button variant="outline" onClick={() => router.visit('/parent/contact')} className="flex-1">
+                                        <Button variant="outline" onClick={() => router.visit(route('parent.contact'))} className="flex-1">
                                             Contact Support
                                         </Button>
                                     </div>

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import ParentLayout from '@/layouts/parent-layout';
 import { SharedData, SubscriptionPageProps } from '@/types';
-import { router, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { AlertCircle, ArrowLeft, Check, CheckSquare, CreditCard, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -25,7 +25,7 @@ interface SubscriptionPageData extends SubscriptionPageProps {
 
 const Subscription = () => {
     const { monthlySubscribePrice, yearlySubscribePrice, discountPercentage, csrf_token } = usePage<SharedData>().props;
-    const { pricingData, availableStudents, subscribedStudents, isSingleStudent, selectedStudentSlug, selectedStudentSlugs } =
+    const { availableStudents, subscribedStudents, isSingleStudent, selectedStudentSlug, selectedStudentSlugs } =
         usePage<SubscriptionPageData>().props;
 
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
@@ -99,44 +99,24 @@ const Subscription = () => {
         }
     };
 
-    const getSelectedPricing = () => {
-        if (selectedStudents.length === 0) return null;
+    // Calculate pricing based on selected students and plan
+    const getCurrentAmount = () => {
+        if (selectedStudents.length === 0) return 0;
 
-        // Try to find exact match first
-        const exactMatch = pricingData.find((pricing) => pricing.student_count === selectedStudents.length);
-        if (exactMatch) return exactMatch;
+        const basePrice = getCurrentBasePrice();
 
-        // If no exact match, find the closest higher tier or use the highest available
-        const sortedPricing = [...pricingData].sort((a, b) => a.student_count - b.student_count);
-        const higherTier = sortedPricing.find((pricing) => pricing.student_count > selectedStudents.length);
-
-        // If we have a higher tier, use it; otherwise use the highest tier available
-        return higherTier || sortedPricing[sortedPricing.length - 1];
+        if (selectedStudents.length === 1) {
+            return basePrice;
+        } else {
+            // First student pays full price, additional students get discount
+            const additionalStudents = selectedStudents.length - 1;
+            const discountedPrice = basePrice * (1 - discountPercentage / 100);
+            return basePrice + additionalStudents * discountedPrice;
+        }
     };
-
-    const selectedPricing = getSelectedPricing();
 
     const handleBackToStudents = () => {
         router.visit('/student');
-    };
-
-    const getCurrentAmount = () => {
-        if (!selectedPricing || selectedStudents.length === 0) return 0;
-
-        // If we're using a higher tier than selected students, calculate manually
-        if (selectedPricing.student_count !== selectedStudents.length) {
-            const basePrice = getCurrentBasePrice();
-            if (selectedStudents.length === 1) {
-                return basePrice;
-            } else {
-                // First student pays full price, additional students get 10% discount
-                const additionalStudents = selectedStudents.length - 1;
-                const discountedPrice = basePrice * 0.9; // 10% discount
-                return basePrice + additionalStudents * discountedPrice;
-            }
-        }
-
-        return selectedPlan === 'yearly' ? selectedPricing.yearly_amount : selectedPricing.monthly_amount;
     };
 
     const getCurrentBasePrice = () => {
@@ -161,9 +141,9 @@ const Subscription = () => {
         if (selectedStudents.length === 1) {
             monthlyTotal = monthlyBasePrice;
         } else {
-            // First student pays full price, additional students get 10% discount
+            // First student pays full price, additional students get discount
             const additionalStudents = selectedStudents.length - 1;
-            const discountedMonthlyPrice = monthlyBasePrice * 0.9;
+            const discountedMonthlyPrice = monthlyBasePrice * (1 - discountPercentage / 100);
             monthlyTotal = monthlyBasePrice + additionalStudents * discountedMonthlyPrice;
         }
 
@@ -174,6 +154,29 @@ const Subscription = () => {
 
     return (
         <ParentLayout>
+            <Head>
+                <title>Piano Lesson Subscription - Learn Piano Online</title>
+                <meta
+                    name="description"
+                    content="Subscribe to our online piano lessons! Choose from monthly or yearly plans with discounts for multiple students. Start your child's musical journey today."
+                />
+                <meta
+                    name="keywords"
+                    content="piano lesson subscription, online piano lessons, monthly piano lessons, yearly piano lessons, piano education, music lessons, virtual piano instruction"
+                />
+                <meta property="og:title" content="Piano Lesson Subscription - Learn Piano Online" />
+                <meta
+                    property="og:description"
+                    content="Subscribe to our online piano lessons! Choose from monthly or yearly plans with discounts for multiple students."
+                />
+                <meta property="og:type" content="website" />
+                <meta name="twitter:card" content="summary" />
+                <meta name="twitter:title" content="Piano Lesson Subscription - Learn Piano Online" />
+                <meta
+                    name="twitter:description"
+                    content="Subscribe to our online piano lessons! Choose from monthly or yearly plans with discounts for multiple students."
+                />
+            </Head>
             <div className="min-h-screen bg-background">
                 {/* Header */}
                 <div className="bg-piano-gradient px-6 py-8">

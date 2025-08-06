@@ -1,22 +1,25 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
-import { Clock, Mail, Phone } from 'lucide-react';
+import { SharedData } from '@/types';
+import { Head, usePage } from '@inertiajs/react';
+import { Mail, Phone } from 'lucide-react';
 
 const Contact = () => {
+    const { supportEmail, supportPhone } = usePage<SharedData>().props;
+
     const contactMethods = [
         {
             icon: Mail,
             title: 'Email Support',
             description: 'Get help via email',
-            contact: 'support@learnpianoonline.com',
+            contact: supportEmail || 'support@learnpianoonline.com',
             response: 'Within 48 hours',
         },
         {
             icon: Phone,
             title: 'Phone Support',
             description: 'Speak with our team',
-            contact: '1-800-PIANO-01',
+            contact: supportPhone || '1-800-PIANO-01',
             response: 'Available 24/7',
         },
     ];
@@ -24,7 +27,7 @@ const Contact = () => {
     const faqs = [
         {
             question: 'How do I reschedule a lesson?',
-            answer: 'You can reschedule lessons up to 4 hours before the scheduled time through your dashboard or by contacting support.',
+            answer: 'You can reschedule lessons 24 hours before the scheduled time by contacting support.',
         },
         {
             question: 'What if I miss a lesson?',
@@ -100,25 +103,6 @@ const Contact = () => {
                                             </div>
                                         </div>
                                     ))}
-                                </CardContent>
-                            </Card>
-
-                            {/* Support Hours */}
-                            <Card className="border-blue-200 bg-blue-50">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center text-blue-800">
-                                        <Clock className="mr-2 h-5 w-5" />
-                                        Support Hours
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3 text-sm text-blue-700">
-                                        <div className="flex justify-between">
-                                            <span>Monday - Sunday</span>
-                                            <span className="font-semibold">24/7 Available</span>
-                                        </div>
-                                        <p className="mt-4 text-sm text-blue-600">Email support responses within 48 hours</p>
-                                    </div>
                                 </CardContent>
                             </Card>
                         </div>

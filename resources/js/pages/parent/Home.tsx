@@ -34,7 +34,29 @@ const ParentHome = () => {
     return (
         <ParentLayout>
             <div className="min-h-screen bg-background">
-                <Head title={'Parent Dashboard'}></Head>
+                <Head>
+                    <title>Parent Dashboard - Learn Piano Online</title>
+                    <meta
+                        name="description"
+                        content={`Welcome back, ${auth.user.name}! Manage your children's piano learning journey, track progress, and oversee their musical education with our online piano lessons.`}
+                    />
+                    <meta
+                        name="keywords"
+                        content={`parent dashboard, piano lessons, online piano, music education, piano learning, virtual piano lessons, ${auth.user.name}`}
+                    />
+                    <meta property="og:title" content="Parent Dashboard - Learn Piano Online" />
+                    <meta
+                        property="og:description"
+                        content={`Welcome back, ${auth.user.name}! Manage your children's piano learning journey and track their musical progress.`}
+                    />
+                    <meta property="og:type" content="website" />
+                    <meta name="twitter:card" content="summary" />
+                    <meta name="twitter:title" content="Parent Dashboard - Learn Piano Online" />
+                    <meta
+                        name="twitter:description"
+                        content={`Welcome back, ${auth.user.name}! Manage your children's piano learning journey and track their musical progress.`}
+                    />
+                </Head>
 
                 {/* Kid-friendly Header */}
                 <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
@@ -247,7 +269,7 @@ const ParentHome = () => {
                                         <h3 className="mb-2 font-fredoka text-lg font-bold text-fun-orange">Contact</h3>
                                         <p className="mb-4 font-comic text-sm text-fun-purple/70">Get in touch with us</p>
                                         <Button
-                                            onClick={() => router.visit('/parent/contact')}
+                                            onClick={() => router.visit(route('parent.contact'))}
                                             className="rounded-full bg-fun-orange px-4 py-2 font-comic text-sm text-white hover:bg-fun-orange/90"
                                         >
                                             Contact Us

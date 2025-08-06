@@ -9,7 +9,6 @@ use App\Http\Controllers\User\StudentController;
 use App\Http\Controllers\User\SessionsController;
 use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
 use App\Http\Controllers\Parent\StudentController as ParentStudentController;
-use App\Http\Controllers\Parent\ContactController as ParentContactController;
 use App\Http\Controllers\Parent\SubscriptionController as ParentSubscriptionController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 
@@ -44,7 +43,8 @@ Route::middleware(['auth', 'parent'])->prefix('parent')->name('parent.')->group(
     Route::put('students/{student:slug}', [ParentStudentController::class, 'update'])->name('students.update');
     Route::delete('students/{student:slug}', [ParentStudentController::class, 'destroy'])->name('students.destroy');
     Route::get('subscription', [ParentSubscriptionController::class, 'index'])->name('subscription');
-    Route::get('contact', [ParentContactController::class, 'index'])->name('contact');
+    // Use the main Contact component directly
+    Route::get('contact', [ContactController::class, 'index'])->name('contact');
 
     // Payment routes for parents
     Route::post('payment/create-session', [PaymentController::class, 'createCheckoutSession'])->name('payment.create-session');
