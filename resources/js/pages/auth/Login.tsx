@@ -182,7 +182,13 @@ const Login = () => {
                                     Sign up here
                                 </Link>
                             </p>
-                            <p className="text-warm-gray-500 mt-2 text-xs">🔒 Secure & encrypted</p>
+                            <p className="text-warm-gray-600 mt-2 text-sm">
+                                Forgot your password?{' '}
+                                <Link href={route('password.request')} className="text-teal cursor-pointer hover:underline">
+                                    Reset it here
+                                </Link>
+                            </p>
+                            <p className="text-warm-gray-500 mt-3 text-xs">🔒 Secure & encrypted</p>
                         </div>
                     </CardContent>
                 </Card>

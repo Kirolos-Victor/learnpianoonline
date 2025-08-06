@@ -320,7 +320,8 @@ const Register = ({ countries, countriesRequiringState }: Props) => {
                                     Sign in here
                                 </Link>
                             </p>
-                            <p className="text-warm-gray-500 text-xs">🔒 Secure & encrypted • 🎵 Start learning today!</p>
+
+                            <p className="text-warm-gray-500 mt-3 text-xs">🔒 Secure & encrypted • 🎵 Start learning today!</p>
                         </div>
                     </CardContent>
                 </Card>
