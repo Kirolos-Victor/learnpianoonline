@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import InstructorLayout from '@/layouts/instructor-layout';
-import { Head, Link } from '@inertiajs/react';
-import { Calendar, Search } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from 'lucide-react';
 import { useState } from 'react';
 
 interface StudentSession {
@@ -37,12 +37,62 @@ interface Student {
 
 interface Props {
     student: Student;
-    sessions: StudentSession[];
+    sessions: {
+        data: StudentSession[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+    };
 }
 
 const InstructorStudentSessions = ({ student, sessions }: Props) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+
+    // Handle search and filter changes
+    const handleSearchChange = (value: string) => {
+        setSearchTerm(value);
+        router.get(
+            route('instructor.student.sessions', student.slug),
+            { search: value, status: statusFilter },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handleStatusChange = (value: string) => {
+        setStatusFilter(value);
+        router.get(
+            route('instructor.student.sessions', student.slug),
+            { search: searchTerm, status: value },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handlePageChange = (page: number) => {
+        router.get(
+            route('instructor.student.sessions', student.slug),
+            {
+                search: searchTerm,
+                status: statusFilter,
+                page: page,
+            },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const handlePerPageChange = (perPage: number) => {
+        router.get(
+            route('instructor.student.sessions', student.slug),
+            {
+                search: searchTerm,
+                status: statusFilter,
+                perPage: perPage,
+                page: 1, // Reset to first page when changing per page
+            },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
 
     const getStatusBadgeColor = (status: string) => {
         switch (status) {
@@ -74,13 +124,8 @@ const InstructorStudentSessions = ({ student, sessions }: Props) => {
         }
     };
 
-    const filteredSessions = sessions.filter((session) => {
-        const matchesSearch =
-            session.instructor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (session.notes || '').toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || session.status === statusFilter;
-        return matchesSearch && matchesStatus;
-    });
+    // Use the paginated sessions directly - filtering will be done server-side
+    const sessionsList = sessions.data;
 
     return (
         <InstructorLayout title={`Sessions for ${student.name}`}>
@@ -108,14 +153,14 @@ const InstructorStudentSessions = ({ student, sessions }: Props) => {
                                     id="search"
                                     placeholder="Enter instructor name or notes..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
                                     className="pl-10"
                                 />
                             </div>
                         </div>
-                        <div className="w-64">
+                        <div className="w-48">
                             <Label htmlFor="status-filter">Filter by Status</Label>
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <Select value={statusFilter} onValueChange={handleStatusChange}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="All Statuses" />
                                 </SelectTrigger>
@@ -128,6 +173,20 @@ const InstructorStudentSessions = ({ student, sessions }: Props) => {
                                 </SelectContent>
                             </Select>
                         </div>
+                        <div className="w-32">
+                            <Label htmlFor="per-page">Per Page</Label>
+                            <Select value={sessions.per_page.toString()} onValueChange={(value) => handlePerPageChange(parseInt(value))}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="10">10</SelectItem>
+                                    <SelectItem value="25">25</SelectItem>
+                                    <SelectItem value="50">50</SelectItem>
+                                    <SelectItem value="100">100</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -135,11 +194,11 @@ const InstructorStudentSessions = ({ student, sessions }: Props) => {
             {/* Sessions Table */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Sessions ({filteredSessions.length})</CardTitle>
+                    <CardTitle>Sessions ({sessions.total})</CardTitle>
                     <CardDescription>All sessions for this student</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {filteredSessions.length === 0 ? (
+                    {sessions.data.length === 0 ? (
                         <div className="py-12 text-center">
                             <Calendar className="mx-auto h-12 w-12 text-gray-400" />
                             <h3 className="mt-4 text-lg font-medium text-gray-900">No sessions found</h3>
@@ -165,7 +224,7 @@ const InstructorStudentSessions = ({ student, sessions }: Props) => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white">
-                                    {filteredSessions.map((session) => (
+                                    {sessionsList.map((session) => (
                                         <tr key={session.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap">{session.scheduled_date}</td>
                                             <td className="px-6 py-4 whitespace-nowrap">{session.scheduled_time}</td>
@@ -193,6 +252,80 @@ const InstructorStudentSessions = ({ student, sessions }: Props) => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {sessions.last_page > 1 && (
+                        <div className="mt-6 flex items-center justify-between">
+                            <div className="text-sm text-gray-700">
+                                Showing {(sessions.current_page - 1) * sessions.per_page + 1} to{' '}
+                                {Math.min(sessions.current_page * sessions.per_page, sessions.total)} of {sessions.total} results
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                {/* First Page */}
+                                <Button variant="outline" size="sm" onClick={() => handlePageChange(1)} disabled={sessions.current_page === 1}>
+                                    <ChevronsLeft className="h-4 w-4" />
+                                </Button>
+
+                                {/* Previous Page */}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handlePageChange(sessions.current_page - 1)}
+                                    disabled={sessions.current_page === 1}
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+
+                                {/* Page Numbers */}
+                                <div className="flex items-center space-x-1">
+                                    {Array.from({ length: Math.min(5, sessions.last_page) }, (_, i) => {
+                                        let pageNum;
+                                        if (sessions.last_page <= 5) {
+                                            pageNum = i + 1;
+                                        } else if (sessions.current_page <= 3) {
+                                            pageNum = i + 1;
+                                        } else if (sessions.current_page >= sessions.last_page - 2) {
+                                            pageNum = sessions.last_page - 4 + i;
+                                        } else {
+                                            pageNum = sessions.current_page - 2 + i;
+                                        }
+
+                                        return (
+                                            <Button
+                                                key={pageNum}
+                                                variant={sessions.current_page === pageNum ? 'default' : 'outline'}
+                                                size="sm"
+                                                onClick={() => handlePageChange(pageNum)}
+                                                className="h-8 w-8 p-0"
+                                            >
+                                                {pageNum}
+                                            </Button>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Next Page */}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handlePageChange(sessions.current_page + 1)}
+                                    disabled={sessions.current_page === sessions.last_page}
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+
+                                {/* Last Page */}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handlePageChange(sessions.last_page)}
+                                    disabled={sessions.current_page === sessions.last_page}
+                                >
+                                    <ChevronsRight className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </div>
                     )}
                 </CardContent>

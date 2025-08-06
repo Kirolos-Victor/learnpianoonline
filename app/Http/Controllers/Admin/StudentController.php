@@ -149,7 +149,7 @@ class StudentController extends Controller
             });
 
         // Build query with filters
-        $sessionsQuery = $student->studentSessions()->with(['instructor']);
+        $sessionsQuery = $student->studentSessions()->with(['instructor', 'student.instructor']);
 
         // Apply month filter
         if ($month = $request->input('month')) {
@@ -170,7 +170,7 @@ class StudentController extends Controller
             ->through(function ($session) use ($student) {
                 return [
                     'id' => $session->id,
-                    'instructor_name' => $session->instructor->name,
+                    'instructor_name' => $session->instructor?->name ?? $student->instructor?->name ?? 'Not assigned',
                     'scheduled_at' => $session->scheduled_at,
                     'scheduled_date' => $session->scheduled_at->format('F j, Y'),
                     'scheduled_time' => $session->scheduled_at->format('h:i A'),

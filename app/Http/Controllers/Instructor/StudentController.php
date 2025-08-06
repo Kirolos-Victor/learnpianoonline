@@ -45,6 +45,9 @@ class StudentController extends Controller
      */
     public function sessions(Request $request, Student $student): \Inertia\Response
     {
+        // Load the user relationship
+        $student->load('user');
+
         // Check if the student is assigned to this instructor
         if ($student->instructor_id !== auth()->id()) {
             abort(403, 'Unauthorized access to student sessions');
@@ -52,7 +55,7 @@ class StudentController extends Controller
 
         // Get available months from sessions
         $availableMonths = $student->studentSessions()
-            ->selectRaw('DISTINCT DATE_FORMAT(scheduled_at, "%Y-%m") as month')
+            ->selectRaw('DISTINCT TO_CHAR(scheduled_at, \'YYYY-MM\') as month')
             ->orderBy('month', 'desc')
             ->pluck('month')
             ->map(function ($month) {
@@ -60,7 +63,7 @@ class StudentController extends Controller
             });
 
         // Build query with filters
-        $query = $student->studentSessions()->with(['instructor']);
+        $query = $student->studentSessions()->with(['instructor', 'student.instructor']);
 
         // Apply month filter
         if ($month = $request->input('month')) {
@@ -68,18 +71,31 @@ class StudentController extends Controller
             $query->whereYear('scheduled_at', substr($month, 0, 4));
         }
 
+        // Apply search filter
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('instructor', function ($instructorQuery) use ($search) {
+                    $instructorQuery->where('name', 'ilike', "%{$search}%");
+                })
+                    ->orWhere('notes', 'ilike', "%{$search}%");
+            });
+        }
+
         // Apply status filter
         if ($status = $request->input('status')) {
-            $query->where('status', $status);
+            if ($status !== 'all') {
+                $query->where('status', $status);
+            }
         }
 
         // Get paginated sessions
         $sessions = $query->orderBy('scheduled_at', 'desc')
             ->paginate($request->input('perPage', 10))
+            ->withQueryString()
             ->through(function ($session) {
                 return [
                     'id' => $session->id,
-                    'instructor_name' => $session->instructor->name,
+                    'instructor_name' => $session->instructor?->name ?? $session->student->instructor?->name ?? 'Not assigned',
                     'scheduled_date' => $session->scheduled_at->format('F j, Y'),
                     'scheduled_time' => $session->scheduled_at->format('h:i A'),
                     'completed_at' => $session->completed_at?->toDateTimeString(),
@@ -89,6 +105,17 @@ class StudentController extends Controller
             });
 
         return Inertia::render('instructor/StudentSessions', [
+            'student' => [
+                'id' => $student->id,
+                'slug' => $student->slug,
+                'name' => $student->name,
+                'email' => $student->user->email,
+                'age' => $student->age,
+                'is_subscribed' => $student->is_subscribed,
+                'sessions_remaining' => $student->sessions_remaining,
+                'day_of_week' => $student->day_of_week,
+                'preferred_time' => $student->preferred_time,
+            ],
             'sessions' => $sessions,
             'availableMonths' => $availableMonths,
         ]);
