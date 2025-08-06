@@ -32,7 +32,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function 
     Route::get('students', [StudentController::class, 'index'])->name('admin.students');
     Route::get('students/{slug}/sessions', [StudentController::class, 'viewSessions'])->name('admin.students.sessions');
     Route::get('pending-subscribers', [StudentController::class, 'pendingSubscribers'])->name('admin.pending-subscribers');
-    Route::post('pending-subscribers/available-instructors', [StudentController::class, 'getAvailableInstructors'])->name('admin.pending-subscribers.available-instructors');
+    Route::post('students/{slug}/available-instructors', [StudentController::class, 'getAvailableInstructors'])->name('admin.students.available-instructors');
     Route::patch('students/{slug}/sessions', [StudentController::class, 'updateSessions'])->name('admin.students.update-sessions');
     Route::patch('students/{slug}/instructor', [StudentController::class, 'changeInstructor'])->name('admin.students.change-instructor');
     Route::patch('pending-subscribers/{slug}/assign-instructor', [StudentController::class, 'assignInstructorToPending'])->name('admin.pending-subscribers.assign-instructor');

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TablePagination } from '@/components/ui/table-pagination';
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, Link, router } from '@inertiajs/react';
+import axios from 'axios';
 import { Calendar, Edit, GraduationCap, Search, UserCheck, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -44,6 +45,7 @@ interface Student {
 interface InstructorOption {
     id: string;
     name: string;
+    availability?: string[];
 }
 
 interface PaginationData {
@@ -93,6 +95,23 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editData, setEditData] = useState<{ sessions: string; instructor_id: string }>({ sessions: '', instructor_id: '' });
     const [processing, setProcessing] = useState(false);
+    const [availableInstructors, setAvailableInstructors] = useState<InstructorOption[]>([]);
+    const [loadingInstructors, setLoadingInstructors] = useState(false);
+    const [timezoneInfo, setTimezoneInfo] = useState<{
+        convertedTime?: string;
+        instructorTimezoneDay?: string;
+        studentPreferredConverted?: {
+            day: string;
+            time: string;
+            full_datetime: string;
+        };
+        originalStudentTime?: {
+            day: string;
+            time: string;
+            timezone: string;
+        };
+        instructorTimezone?: string;
+    }>({});
 
     // Debounced search effect
     useEffect(() => {
@@ -138,13 +157,33 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
         );
     };
 
-    const handleOpenEditDialog = (student: Student) => {
+    const handleOpenEditDialog = async (student: Student) => {
         setSelectedStudent(student);
         setEditData({
             sessions: student.sessions_remaining.toString(),
             instructor_id: student.instructor_id?.toString() || 'none',
         });
         setIsEditDialogOpen(true);
+        setLoadingInstructors(true);
+
+        // Fetch available instructors for this student
+        try {
+            const response = await axios.post(`/admin/students/${student.slug}/available-instructors`);
+
+            setAvailableInstructors(response.data.instructors || []);
+            setTimezoneInfo({
+                convertedTime: response.data.converted_time,
+                instructorTimezoneDay: response.data.instructor_timezone_day,
+                studentPreferredConverted: response.data.student_preferred_converted,
+                originalStudentTime: response.data.original_student_time,
+                instructorTimezone: response.data.instructor_timezone,
+            });
+        } catch (error) {
+            console.error('Error fetching available instructors:', error);
+            setAvailableInstructors([]);
+        } finally {
+            setLoadingInstructors(false);
+        }
     };
 
     const handleEditChange = (field: 'sessions' | 'instructor_id', value: string) => {
@@ -468,22 +507,82 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                                     <SelectValue placeholder="Select an instructor" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="none">No instructor</SelectItem>
-                                    {instructors.map((inst) => (
-                                        <SelectItem key={inst.id} value={inst.id.toString()}>
-                                            {inst.name}
-                                        </SelectItem>
-                                    ))}
+                                    {loadingInstructors ? (
+                                        <div className="p-2 text-center text-gray-500">Loading available instructors...</div>
+                                    ) : (
+                                        <>
+                                            <SelectItem value="none">No instructor</SelectItem>
+                                            {availableInstructors.length > 0 ? (
+                                                <>
+                                                    {availableInstructors.map((inst) => (
+                                                        <SelectItem key={inst.id} value={inst.id.toString()}>
+                                                            {inst.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </>
+                                            ) : (
+                                                <div className="p-2 text-center text-gray-500">
+                                                    No instructors available for this student's preferred time
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </SelectContent>
                             </Select>
                         </div>
+
+                        {/* Schedule Information */}
+                        {selectedStudent && (
+                            <div className="rounded-md bg-blue-50 p-3">
+                                <h4 className="mb-2 font-medium text-blue-900">Schedule Information:</h4>
+
+                                {/* Converted to Preferred Timezone */}
+                                {timezoneInfo.studentPreferredConverted ? (
+                                    <div className="mb-2 rounded bg-green-100 p-2">
+                                        <p className="text-sm text-green-800">
+                                            <strong>Converted to Preferred Timezone:</strong> {timezoneInfo.studentPreferredConverted.full_datetime}
+                                        </p>
+                                        <p className="text-xs text-green-600">🌍 Preferred Timezone: {timezoneInfo.instructorTimezone}</p>
+                                        <p className="text-xs text-green-600">
+                                            ↻ Converted from {selectedStudent.user_timezone} to {timezoneInfo.instructorTimezone}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="mb-2 rounded bg-blue-100 p-2">
+                                        <p className="text-sm text-blue-800">
+                                            <strong>Student's Time:</strong> {selectedStudent.day_of_week} at{' '}
+                                            {selectedStudent.preferred_time || 'No time set'}
+                                        </p>
+                                        <p className="text-xs text-blue-600">📍 Student Timezone: {selectedStudent.user_timezone}</p>
+                                    </div>
+                                )}
+
+                                {availableInstructors.length === 0 && !loadingInstructors && (
+                                    <div className="rounded-md bg-yellow-50 p-3">
+                                        <p className="text-sm text-yellow-800">
+                                            <strong>Note:</strong> No instructors are available for this student's preferred time slot.
+                                        </p>
+                                        <ul className="mt-1 list-inside list-disc text-xs text-yellow-700">
+                                            <li>
+                                                No instructors work on {timezoneInfo.studentPreferredConverted?.day || selectedStudent.day_of_week}
+                                            </li>
+                                            <li>
+                                                All instructors have conflicts at{' '}
+                                                {timezoneInfo.studentPreferredConverted?.time || selectedStudent.preferred_time}
+                                            </li>
+                                            <li>Student has no preferred time set</li>
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleEditSubmit} disabled={processing}>
-                            {processing ? 'Updating...' : 'Update Student'}
+                        <Button onClick={handleEditSubmit} disabled={processing || loadingInstructors}>
+                            {processing ? 'Updating...' : loadingInstructors ? 'Loading...' : 'Update Student'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

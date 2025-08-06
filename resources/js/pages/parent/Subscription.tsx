@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import ParentLayout from '@/layouts/parent-layout';
 import { SharedData, SubscriptionPageProps } from '@/types';
 import { router, usePage } from '@inertiajs/react';
+import axios from 'axios';
 import { AlertCircle, ArrowLeft, Check, CheckSquare, CreditCard, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -80,22 +81,13 @@ const Subscription = () => {
 
         setIsLoading(true);
         try {
-            const response = await fetch('/parent/payment/create-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf_token,
-                },
-                body: JSON.stringify({
-                    student_ids: selectedStudents,
-                    subscription_type: selectedPlan,
-                }),
+            const response = await axios.post('/parent/payment/create-session', {
+                student_ids: selectedStudents,
+                subscription_type: selectedPlan,
             });
 
-            const data = await response.json();
-
-            if (data.checkout_url) {
-                window.location.href = data.checkout_url;
+            if (response.data.checkout_url) {
+                window.location.href = response.data.checkout_url;
             } else {
                 throw new Error('Failed to create checkout session');
             }

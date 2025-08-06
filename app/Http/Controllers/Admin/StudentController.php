@@ -339,13 +339,9 @@ class StudentController extends Controller
     /**
      * Get available instructors for a specific student based on their preferred time and day
      */
-    public function getAvailableInstructors(Request $request): \Illuminate\Http\JsonResponse
+    public function getAvailableInstructors(Request $request, $slug): \Illuminate\Http\JsonResponse
     {
-        $request->validate([
-            'student_slug' => 'required|string',
-        ]);
-
-        $student = Student::with('user')->where('slug', $request->student_slug)->firstOrFail();
+        $student = Student::with('user')->where('slug', $slug)->firstOrFail();
 
         if (!$student->day_of_week || !$student->preferred_time) {
             return response()->json([

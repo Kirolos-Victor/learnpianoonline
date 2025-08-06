@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TablePagination } from '@/components/ui/table-pagination';
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, router } from '@inertiajs/react';
+import axios from 'axios';
 import { Calendar, Search, UserPlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -132,32 +133,16 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
         setLoadingInstructors(true);
 
         try {
-            const response = await fetch('/admin/pending-subscribers/available-instructors', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({
-                    student_slug: student.slug,
-                }),
+            const response = await axios.post(`/admin/students/${student.slug}/available-instructors`);
+
+            setAvailableInstructors(response.data.instructors || []);
+            setTimezoneInfo({
+                convertedTime: response.data.converted_time,
+                instructorTimezoneDay: response.data.instructor_timezone_day,
+                studentPreferredConverted: response.data.student_preferred_converted,
+                originalStudentTime: response.data.original_student_time,
+                instructorTimezone: response.data.instructor_timezone,
             });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                setAvailableInstructors(data.instructors || []);
-                setTimezoneInfo({
-                    convertedTime: data.converted_time,
-                    instructorTimezoneDay: data.instructor_timezone_day,
-                    studentPreferredConverted: data.student_preferred_converted,
-                    originalStudentTime: data.original_student_time,
-                    instructorTimezone: data.instructor_timezone,
-                });
-            } else {
-                console.error('Failed to fetch available instructors');
-                setAvailableInstructors([]);
-            }
         } catch (error) {
             console.error('Error fetching available instructors:', error);
             setAvailableInstructors([]);

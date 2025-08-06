@@ -7,6 +7,7 @@ import InputError from '@/components/ui/input-error';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Head, Link, useForm } from '@inertiajs/react';
+import axios from 'axios';
 import { LoaderCircle, Music } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
@@ -51,11 +52,10 @@ const Register = ({ countries, countriesRequiringState }: Props) => {
 
         setLoadingLocations(true);
         try {
-            const response = await fetch(`/locations?country=${countryCode}`);
-            const data = await response.json();
+            const response = await axios.get(`/locations?country=${countryCode}`);
 
-            setLocations(data.locations || {});
-            setShowLocationDropdown(Object.keys(data.locations || {}).length > 0);
+            setLocations(response.data.locations || {});
+            setShowLocationDropdown(Object.keys(response.data.locations || {}).length > 0);
 
             // Set appropriate label based on country
             if (countryCode === 'US') {
@@ -83,9 +83,8 @@ const Register = ({ countries, countriesRequiringState }: Props) => {
 
         setLoadingPhoneCode(true);
         try {
-            const response = await fetch(`/phone-code?country=${countryCode}`);
-            const data = await response.json();
-            setPhoneCode(data.phone_code || '+1');
+            const response = await axios.get(`/phone-code?country=${countryCode}`);
+            setPhoneCode(response.data.phone_code || '+1');
         } catch (error) {
             console.error('Error fetching phone code:', error);
             setPhoneCode('+1');
