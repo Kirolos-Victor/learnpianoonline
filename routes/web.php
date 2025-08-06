@@ -18,6 +18,12 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('', [HomeController::class, 'index'])->name('home.index');
+Route::get('about', function () {
+    return inertia('About');
+})->name('about.index');
+Route::get('blog', function () {
+    return inertia('Blog');
+})->name('blog.index');
 Route::get('sessions', [SessionsController::class, 'index'])->name('sessions.index');
 Route::get('pricing', [PricingController::class, 'index'])->name('pricing.index');
 Route::get('contact', [ContactController::class, 'index'])->name('contact.index');

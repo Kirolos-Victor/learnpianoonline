@@ -46,10 +46,12 @@ const Navbar = () => {
         { name: 'admin.parents', label: 'Parents', icon: Users },
     ];
 
-    // Guest navigation items with kid-friendly labels
+    // Guest navigation items - optimized for user experience
     const guestNavItems = [
         { name: 'home.index', label: 'Home', icon: Home },
-        { name: 'pricing.index', label: 'Plans & Pricing', icon: Star },
+        { name: 'about.index', label: 'About Us', icon: Star },
+        { name: 'blog.index', label: 'Piano Tips', icon: BookOpen },
+        { name: 'pricing.index', label: 'Pricing', icon: CreditCard },
         { name: 'contact.index', label: 'Contact Us', icon: MessageCircle },
     ];
 

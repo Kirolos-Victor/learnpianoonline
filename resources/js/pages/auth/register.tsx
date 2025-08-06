@@ -141,9 +141,7 @@ const Register = ({ countries, countriesRequiringState }: Props) => {
                 <Card className="border-teal/20 bg-white/95 shadow-2xl backdrop-blur-sm">
                     <CardHeader>
                         <CardTitle className="font-playfair text-navy text-center text-2xl">Create Your Account</CardTitle>
-                        <CardDescription className="text-warm-gray-600 text-center">
-                            Join thousands of students learning piano online! 🎵
-                        </CardDescription>
+                        <CardDescription className="text-warm-gray-600 text-center">Join hundreds of kids learning piano online! 🎵</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={submit} className="space-y-4">

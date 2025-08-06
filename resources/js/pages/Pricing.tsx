@@ -89,26 +89,26 @@ const Pricing = () => {
     return (
         <AppLayout>
             <Head>
-                <title>Piano Lessons Pricing - Learn Piano Online</title>
+                <title>Piano Lessons for Kids Pricing - Fun & Affordable | Learn Piano Online</title>
                 <meta
                     name="description"
-                    content={`Affordable piano lessons starting at $${monthlySubscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum, custom homework assignments, and expert feedback.`}
+                    content={`Fun piano lessons for kids starting at $${monthlySubscribePrice}/month! 4 exciting 1-on-1 lessons monthly with friendly teachers, personalized homework, and fun activities. Perfect for ages 5+. No contracts!`}
                 />
                 <meta
                     name="keywords"
-                    content="piano lessons pricing, online piano lessons cost, affordable piano lessons, piano teacher rates, piano lesson packages"
+                    content="kids piano lessons pricing, piano lessons for children cost, affordable piano lessons kids, piano teacher rates children, piano lesson packages kids, cheap piano lessons for kids"
                 />
-                <meta property="og:title" content="Piano Lessons Pricing - Learn Piano Online" />
+                <meta property="og:title" content="Piano Lessons for Kids Pricing - Fun & Affordable | Learn Piano Online" />
                 <meta
                     property="og:description"
-                    content={`Affordable piano lessons starting at $${monthlySubscribePrice}/month. Get 4 live 1-on-1 piano lessons per month with personalized curriculum.`}
+                    content={`Fun piano lessons for kids starting at $${monthlySubscribePrice}/month! 4 exciting 1-on-1 lessons monthly with friendly teachers and fun activities.`}
                 />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary" />
-                <meta name="twitter:title" content="Piano Lessons Pricing - Learn Piano Online" />
+                <meta name="twitter:title" content="Piano Lessons for Kids Pricing - Fun & Affordable" />
                 <meta
                     name="twitter:description"
-                    content={`Affordable piano lessons starting at $${monthlySubscribePrice}/month. Get 4 live 1-on-1 piano lessons per month.`}
+                    content={`Fun piano lessons for kids starting at $${monthlySubscribePrice}/month! 4 exciting 1-on-1 lessons monthly with friendly teachers.`}
                 />
             </Head>
             <div className="min-h-screen bg-background">

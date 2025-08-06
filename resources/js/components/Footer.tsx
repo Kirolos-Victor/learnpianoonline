@@ -1,7 +1,8 @@
 import Logo from '@/components/Logo';
 import { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Heart, Music, Star } from 'lucide-react';
+import { BookOpen, CreditCard, Heart, Home, MessageCircle, Music, Star } from 'lucide-react';
+import { route } from 'ziggy-js';
 
 const Footer = () => {
     const { auth, supportEmail, supportPhone } = usePage<SharedData>().props;
@@ -16,9 +17,11 @@ const Footer = () => {
         if (!auth.user) {
             // Guest navigation items
             return [
-                { name: 'home.index', label: 'Home', icon: '🏠' },
-                { name: 'pricing.index', label: 'Plans & Pricing', icon: '⭐' },
-                { name: 'contact.index', label: 'Contact Us', icon: '💬' },
+                { name: 'home.index', label: 'Home', icon: Home },
+                { name: 'about.index', label: 'About Us', icon: Star },
+                { name: 'blog.index', label: 'Piano Tips', icon: BookOpen },
+                { name: 'pricing.index', label: 'Pricing', icon: CreditCard },
+                { name: 'contact.index', label: 'Contact Us', icon: MessageCircle },
             ];
         }
 
@@ -119,7 +122,7 @@ const Footer = () => {
                                             href={getHref()}
                                             className="inline-block transform font-comic text-lg text-white/80 transition-colors duration-200 hover:scale-105 hover:text-fun-yellow"
                                         >
-                                            {link.icon} {link.label}
+                                            {typeof link.icon === 'string' ? link.icon : <link.icon className="inline h-4 w-4" />} {link.label}
                                         </Link>
                                     </li>
                                 );

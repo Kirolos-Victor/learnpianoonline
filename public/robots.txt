@@ -1,2 +1,23 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Block admin and user-specific areas
+Disallow: /admin/
+Disallow: /parent/
+Disallow: /student/
+Disallow: /instructor/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Allow important pages for SEO
+Allow: /pricing
+Allow: /contact
+Allow: /sessions
+
+# Sitemap location
+Sitemap: https://learnpianoonline.com/sitemap.xml
+
+# Crawl delay for polite crawling
+Crawl-delay: 1

@@ -12,14 +12,14 @@ const Contact = () => {
             icon: Mail,
             title: 'Email Support',
             description: 'Get help via email',
-            contact: supportEmail || 'support@learnpianoonline.com',
+            contact: supportEmail,
             response: 'Within 48 hours',
         },
         {
             icon: Phone,
             title: 'Phone Support',
             description: 'Speak with our team',
-            contact: supportPhone || '1-800-PIANO-01',
+            contact: supportPhone,
             response: 'Available 24/7',
         },
     ];
@@ -46,26 +46,26 @@ const Contact = () => {
     return (
         <AppLayout>
             <Head>
-                <title>Contact & Support - Learn Piano Online</title>
+                <title>Contact Us - Help with Kids Piano Lessons | Learn Piano Online</title>
                 <meta
                     name="description"
-                    content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions about online piano lessons, scheduling, and technical support."
+                    content="Need help with your child's piano lessons? Contact our friendly support team! We're here to help with scheduling, technical questions, and making piano fun for kids. Available 24/7!"
                 />
                 <meta
                     name="keywords"
-                    content="piano lessons support, contact piano teacher, online piano help, piano lesson questions, piano support team"
+                    content="kids piano lessons support, contact piano teacher children, online piano help kids, piano lesson questions parents, piano support team kids, customer service children piano lessons"
                 />
-                <meta property="og:title" content="Contact & Support - Learn Piano Online" />
+                <meta property="og:title" content="Contact Us - Help with Kids Piano Lessons | Learn Piano Online" />
                 <meta
                     property="og:description"
-                    content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions."
+                    content="Need help with your child's piano lessons? Contact our friendly support team! We're here to help make piano fun for kids."
                 />
                 <meta property="og:type" content="website" />
                 <meta name="twitter:card" content="summary" />
-                <meta name="twitter:title" content="Contact & Support - Learn Piano Online" />
+                <meta name="twitter:title" content="Contact Us - Help with Kids Piano Lessons" />
                 <meta
                     name="twitter:description"
-                    content="Get in touch with our piano lesson support team. We're available 24/7 to help with your questions."
+                    content="Need help with your child's piano lessons? Contact our friendly support team! We're here to help make piano fun for kids."
                 />
             </Head>
             <div className="min-h-screen bg-background">

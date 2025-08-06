@@ -92,29 +92,27 @@ const Home = () => {
     return (
         <AppLayout>
             <Head>
-                <title>Learn Piano Online - Live 1-on-1 Piano Lessons</title>
+                <title>Learn Piano Online - Fun Piano Lessons for Kids | Start Today</title>
                 <meta
                     name="description"
-                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Get personalized curriculum, custom homework assignments, and expert feedback. Start your musical journey today!"
+                    content="Fun online piano lessons for kids ages 5+! Weekly 1-on-1 lessons with friendly teachers, personalized homework, and helpful feedback. Make learning piano exciting and easy for your child!"
                 />
                 <meta
                     name="keywords"
-                    content="online piano lessons, learn piano online, piano teacher, live piano lessons, piano lessons for beginners, piano lessons for kids, virtual piano lessons"
+                    content="piano lessons for kids, online piano lessons, learn piano online, piano teacher for children, kids piano lessons, piano lessons for beginners, virtual piano lessons for kids, children piano instruction, music lessons for kids online"
                 />
-                <meta property="og:title" content="Learn Piano Online - Live 1-on-1 Piano Lessons" />
+                <meta property="og:title" content="Learn Piano Online - Fun Piano Lessons for Kids | Start Today" />
                 <meta
                     property="og:description"
-                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Get personalized curriculum, custom homework assignments, and expert feedback."
+                    content="Fun online piano lessons for kids ages 5+! Weekly 1-on-1 lessons with friendly teachers, personalized homework, and helpful feedback."
                 />
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://learnpianoonline.com" />
                 <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content="Learn Piano Online - Live 1-on-1 Piano Lessons" />
+                <meta name="twitter:title" content="Learn Piano Online - Fun Piano Lessons for Kids | Start Today" />
                 <meta
                     name="twitter:description"
-                    content="Learn piano online with live 1-on-1 lessons from professional teachers. Get personalized curriculum, custom homework assignments, and expert feedback."
+                    content="Fun online piano lessons for kids ages 5+! Weekly 1-on-1 lessons with friendly teachers, personalized homework, and helpful feedback."
                 />
-                <link rel="canonical" href="https://learnpianoonline.com" />
             </Head>
             <div className="min-h-screen">
                 {/* Hero Section */}
@@ -241,7 +239,7 @@ const Home = () => {
                         <div className="mb-12 text-center">
                             <h2 className="mb-6 font-fredoka text-4xl font-bold text-white md:text-5xl">Why Choose Our Subscription? 🌟</h2>
                             <p className="mx-auto max-w-2xl font-comic text-xl text-white/90">
-                                Join thousands of students who are making amazing progress with our structured learning approach!
+                                Join hundreds of kids who are making amazing progress with our fun learning approach!
                             </p>
                         </div>
 
@@ -307,7 +305,7 @@ const Home = () => {
                     <div className="container mx-auto text-center">
                         <h2 className="mb-6 font-fredoka text-4xl font-bold text-white md:text-5xl">Ready to Start Your Musical Adventure? 🎵</h2>
                         <p className="mx-auto mb-8 max-w-2xl font-comic text-xl text-white">
-                            Join thousands of kids making beautiful music every day!
+                            Join hundreds of kids making beautiful music every day!
                         </p>
                         <div className="flex flex-col justify-center gap-4 sm:flex-row">
                             <Link
