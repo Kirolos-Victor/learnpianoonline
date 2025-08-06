@@ -62,11 +62,13 @@ class ChatController extends Controller
 
         $instructor = User::find($student->instructor_id);
 
-        // Get messages between student and instructor
+        // Get only the latest 5 messages between student and instructor for performance
         $messages = Message::betweenUserAndStudent($instructor->id, $student->id)
             ->with(['sender', 'receiver'])
-            ->orderBy('created_at', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
             ->get()
+            ->reverse() // Reverse to show oldest first
             ->map(function ($message) {
                 return [
                     'id' => $message->id,
@@ -128,8 +130,8 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        // Fire the message event
-        broadcast(new MessageSent($message->load(['sender', 'receiver'])))->toOthers();
+        // DISABLED: Laravel Reverb broadcasting not available in Laravel Cloud
+        // broadcast(new MessageSent($message->load(['sender', 'receiver'])))->toOthers();
 
         return response()->json(['status' => 'Message sent!']);
     }

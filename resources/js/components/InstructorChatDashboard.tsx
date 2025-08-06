@@ -8,7 +8,8 @@ import { usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { MessageCircle, Search, Send } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import '../lib/echo';
+// DISABLED: Laravel Reverb not available in Laravel Cloud
+// import '../lib/echo';
 
 interface Message {
     id: number;
@@ -71,64 +72,26 @@ export function InstructorChatDashboard() {
         }
     };
 
-    const connectWebSocket = () => {
-        if (!user) return;
+    // DISABLED: Laravel Reverb WebSocket - Using polling instead
+    // const connectWebSocket = () => {
+    //     if (!user) return;
+    //     // WebSocket code commented out - using message polling for real-time updates
+    // };
 
-        // Listen to the instructor's private channel
-        const channelName = `chat.${user.id}`;
-        console.log('Connecting to WebSocket channel:', channelName);
-
-        // Disconnect from any existing channel first
-        try {
-            window.Echo?.leave(channelName);
-        } catch (e) {
-            console.log('No existing channel to leave');
-        }
-
-        // Connect to the channel
-        window.Echo?.private(channelName)
-            .listen('MessageSent', (e: any) => {
-                // Always add messages to currently selected conversation if it matches
-                // or if this message involves the current instructor
-                const isForInstructor =
-                    (e.newMessage.receiver_id === user.id && e.newMessage.receiver_type === 'user') ||
-                    (e.newMessage.sender_id === user.id && e.newMessage.sender_type === 'instructor');
-
-                const isForSelectedConversation =
-                    selectedConversation &&
-                    (e.newMessage.sender_id === selectedConversation.student.id || e.newMessage.receiver_id === selectedConversation.student.id);
-
-                if (isForInstructor || isForSelectedConversation) {
-                    setMessages((prev) => {
-                        // Check if message already exists to prevent duplicates
-                        const messageExists = prev.some((msg) => msg.id === e.newMessage.id);
-                        if (messageExists) {
-                            return prev;
-                        }
-                        return [...prev, e.newMessage];
-                    });
-                }
-
-                // Only update conversations list occasionally, not on every message
-                // getConversations(); // Removed to prevent excessive API calls
-                scrollToBottom(); // Scroll to bottom when a new message arrives
-            })
-            .error((error: any) => {
-                console.error('WebSocket connection error:', error);
-            });
-    };
-
-    const getMessages = async () => {
+    const getMessages = async (isPolling = false) => {
         if (!selectedConversation) return;
 
         try {
-            setLoading(true);
+            if (!isPolling) setLoading(true);
             const response = await axios.get(`/instructor/chat/students/${selectedConversation.student.id}/messages`);
-            setMessages(response.data.messages);
+            const allMessages = response.data.messages || [];
+            // Keep only the latest 5 messages for optimal performance
+            const latestMessages = allMessages.slice(-5);
+            setMessages(latestMessages);
         } catch (err: any) {
             // Handle error silently
         } finally {
-            setLoading(false);
+            if (!isPolling) setLoading(false);
         }
     };
 
@@ -151,12 +114,12 @@ export function InstructorChatDashboard() {
             const message = newMessage.trim();
             setNewMessage('');
 
-            // Send to server - WebSocket will handle the real-time update
+            // Send to server - polling will pick up the new message
             await axios.post(`/instructor/chat/students/${selectedConversation.student.id}/messages`, {
                 message: message,
             });
-
-            // Don't call getMessages() here - WebSocket will handle the update
+            // Immediately refresh messages to show the sent message
+            await getMessages(true);
         } catch (err: any) {
             console.error('Error sending message:', err);
             // Handle error silently
@@ -178,9 +141,9 @@ export function InstructorChatDashboard() {
         return new Date(dateString).toLocaleDateString();
     };
 
+    // Initial load effect
     useEffect(() => {
         getConversations();
-        connectWebSocket();
     }, []);
 
     useEffect(() => {
@@ -193,15 +156,19 @@ export function InstructorChatDashboard() {
         scrollToBottom();
     }, [messages]);
 
+    // Polling effect for real-time updates
     useEffect(() => {
-        // Cleanup WebSocket connection when component unmounts
+        if (!selectedConversation) return;
+
+        // Set up polling for new messages every 2 seconds
+        const pollInterval = setInterval(() => {
+            getMessages(true); // Pass true to indicate this is polling
+        }, 2000);
+
         return () => {
-            if (user) {
-                const channelName = `chat.${user.id}`;
-                window.Echo?.leave(channelName);
-            }
+            clearInterval(pollInterval);
         };
-    }, [user]);
+    }, [selectedConversation]);
 
     const filteredConversations = conversations.filter((conv) => conv.student.name.toLowerCase().includes(searchTerm.toLowerCase()));
 

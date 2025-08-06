@@ -6,7 +6,8 @@ import { usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { Maximize2, MessageCircle, Minimize2, Send, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
-import '../lib/echo';
+// DISABLED: Laravel Reverb not available in Laravel Cloud
+// import '../lib/echo';
 
 interface Message {
     id: number;
@@ -56,57 +57,16 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    const connectWebSocket = () => {
-        if (!user || !instructorId) return;
+    // DISABLED: Laravel Reverb WebSocket - Using polling instead
+    // const connectWebSocket = () => {
+    //     if (!user || !instructorId) return;
+    //     // WebSocket code commented out - using message polling for real-time updates
+    // };
 
-        // Student needs to listen to TWO channels:
-        // 1. Instructor's channel (chat.{instructorId}) - for messages they send
-        // 2. Their parent's channel (chat.{user.id}) - for messages they receive
-
-        const instructorChannelName = `chat.${instructorId}`;
-        const parentChannelName = `chat.${user.id}`;
-
-        // Disconnect from any existing channels first
-        try {
-            window.Echo?.leave(instructorChannelName);
-            window.Echo?.leave(parentChannelName);
-        } catch (e) {
-            console.log('No existing channels to leave');
-        }
-
-        // Connect to instructor's channel
-        window.Echo?.private(instructorChannelName)
-            .listen('MessageSent', (e: any) => {
-                handleIncomingMessage(e);
-            })
-            .error((error: any) => {
-                console.error('Student WebSocket connection error (instructor channel):', error);
-            });
-
-        // Connect to parent's channel (for receiving messages)
-        window.Echo?.private(parentChannelName)
-            .listen('MessageSent', (e: any) => {
-                handleIncomingMessage(e);
-            })
-            .error((error: any) => {
-                console.error('Student WebSocket connection error (parent channel):', error);
-            });
-    };
-
-    const handleIncomingMessage = (e: any) => {
-        if (!user) return;
-
-        // Always add the message - WebSocket handles real-time updates
-        setMessages((prev) => {
-            // Check if message already exists to prevent duplicates
-            const messageExists = prev.some((msg) => msg.id === e.newMessage.id);
-            if (messageExists) {
-                return prev;
-            }
-            return [...prev, e.newMessage];
-        });
-        setTimeout(scrollToBottom, 0);
-    };
+    // DISABLED: WebSocket message handler - Using polling instead
+    // const handleIncomingMessage = (e: any) => {
+    //     // WebSocket message handling commented out
+    // };
 
     const getConversation = async () => {
         if (!currentStudentSlug || !user) return;
@@ -128,14 +88,17 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
         }
     };
 
-    const getMessages = async () => {
+    const getMessages = async (isPolling = false) => {
         if (!currentStudentSlug || !user) return;
 
         try {
-            setConversationLoading(true);
+            if (!isPolling) setConversationLoading(true);
             setError(null);
             const response = await axios.get(`/chat/student/${currentStudentSlug}/messages`);
-            setMessages(response.data.messages || []);
+            const allMessages = response.data.messages || [];
+            // Keep only the latest 5 messages for optimal performance
+            const latestMessages = allMessages.slice(-5);
+            setMessages(latestMessages);
             setTimeout(scrollToBottom, 0);
         } catch (err: any) {
             if (err.response?.status === 404) {
@@ -145,7 +108,7 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
             }
             setMessages([]); // Ensure messages is always an array
         } finally {
-            setConversationLoading(false);
+            if (!isPolling) setConversationLoading(false);
         }
     };
 
@@ -156,8 +119,10 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
             const message = newMessage.trim();
             setNewMessage('');
 
-            // Send to server - WebSocket will handle the real-time update
+            // Send to server - polling will pick up the new message
             const response = await axios.post(`/chat/student/${currentStudentSlug}/messages`, { message });
+            // Immediately refresh messages to show the sent message
+            await getMessages(true);
         } catch (err: any) {
             setError('Failed to send message');
         }
@@ -170,6 +135,7 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
         }
     };
 
+    // Initial load effect
     useEffect(() => {
         if (isOpen && user && currentStudentSlug) {
             getConversation();
@@ -177,18 +143,19 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
         }
     }, [isOpen, user, currentStudentSlug]);
 
+    // Polling effect for real-time updates
     useEffect(() => {
-        if (instructorId && user) {
-            connectWebSocket();
-        }
+        if (!isOpen || !instructorId || !currentStudentSlug) return;
+
+        // Set up polling for new messages every 2 seconds
+        const pollInterval = setInterval(() => {
+            getMessages(true); // Pass true to indicate this is polling
+        }, 2000);
 
         return () => {
-            if (instructorId && user) {
-                window.Echo?.leave(`chat.${instructorId}`);
-                window.Echo?.leave(`chat.${user.id}`);
-            }
+            clearInterval(pollInterval);
         };
-    }, [instructorId, user]);
+    }, [isOpen, instructorId, currentStudentSlug]);
 
     useEffect(() => {
         scrollToBottom();
