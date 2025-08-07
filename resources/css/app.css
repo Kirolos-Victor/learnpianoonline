@@ -9,33 +9,35 @@
 @layer base {
     :root {
         --radius: 1rem;
-        --background: 60 100% 98%; /* bright yellow-white */
-        --foreground: 220 50% 20%; /* soft navy */
+
+        /* New app color scheme - converted to HSL for consistency */
+        --background: 0 0% 99%; /* Snow White #FDFDFD */
+        --foreground: 0 0% 20%; /* Charcoal Gray #333333 */
 
         --card: 0 0% 100%;
-        --card-foreground: 220 50% 20%;
+        --card-foreground: 0 0% 20%;
 
         --popover: 0 0% 100%;
-        --popover-foreground: 220 50% 20%;
+        --popover-foreground: 0 0% 20%;
 
-        --primary: 220 50% 20%; /* soft navy */
-        --primary-foreground: 60 100% 98%;
+        --primary: 207 100% 78%; /* Soft Blue #A7D3F2 */
+        --primary-foreground: 0 0% 99%;
 
-        --secondary: 120 100% 50%; /* bright green */
-        --secondary-foreground: 60 100% 98%;
+        --secondary: 25 100% 89%; /* Light Peach #FFD9C0 */
+        --secondary-foreground: 0 0% 20%;
 
-        --muted: 60 100% 95%;
-        --muted-foreground: 220 50% 40%;
+        --muted: 0 0% 96%; /* Mist Gray #F5F5F5 */
+        --muted-foreground: 0 0% 40%; /* Cool Gray #666666 */
 
-        --accent: 200 100% 60%; /* bright blue */
-        --accent-foreground: 60 100% 98%;
+        --accent: 118 100% 91%; /* Pale Mint #D7FADC */
+        --accent-foreground: 0 0% 20%;
 
         --destructive: 0 100% 60%; /* bright red */
-        --destructive-foreground: 60 100% 98%;
+        --destructive-foreground: 0 0% 99%;
 
-        --border: 60 100% 90%;
-        --input: 60 100% 90%;
-        --ring: 200 100% 60%;
+        --border: 0 0% 96%; /* Mist Gray #F5F5F5 */
+        --input: 0 0% 96%; /* Mist Gray #F5F5F5 */
+        --ring: 207 100% 78%; /* Soft Blue #A7D3F2 */
 
         --radius: 1rem;
 
@@ -50,33 +52,33 @@
     }
 
     .dark {
-        --background: 220 50% 10%;
-        --foreground: 60 100% 98%;
+        --background: 0 0% 5%; /* Dark version of Snow White */
+        --foreground: 0 0% 95%; /* Light version of Charcoal Gray */
 
-        --card: 220 50% 15%;
-        --card-foreground: 60 100% 98%;
+        --card: 0 0% 10%;
+        --card-foreground: 0 0% 95%;
 
-        --popover: 220 50% 15%;
-        --popover-foreground: 60 100% 98%;
+        --popover: 0 0% 10%;
+        --popover-foreground: 0 0% 95%;
 
-        --primary: 60 100% 98%;
-        --primary-foreground: 220 50% 10%;
+        --primary: 207 100% 78%; /* Keep Soft Blue for dark mode */
+        --primary-foreground: 0 0% 5%;
 
-        --secondary: 120 100% 60%;
-        --secondary-foreground: 60 100% 98%;
+        --secondary: 25 100% 89%; /* Keep Light Peach for dark mode */
+        --secondary-foreground: 0 0% 5%;
 
-        --muted: 220 50% 20%;
-        --muted-foreground: 60 100% 80%;
+        --muted: 0 0% 15%; /* Dark version of Mist Gray */
+        --muted-foreground: 0 0% 70%; /* Light version of Cool Gray */
 
-        --accent: 200 100% 70%;
-        --accent-foreground: 60 100% 98%;
+        --accent: 118 100% 91%; /* Keep Pale Mint for dark mode */
+        --accent-foreground: 0 0% 5%;
 
         --destructive: 0 100% 70%;
-        --destructive-foreground: 60 100% 98%;
+        --destructive-foreground: 0 0% 95%;
 
-        --border: 220 50% 25%;
-        --input: 220 50% 25%;
-        --ring: 200 100% 70%;
+        --border: 0 0% 20%; /* Dark version of Mist Gray */
+        --input: 0 0% 20%; /* Dark version of Mist Gray */
+        --ring: 207 100% 78%; /* Keep Soft Blue for dark mode */
     }
 }
 
