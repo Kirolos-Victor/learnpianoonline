@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import React from 'react';
 
 interface LogoProps {
@@ -7,6 +8,7 @@ interface LogoProps {
 }
 
 const Logo: React.FC<LogoProps> = ({ className = '', showText = true, size = 'md' }) => {
+    const { name } = usePage().props as any;
     const sizeClasses = {
         sm: 'h-8 w-8',
         md: 'h-12 w-12',
@@ -60,11 +62,11 @@ const Logo: React.FC<LogoProps> = ({ className = '', showText = true, size = 'md
             {showText && (
                 <div className="flex flex-col">
                     <span
-                        className={`font-fredoka ${textSizeClasses[size]} bg-gradient-to-r from-fun-purple via-fun-pink to-fun-orange bg-clip-text font-bold text-transparent`}
+                        className={`font-fredoka ${textSizeClasses[size]} bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text font-bold text-transparent`}
                     >
-                        MyPianoClass
+                        {name || 'MyPianoClass'}
                     </span>
-                    <span className="font-comic text-xs text-white/80">Learn & Play! 🎵</span>
+                    <span className="font-comic text-xs text-gray-600">Learn & Play! 🎵</span>
                 </div>
             )}
         </div>
