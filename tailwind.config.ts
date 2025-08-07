@@ -252,6 +252,14 @@ export default {
                     '50%': { opacity: '1', transform: 'scale(1)' },
                 },
             },
+            backgroundImage: {
+                'auth-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'piano-gradient': 'linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #ecfdf5 100%)',
+                'rainbow-gradient': 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3)',
+                'fun-gradient': 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)',
+                'sky-gradient': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'sunny-gradient': 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+            },
             animation: {
                 'accordion-down': 'accordion-down 0.2s ease-out',
                 'accordion-up': 'accordion-up 0.2s ease-out',

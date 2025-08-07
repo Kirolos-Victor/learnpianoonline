@@ -35,7 +35,7 @@ const ResetPassword = ({ token, email }: Props) => {
     };
 
     return (
-        <div className="bg-piano-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+        <div className="bg-auth-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-6">
             <Head>
                 <title>Reset Password - Learn Piano Online</title>
                 <meta name="description" content="Set a new password for your piano lessons account." />

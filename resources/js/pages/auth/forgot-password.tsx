@@ -28,7 +28,7 @@ const ForgotPassword = ({ status }: Props) => {
     };
 
     return (
-        <div className="bg-piano-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+        <div className="bg-auth-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-6">
             <Head>
                 <title>Forgot Password - Learn Piano Online</title>
                 <meta name="description" content="Reset your password to regain access to your piano lessons account." />

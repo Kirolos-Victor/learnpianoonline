@@ -29,7 +29,7 @@ const Login = () => {
     };
 
     return (
-        <div className="bg-piano-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+        <div className="bg-auth-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-6">
             {/* Animated Background Elements */}
             <div className="pointer-events-none absolute inset-0">
                 {/* Floating Music Notes */}

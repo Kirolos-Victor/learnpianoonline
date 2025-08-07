@@ -187,6 +187,11 @@
         background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #ecfdf5 100%);
     }
 
+    /* Auth pages gradient - original piano design */
+    .bg-auth-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
     /* Float animations for auth pages */
     @keyframes float-slow {
         0%, 100% { transform: translateY(0) rotate(0deg); }
