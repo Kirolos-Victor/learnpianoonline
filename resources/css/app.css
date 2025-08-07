@@ -51,35 +51,7 @@
         --rainbow: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
     }
 
-    .dark {
-        --background: 0 0% 5%; /* Dark version of Snow White */
-        --foreground: 0 0% 95%; /* Light version of Charcoal Gray */
 
-        --card: 0 0% 10%;
-        --card-foreground: 0 0% 95%;
-
-        --popover: 0 0% 10%;
-        --popover-foreground: 0 0% 95%;
-
-        --primary: 207 100% 78%; /* Keep Soft Blue for dark mode */
-        --primary-foreground: 0 0% 5%;
-
-        --secondary: 25 100% 89%; /* Keep Light Peach for dark mode */
-        --secondary-foreground: 0 0% 5%;
-
-        --muted: 0 0% 15%; /* Dark version of Mist Gray */
-        --muted-foreground: 0 0% 70%; /* Light version of Cool Gray */
-
-        --accent: 118 100% 91%; /* Keep Pale Mint for dark mode */
-        --accent-foreground: 0 0% 5%;
-
-        --destructive: 0 100% 70%;
-        --destructive-foreground: 0 0% 95%;
-
-        --border: 0 0% 20%; /* Dark version of Mist Gray */
-        --input: 0 0% 20%; /* Dark version of Mist Gray */
-        --ring: 207 100% 78%; /* Keep Soft Blue for dark mode */
-    }
 }
 
 @layer base {
