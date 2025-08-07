@@ -9,7 +9,7 @@ use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
+
 
 class ChatController extends Controller
 {
@@ -63,11 +63,6 @@ class ChatController extends Controller
     {
         $instructor = $request->user();
 
-        Log::info('Getting messages for instructor', [
-            'instructor_id' => $instructor->id,
-            'student_id' => $studentId
-        ]);
-
         // Find the student and ensure they're assigned to this instructor
         $student = Student::where('id', $studentId)
             ->where('instructor_id', $instructor->id)
@@ -75,10 +70,6 @@ class ChatController extends Controller
             ->first();
 
         if (!$student) {
-            Log::warning('Student not found or not assigned to instructor', [
-                'instructor_id' => $instructor->id,
-                'student_id' => $studentId
-            ]);
             return response()->json(['error' => 'Student not found or not assigned to you'], 404);
         }
 
