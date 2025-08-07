@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
@@ -62,6 +63,11 @@ class ChatController extends Controller
     {
         $instructor = $request->user();
 
+        Log::info('Getting messages for instructor', [
+            'instructor_id' => $instructor->id,
+            'student_id' => $studentId
+        ]);
+
         // Find the student and ensure they're assigned to this instructor
         $student = Student::where('id', $studentId)
             ->where('instructor_id', $instructor->id)
@@ -69,25 +75,48 @@ class ChatController extends Controller
             ->first();
 
         if (!$student) {
+            Log::warning('Student not found or not assigned to instructor', [
+                'instructor_id' => $instructor->id,
+                'student_id' => $studentId
+            ]);
             return response()->json(['error' => 'Student not found or not assigned to you'], 404);
         }
 
         // Get only the latest 5 messages between instructor and student for performance
         $messages = Message::betweenUserAndStudent($instructor->id, $student->id)
-            ->with(['sender', 'receiver'])
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get()
             ->reverse() // Reverse to show oldest first
             ->map(function ($message) {
+                // Safely get sender and receiver names without problematic eager loading
+                $senderName = 'Unknown';
+                $receiverName = 'Unknown';
+
+                if ($message->sender_type === 'student') {
+                    $sender = Student::find($message->sender_id);
+                    $senderName = $sender ? $sender->name : 'Student';
+                } else {
+                    $sender = User::find($message->sender_id);
+                    $senderName = $sender ? $sender->name : 'Instructor';
+                }
+
+                if ($message->receiver_type === 'student') {
+                    $receiver = Student::find($message->receiver_id);
+                    $receiverName = $receiver ? $receiver->name : 'Student';
+                } else {
+                    $receiver = User::find($message->receiver_id);
+                    $receiverName = $receiver ? $receiver->name : 'Instructor';
+                }
+
                 return [
                     'id' => $message->id,
                     'sender_type' => $message->sender_type,
                     'sender_id' => $message->sender_id,
                     'receiver_type' => $message->receiver_type,
                     'receiver_id' => $message->receiver_id,
-                    'sender_name' => $message->sender_name,
-                    'receiver_name' => $message->receiver_name,
+                    'sender_name' => $senderName,
+                    'receiver_name' => $receiverName,
                     'message' => $message->message,
                     'created_at' => $message->created_at->toISOString(),
                 ];
@@ -103,7 +132,7 @@ class ChatController extends Controller
                 'id' => $student->user->id,
                 'name' => $student->user->name,
             ],
-            'messages' => $messages,
+            'messages' => $messages->values()->toArray(),
         ]);
     }
 
@@ -141,7 +170,7 @@ class ChatController extends Controller
         ]);
 
         // DISABLED: Laravel Reverb broadcasting not available in Laravel Cloud
-        // broadcast(new MessageSent($message->load(['sender', 'receiver'])))->toOthers();
+        // broadcast(new MessageSent($message))->toOthers();
 
         return response()->json(['status' => 'Message sent!']);
     }

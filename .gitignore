@@ -25,4 +25,4 @@ yarn-error.log
 /.zed
 
 # Ignore database seeders
-/database/seeders/*.php
+/database/seeders/

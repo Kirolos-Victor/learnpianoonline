@@ -84,12 +84,51 @@ export function InstructorChatDashboard() {
         try {
             if (!isPolling) setLoading(true);
             const response = await axios.get(`/instructor/chat/students/${selectedConversation.student.id}/messages`);
-            const allMessages = response.data.messages || [];
+
+            console.log('Raw API response:', response.data);
+
+            // Handle different response structures
+            let allMessages = [];
+            if (Array.isArray(response.data)) {
+                // If response.data is directly an array of messages
+                allMessages = response.data;
+            } else if (response.data.messages) {
+                // If response.data has a messages property
+                if (Array.isArray(response.data.messages)) {
+                    allMessages = response.data.messages;
+                } else if (typeof response.data.messages === 'object') {
+                    // Convert object with numeric keys to array
+                    allMessages = Object.values(response.data.messages);
+                } else {
+                    console.error('Unexpected messages structure:', response.data.messages);
+                    allMessages = [];
+                }
+            } else {
+                console.error('Unexpected response structure:', response.data);
+                allMessages = [];
+            }
+
             // Keep only the latest 5 messages for optimal performance
             const latestMessages = allMessages.slice(-5);
+
+            if (!isPolling) {
+                console.log('Processed messages:', {
+                    totalMessages: allMessages.length,
+                    latestMessages: latestMessages.length,
+                    messages: latestMessages,
+                });
+            }
+
             setMessages(latestMessages);
         } catch (err: any) {
-            // Handle error silently
+            console.error('Error fetching messages:', err);
+            if (!isPolling) {
+                console.error('Error details:', {
+                    message: err.response?.data,
+                    status: err.response?.status,
+                    statusText: err.response?.statusText,
+                });
+            }
         } finally {
             if (!isPolling) setLoading(false);
         }
@@ -108,21 +147,41 @@ export function InstructorChatDashboard() {
     };
 
     const sendMessage = async () => {
-        if (!newMessage.trim() || !selectedConversation || !user) return;
+        if (!newMessage.trim() || !selectedConversation || !user) {
+            console.log('Cannot send message:', {
+                hasMessage: !!newMessage.trim(),
+                hasConversation: !!selectedConversation,
+                hasUser: !!user,
+            });
+            return;
+        }
 
         try {
             const message = newMessage.trim();
+            console.log('Sending message:', {
+                message: message,
+                studentId: selectedConversation.student.id,
+                url: `/instructor/chat/students/${selectedConversation.student.id}/messages`,
+            });
+
             setNewMessage('');
 
             // Send to server - polling will pick up the new message
-            await axios.post(`/instructor/chat/students/${selectedConversation.student.id}/messages`, {
+            const response = await axios.post(`/instructor/chat/students/${selectedConversation.student.id}/messages`, {
                 message: message,
             });
+
+            console.log('Message sent successfully:', response.data);
+
             // Immediately refresh messages to show the sent message
             await getMessages(true);
         } catch (err: any) {
             console.error('Error sending message:', err);
-            // Handle error silently
+            console.error('Error details:', {
+                message: err.response?.data,
+                status: err.response?.status,
+                statusText: err.response?.statusText,
+            });
         }
     };
 
@@ -160,10 +219,10 @@ export function InstructorChatDashboard() {
     useEffect(() => {
         if (!selectedConversation) return;
 
-        // Set up polling for new messages every 2 seconds
+        // Set up polling for new messages every 5 seconds
         const pollInterval = setInterval(() => {
             getMessages(true); // Pass true to indicate this is polling
-        }, 2000);
+        }, 5000);
 
         return () => {
             clearInterval(pollInterval);
@@ -264,6 +323,15 @@ export function InstructorChatDashboard() {
                                     messages.map((message) => {
                                         // Determine if this is the instructor's own message
                                         const isInstructorMessage = message.sender_type === 'instructor';
+
+                                        console.log('Rendering message:', {
+                                            id: message.id,
+                                            sender_type: message.sender_type,
+                                            sender_id: message.sender_id,
+                                            message: message.message,
+                                            isInstructorMessage: isInstructorMessage,
+                                            currentUserId: user?.id,
+                                        });
 
                                         return (
                                             <div key={message.id} className={cn('flex', isInstructorMessage ? 'justify-end' : 'justify-start')}>

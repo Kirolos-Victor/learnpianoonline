@@ -95,12 +95,45 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
             if (!isPolling) setConversationLoading(true);
             setError(null);
             const response = await axios.get(`/chat/student/${currentStudentSlug}/messages`);
-            const allMessages = response.data.messages || [];
+
+            console.log('Raw API response:', response.data);
+
+            // Handle different response structures
+            let allMessages = [];
+            if (Array.isArray(response.data)) {
+                // If response.data is directly an array of messages
+                allMessages = response.data;
+            } else if (response.data.messages) {
+                // If response.data has a messages property
+                if (Array.isArray(response.data.messages)) {
+                    allMessages = response.data.messages;
+                } else if (typeof response.data.messages === 'object') {
+                    // Convert object with numeric keys to array
+                    allMessages = Object.values(response.data.messages);
+                } else {
+                    console.error('Unexpected messages structure:', response.data.messages);
+                    allMessages = [];
+                }
+            } else {
+                console.error('Unexpected response structure:', response.data);
+                allMessages = [];
+            }
+
             // Keep only the latest 5 messages for optimal performance
             const latestMessages = allMessages.slice(-5);
+
+            if (!isPolling) {
+                console.log('Processed messages:', {
+                    totalMessages: allMessages.length,
+                    latestMessages: latestMessages.length,
+                    messages: latestMessages,
+                });
+            }
+
             setMessages(latestMessages);
             setTimeout(scrollToBottom, 0);
         } catch (err: any) {
+            console.error('Error fetching messages:', err);
             if (err.response?.status === 404) {
                 setError('No instructor assigned yet. You can start chatting once they are assigned.');
             } else {
@@ -113,17 +146,38 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
     };
 
     const sendMessage = async () => {
-        if (!newMessage.trim() || !user || !currentStudentSlug) return;
+        if (!newMessage.trim() || !user || !currentStudentSlug) {
+            console.log('Cannot send message:', {
+                hasMessage: !!newMessage.trim(),
+                hasUser: !!user,
+                hasStudentSlug: !!currentStudentSlug,
+            });
+            return;
+        }
 
         try {
             const message = newMessage.trim();
+            console.log('Sending message:', {
+                message: message,
+                studentSlug: currentStudentSlug,
+                url: `/chat/student/${currentStudentSlug}/messages`,
+            });
+
             setNewMessage('');
 
             // Send to server - polling will pick up the new message
             const response = await axios.post(`/chat/student/${currentStudentSlug}/messages`, { message });
+            console.log('Message sent successfully:', response.data);
+
             // Immediately refresh messages to show the sent message
             await getMessages(true);
         } catch (err: any) {
+            console.error('Error sending message:', err);
+            console.error('Error details:', {
+                message: err.response?.data,
+                status: err.response?.status,
+                statusText: err.response?.statusText,
+            });
             setError('Failed to send message');
         }
     };
@@ -147,10 +201,10 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
     useEffect(() => {
         if (!isOpen || !instructorId || !currentStudentSlug) return;
 
-        // Set up polling for new messages every 2 seconds
+        // Set up polling for new messages every 5 seconds
         const pollInterval = setInterval(() => {
             getMessages(true); // Pass true to indicate this is polling
-        }, 2000);
+        }, 5000);
 
         return () => {
             clearInterval(pollInterval);

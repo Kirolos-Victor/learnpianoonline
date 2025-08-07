@@ -93,7 +93,7 @@ class ChatController extends Controller
                 'name' => $student->name,
                 'slug' => $student->slug,
             ],
-            'messages' => $messages,
+            'messages' => $messages->values()->toArray(),
         ]);
     }
 
