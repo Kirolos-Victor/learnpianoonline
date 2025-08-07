@@ -57,10 +57,10 @@ const ForgotPassword = ({ status }: Props) => {
                 </div>
 
                 {/* Forgot Password Form */}
-                <Card className="border-teal/20 bg-white/95 shadow-2xl backdrop-blur-sm">
+                <Card className="border-primary/20 bg-white/95 shadow-2xl backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="font-playfair text-navy text-center text-2xl">Reset Your Password</CardTitle>
-                        <CardDescription className="text-warm-gray-600 text-center">
+                        <CardTitle className="text-center font-fredoka text-2xl text-primary">Reset Your Password</CardTitle>
+                        <CardDescription className="text-center text-muted-foreground">
                             Enter your email address and we'll send you a link to reset your password 📧
                         </CardDescription>
                     </CardHeader>
@@ -80,7 +80,7 @@ const ForgotPassword = ({ status }: Props) => {
 
                         <form onSubmit={submit} className="space-y-4">
                             <div>
-                                <Label htmlFor="email" className="text-navy font-medium">
+                                <Label htmlFor="email" className="font-medium text-primary">
                                     Email Address
                                 </Label>
                                 <Input
@@ -89,7 +89,7 @@ const ForgotPassword = ({ status }: Props) => {
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
                                     placeholder="Enter your email address"
-                                    className="border-warm-gray-300 focus:border-teal mt-1"
+                                    className="mt-1 border-input focus:border-primary"
                                     autoFocus
                                 />
                                 <InputError message={errors.email} className="mt-1" />
@@ -97,7 +97,7 @@ const ForgotPassword = ({ status }: Props) => {
 
                             <Button
                                 type="submit"
-                                className="w-full bg-teal-400 text-white shadow-lg transition-all duration-300 hover:bg-teal-600 hover:shadow-xl"
+                                className="w-full bg-accent text-accent-foreground shadow-lg transition-all duration-300 hover:bg-accent/90 hover:shadow-xl"
                                 disabled={processing}
                             >
                                 {processing ? (
@@ -115,20 +115,20 @@ const ForgotPassword = ({ status }: Props) => {
                         </form>
 
                         <div className="mt-6 text-center">
-                            <p className="text-warm-gray-600 text-sm">
+                            <p className="text-sm text-muted-foreground">
                                 Remember your password?{' '}
-                                <Link href={route('login')} className="text-teal cursor-pointer font-medium hover:underline">
+                                <Link href={route('login')} className="cursor-pointer font-medium text-primary hover:underline">
                                     <ArrowLeft className="mr-1 inline h-3 w-3" />
                                     Back to login
                                 </Link>
                             </p>
-                            <p className="text-warm-gray-600 mt-2 text-sm">
+                            <p className="mt-2 text-sm text-muted-foreground">
                                 Don't have an account?{' '}
-                                <Link href={route('register')} className="text-teal cursor-pointer font-medium hover:underline">
+                                <Link href={route('register')} className="cursor-pointer font-medium text-primary hover:underline">
                                     Sign up here
                                 </Link>
                             </p>
-                            <p className="text-warm-gray-500 mt-3 text-xs">🔒 Secure & encrypted • 🎵 Get back to learning!</p>
+                            <p className="mt-3 text-xs text-muted-foreground">🔒 Secure & encrypted • 🎵 Get back to learning!</p>
                         </div>
                     </CardContent>
                 </Card>

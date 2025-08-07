@@ -115,7 +115,7 @@ const Pricing = () => {
                 {/* Header */}
                 <div className="bg-piano-gradient px-6 py-16">
                     <div className="container mx-auto text-center">
-                        <h1 className="font-playfair mb-4 text-4xl font-bold text-primary md:text-5xl">Choose Your Perfect Plan</h1>
+                        <h1 className="mb-4 font-playfair text-4xl font-bold text-primary md:text-5xl">Choose Your Perfect Plan</h1>
                         <p className="mx-auto mb-8 max-w-2xl text-xl text-muted-foreground">
                             Flexible pricing options designed to fit your musical journey and budget
                         </p>
@@ -136,7 +136,7 @@ const Pricing = () => {
                                     </Badge>
                                 </div>
                                 <CardHeader className="pb-6 text-center">
-                                    <CardTitle className="font-playfair mb-2 text-2xl">Monthly Plan</CardTitle>
+                                    <CardTitle className="mb-2 font-playfair text-2xl">Monthly Plan</CardTitle>
                                     <CardDescription className="text-base">Perfect for getting started with piano</CardDescription>
                                     <div className="mt-4">
                                         <span className="text-4xl font-bold text-primary">${monthlySubscribePrice}</span>
@@ -175,7 +175,7 @@ const Pricing = () => {
                                     </div>
                                 </div>
                                 <CardHeader className="pb-6 text-center">
-                                    <CardTitle className="font-playfair mb-2 text-2xl">Yearly Plan</CardTitle>
+                                    <CardTitle className="mb-2 font-playfair text-2xl">Yearly Plan</CardTitle>
                                     <CardDescription className="text-base">Best value for serious learners</CardDescription>
                                     <div className="mt-4">
                                         <span className="text-4xl font-bold text-primary">${yearlySubscribePrice}</span>
@@ -229,7 +229,7 @@ const Pricing = () => {
                         {/* Start Your Journey Button */}
                         <div className="mb-16 text-center">
                             <div className="shadow-float mx-auto max-w-2xl rounded-3xl bg-gradient-to-r from-fun-pink/10 to-fun-blue/10 p-8">
-                                <h3 className="font-playfair mb-4 text-2xl font-bold text-primary">Ready to Begin Your Musical Journey? 🎹</h3>
+                                <h3 className="mb-4 font-playfair text-2xl font-bold text-primary">Ready to Begin Your Musical Journey? 🎹</h3>
                                 <p className="mx-auto mb-6 max-w-lg text-muted-foreground">
                                     Choose your perfect plan and start learning piano with personalized instruction tailored just for you.
                                 </p>
@@ -245,7 +245,7 @@ const Pricing = () => {
 
                         {/* Testimonials */}
                         <div className="mb-16">
-                            <h2 className="font-playfair mb-8 text-center text-3xl font-bold">What Students Say</h2>
+                            <h2 className="mb-8 text-center font-playfair text-3xl font-bold">What Students Say</h2>
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                                 {testimonials.map((testimonial, index) => (
                                     <Card key={index} className="border-gold/20">
@@ -263,11 +263,11 @@ const Pricing = () => {
 
                         {/* FAQ */}
                         <div className="mb-16">
-                            <h2 className="font-playfair mb-8 text-center text-3xl font-bold">Frequently Asked Questions</h2>
+                            <h2 className="mb-8 text-center font-playfair text-3xl font-bold">Frequently Asked Questions</h2>
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 {faqs.map((faq, index) => (
                                     <div key={index} className="rounded-lg border p-6">
-                                        <h3 className="font-playfair mb-2 text-lg font-semibold text-primary">{faq.question}</h3>
+                                        <h3 className="mb-2 font-playfair text-lg font-semibold text-primary">{faq.question}</h3>
                                         <p className="text-sm text-muted-foreground">{faq.answer}</p>
                                     </div>
                                 ))}
@@ -277,7 +277,7 @@ const Pricing = () => {
                         {/* Final CTA */}
                         <Card className="bg-warm-brown text-piano-white text-center">
                             <CardContent className="p-8">
-                                <h2 className="font-playfair mb-4 text-3xl font-bold">Transform Your Musical Dreams Into Reality</h2>
+                                <h2 className="mb-4 font-playfair text-3xl font-bold">Transform Your Musical Dreams Into Reality</h2>
                                 <p className="text-piano-white/80 mx-auto mb-6 max-w-2xl">
                                     Join hundreds of students who have transformed their piano skills with our personalized approach. Start your first
                                     lesson within 48 hours and begin your musical journey today.

@@ -63,15 +63,15 @@ export default {
                 },
                 // New app color scheme
                 app: {
-                    background: '#FDFDFD', // Snow White
-                    'secondary-background': '#F5F5F5', // Mist Gray
-                    'primary-accent': '#A7D3F2', // Soft Blue
-                    'secondary-accent': '#FFD9C0', // Light Peach
-                    'tertiary-accent': '#D7FADC', // Pale Mint
-                    'text-primary': '#333333', // Charcoal Gray
+                    background: '#FFFFFF', // Pure White
+                    'secondary-background': '#EFEFEF', // Light Gray
+                    'primary-accent': '#A855F7', // Fun Purple
+                    'secondary-accent': '#EC4899', // Fun Pink
+                    'tertiary-accent': '#22C55E', // Fun Green
+                    'text-primary': '#A855F7', // Fun Purple (matching Home.tsx)
                     'text-secondary': '#666666', // Cool Gray
-                    button: '#76C7F2', // Sky Blue
-                    'hover-focus': '#E5D6F2', // Pastel Purple
+                    button: '#3B82F6', // Fun Blue
+                    'hover-focus': '#F97316', // Fun Orange
                 },
                 // Child-friendly color palette
                 'fun-pink': {

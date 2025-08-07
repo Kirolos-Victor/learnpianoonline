@@ -57,28 +57,28 @@ const ResetPassword = ({ token, email }: Props) => {
                 </div>
 
                 {/* Reset Password Form */}
-                <Card className="border-teal/20 bg-white/95 shadow-2xl backdrop-blur-sm">
+                <Card className="border-primary/20 bg-white/95 shadow-2xl backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="font-playfair text-navy text-center text-2xl">Set New Password</CardTitle>
-                        <CardDescription className="text-warm-gray-600 text-center">Enter your new password below 🔑</CardDescription>
+                        <CardTitle className="text-center font-fredoka text-2xl text-primary">Set New Password</CardTitle>
+                        <CardDescription className="text-center text-muted-foreground">Enter your new password below 🔑</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={submit} className="space-y-4">
                             <div>
-                                <Label htmlFor="email" className="text-navy font-medium">
+                                <Label htmlFor="email" className="font-medium text-primary">
                                     Email Address
                                 </Label>
                                 <Input
                                     id="email"
                                     type="email"
                                     value={data.email}
-                                    className="border-warm-gray-300 focus:border-teal mt-1 bg-gray-50"
+                                    className="mt-1 border-input bg-muted focus:border-primary"
                                     disabled
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="password" className="text-navy font-medium">
+                                <Label htmlFor="password" className="font-medium text-primary">
                                     New Password
                                 </Label>
                                 <Input
@@ -87,14 +87,14 @@ const ResetPassword = ({ token, email }: Props) => {
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
                                     placeholder="Enter your new password"
-                                    className="border-warm-gray-300 focus:border-teal mt-1"
+                                    className="mt-1 border-input focus:border-primary"
                                     autoFocus
                                 />
                                 <InputError message={errors.password} className="mt-1" />
                             </div>
 
                             <div>
-                                <Label htmlFor="password_confirmation" className="text-navy font-medium">
+                                <Label htmlFor="password_confirmation" className="font-medium text-primary">
                                     Confirm Password
                                 </Label>
                                 <Input
@@ -103,14 +103,14 @@ const ResetPassword = ({ token, email }: Props) => {
                                     value={data.password_confirmation}
                                     onChange={(e) => setData('password_confirmation', e.target.value)}
                                     placeholder="Confirm your new password"
-                                    className="border-warm-gray-300 focus:border-teal mt-1"
+                                    className="mt-1 border-input focus:border-primary"
                                 />
                                 <InputError message={errors.password_confirmation} className="mt-1" />
                             </div>
 
                             <Button
                                 type="submit"
-                                className="w-full bg-teal-400 text-white shadow-lg transition-all duration-300 hover:bg-teal-600 hover:shadow-xl"
+                                className="w-full bg-accent text-accent-foreground shadow-lg transition-all duration-300 hover:bg-accent/90 hover:shadow-xl"
                                 disabled={processing}
                             >
                                 {processing ? (
@@ -128,14 +128,14 @@ const ResetPassword = ({ token, email }: Props) => {
                         </form>
 
                         <div className="mt-6 text-center">
-                            <p className="text-warm-gray-600 text-sm">
+                            <p className="text-sm text-muted-foreground">
                                 Remember your password?{' '}
-                                <Link href={route('login')} className="text-teal cursor-pointer font-medium hover:underline">
+                                <Link href={route('login')} className="cursor-pointer font-medium text-primary hover:underline">
                                     <ArrowLeft className="mr-1 inline h-3 w-3" />
                                     Back to login
                                 </Link>
                             </p>
-                            <p className="text-warm-gray-500 mt-3 text-xs">🔒 Secure & encrypted • 🎵 Get back to learning!</p>
+                            <p className="mt-3 text-xs text-muted-foreground">🔒 Secure & encrypted • 🎵 Get back to learning!</p>
                         </div>
                     </CardContent>
                 </Card>

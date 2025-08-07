@@ -120,15 +120,15 @@ const Login = () => {
                     </Link>
                 </div>
 
-                <Card className="border-teal/20 bg-white/95 shadow-2xl backdrop-blur-sm">
+                <Card className="border-primary/20 bg-white/95 shadow-2xl backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="font-playfair text-navy text-center text-2xl">Welcome Back</CardTitle>
-                        <CardDescription className="text-warm-gray-600 text-center">Sign in to continue your piano journey</CardDescription>
+                        <CardTitle className="text-center font-fredoka text-2xl text-primary">Welcome Back</CardTitle>
+                        <CardDescription className="text-center text-muted-foreground">Sign in to continue your piano journey</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={submit} className="space-y-4">
                             <div>
-                                <Label htmlFor="email" className="text-navy">
+                                <Label htmlFor="email" className="font-medium text-primary">
                                     Email
                                 </Label>
                                 <Input
@@ -137,12 +137,12 @@ const Login = () => {
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
                                     placeholder="Enter your email"
-                                    className="border-warm-gray-300 focus:border-teal"
+                                    className="border-input focus:border-primary"
                                 />
                                 <InputError message={errors.email} />
                             </div>
                             <div>
-                                <Label htmlFor="password" className="text-navy">
+                                <Label htmlFor="password" className="font-medium text-primary">
                                     Password
                                 </Label>
                                 <Input
@@ -151,7 +151,7 @@ const Login = () => {
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
                                     placeholder="Enter your password"
-                                    className="border-warm-gray-300 focus:border-teal"
+                                    className="border-input focus:border-primary"
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -163,11 +163,13 @@ const Login = () => {
                                     checked={data.remember}
                                     onChange={(e) => setData('remember', e.target.checked)}
                                 />
-                                <Label htmlFor="remember">Remember me</Label>
+                                <Label htmlFor="remember" className="text-foreground">
+                                    Remember me
+                                </Label>
                             </div>
                             <Button
                                 type="submit"
-                                className="w-full bg-teal-400 text-white transition-all duration-300 hover:bg-teal-600"
+                                className="w-full bg-accent text-accent-foreground transition-all duration-300 hover:bg-accent/90"
                                 disabled={processing}
                             >
                                 {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
@@ -176,19 +178,19 @@ const Login = () => {
                         </form>
 
                         <div className="mt-6 text-center">
-                            <p className="text-warm-gray-600 text-sm">
+                            <p className="text-sm text-muted-foreground">
                                 Don't have an account?{' '}
-                                <Link href={route('register')} className="text-teal cursor-pointer hover:underline">
+                                <Link href={route('register')} className="cursor-pointer text-primary hover:underline">
                                     Sign up here
                                 </Link>
                             </p>
-                            <p className="text-warm-gray-600 mt-2 text-sm">
+                            <p className="mt-2 text-sm text-muted-foreground">
                                 Forgot your password?{' '}
-                                <Link href={route('password.request')} className="text-teal cursor-pointer hover:underline">
+                                <Link href={route('password.request')} className="cursor-pointer text-primary hover:underline">
                                     Reset it here
                                 </Link>
                             </p>
-                            <p className="text-warm-gray-500 mt-3 text-xs">🔒 Secure & encrypted</p>
+                            <p className="mt-3 text-xs text-muted-foreground">🔒 Secure & encrypted</p>
                         </div>
                     </CardContent>
                 </Card>

@@ -26,3 +26,6 @@ yarn-error.log
 
 # Ignore database seeders
 /database/seeders/
+
+# Color reference file
+colors-reference.json

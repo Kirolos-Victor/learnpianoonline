@@ -10,34 +10,34 @@
     :root {
         --radius: 1rem;
 
-        /* New app color scheme - converted to HSL for consistency */
-        --background: 0 0% 99%; /* Snow White #FDFDFD */
-        --foreground: 0 0% 20%; /* Charcoal Gray #333333 */
+        /* Color scheme matching Home.tsx exactly */
+        --background: 0 0% 100%; /* Pure White #FFFFFF */
+        --foreground: 271 81% 56%; /* Fun Purple #A855F7 */
 
         --card: 0 0% 100%;
-        --card-foreground: 0 0% 20%;
+        --card-foreground: 271 81% 56%;
 
         --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 20%;
+        --popover-foreground: 271 81% 56%;
 
-        --primary: 207 100% 78%; /* Soft Blue #A7D3F2 */
-        --primary-foreground: 0 0% 99%;
+        --primary: 271 81% 56%; /* Fun Purple #A855F7 */
+        --primary-foreground: 0 0% 100%;
 
-        --secondary: 25 100% 89%; /* Light Peach #FFD9C0 */
-        --secondary-foreground: 0 0% 20%;
+        --secondary: 330 81% 60%; /* Fun Pink #EC4899 */
+        --secondary-foreground: 0 0% 100%;
 
-        --muted: 0 0% 96%; /* Mist Gray #F5F5F5 */
+        --muted: 0 0% 94%; /* Light Gray #EFEFEF */
         --muted-foreground: 0 0% 40%; /* Cool Gray #666666 */
 
-        --accent: 118 100% 91%; /* Pale Mint #D7FADC */
-        --accent-foreground: 0 0% 20%;
+        --accent: 142 76% 36%; /* Fun Green #22C55E */
+        --accent-foreground: 0 0% 100%;
 
         --destructive: 0 100% 60%; /* bright red */
-        --destructive-foreground: 0 0% 99%;
+        --destructive-foreground: 0 0% 100%;
 
-        --border: 0 0% 96%; /* Mist Gray #F5F5F5 */
-        --input: 0 0% 96%; /* Mist Gray #F5F5F5 */
-        --ring: 207 100% 78%; /* Soft Blue #A7D3F2 */
+        --border: 0 0% 94%; /* Light Gray #EFEFEF */
+        --input: 0 0% 94%; /* Light Gray #EFEFEF */
+        --ring: 271 81% 56%; /* Fun Purple #A855F7 */
 
         --radius: 1rem;
 
@@ -182,9 +182,9 @@
         background-size: 100% 100%;
     }
 
-    /* Piano gradient background for auth pages */
+    /* Piano gradient background for auth pages - fun colors with better text visibility */
     .bg-piano-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #ecfdf5 100%);
     }
 
     /* Float animations for auth pages */
@@ -225,7 +225,7 @@
     }
 
     .bg-piano-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #ecfdf5 100%);
     }
 
     /* Gentle animations that won't cause lag */
