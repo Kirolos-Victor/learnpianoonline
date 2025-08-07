@@ -54,49 +54,7 @@ const StudentHome = () => {
         return (
             <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.isSubscribed}>
                 <div className="min-h-screen bg-background">
-                    <Head>
-                        <title>
-                            {student.isSubscribed ? `${student.name}'s Piano Dashboard` : `${student.name}'s Piano Journey`} - Learn Piano Online
-                        </title>
-                        <meta
-                            name="description"
-                            content={
-                                student.isSubscribed
-                                    ? `Welcome to ${student.name}'s piano dashboard! Track progress, view upcoming sessions, and continue your musical journey with ${student.sessionsRemaining} sessions remaining.`
-                                    : `Start ${student.name}'s piano learning adventure! Join our online piano lessons and unlock musical potential with expert instructors.`
-                            }
-                        />
-                        <meta
-                            name="keywords"
-                            content={`piano lessons, online piano, ${student.name}, piano student, music education, piano learning, virtual piano lessons`}
-                        />
-                        <meta
-                            property="og:title"
-                            content={`${student.name}'s Piano ${student.isSubscribed ? 'Dashboard' : 'Journey'} - Learn Piano Online`}
-                        />
-                        <meta
-                            property="og:description"
-                            content={
-                                student.isSubscribed
-                                    ? `Welcome to ${student.name}'s piano dashboard! Track progress and continue your musical journey.`
-                                    : `Start ${student.name}'s piano learning adventure with expert online instruction.`
-                            }
-                        />
-                        <meta property="og:type" content="website" />
-                        <meta name="twitter:card" content="summary" />
-                        <meta
-                            name="twitter:title"
-                            content={`${student.name}'s Piano ${student.isSubscribed ? 'Dashboard' : 'Journey'} - Learn Piano Online`}
-                        />
-                        <meta
-                            name="twitter:description"
-                            content={
-                                student.isSubscribed
-                                    ? `Welcome to ${student.name}'s piano dashboard! Track progress and continue your musical journey.`
-                                    : `Start ${student.name}'s piano learning adventure with expert online instruction.`
-                            }
-                        />
-                    </Head>
+                    <Head title={`${student.name}'s Piano Journey`}></Head>
 
                     {/* Fun Header */}
                     <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
@@ -152,49 +110,7 @@ const StudentHome = () => {
     return (
         <StudentLayout currentStudentSlug={student.slug} isSubscribed={student.isSubscribed}>
             <div className="min-h-screen bg-background">
-                <Head>
-                    <title>
-                        {student.isSubscribed ? `${student.name}'s Piano Dashboard` : `${student.name}'s Piano Journey`} - Learn Piano Online
-                    </title>
-                    <meta
-                        name="description"
-                        content={
-                            student.isSubscribed
-                                ? `Welcome to ${student.name}'s piano dashboard! Track progress, view upcoming sessions, and continue your musical journey with ${student.sessionsRemaining} sessions remaining.`
-                                : `Start ${student.name}'s piano learning adventure! Join our online piano lessons and unlock musical potential with expert instructors.`
-                        }
-                    />
-                    <meta
-                        name="keywords"
-                        content={`piano lessons, online piano, ${student.name}, piano student, music education, piano learning, virtual piano lessons`}
-                    />
-                    <meta
-                        property="og:title"
-                        content={`${student.name}'s Piano ${student.isSubscribed ? 'Dashboard' : 'Journey'} - Learn Piano Online`}
-                    />
-                    <meta
-                        property="og:description"
-                        content={
-                            student.isSubscribed
-                                ? `Welcome to ${student.name}'s piano dashboard! Track progress and continue your musical journey.`
-                                : `Start ${student.name}'s piano learning adventure with expert online instruction.`
-                        }
-                    />
-                    <meta property="og:type" content="website" />
-                    <meta name="twitter:card" content="summary" />
-                    <meta
-                        name="twitter:title"
-                        content={`${student.name}'s Piano ${student.isSubscribed ? 'Dashboard' : 'Journey'} - Learn Piano Online`}
-                    />
-                    <meta
-                        name="twitter:description"
-                        content={
-                            student.isSubscribed
-                                ? `Welcome to ${student.name}'s piano dashboard! Track progress and continue your musical journey.`
-                                : `Start ${student.name}'s piano learning adventure with expert online instruction.`
-                        }
-                    />
-                </Head>
+                <Head title={`${student.name}'s Piano Dashboard`}></Head>
 
                 {/* Fun Header */}
                 <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
