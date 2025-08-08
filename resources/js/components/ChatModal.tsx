@@ -5,7 +5,7 @@ import { PageProps } from '@inertiajs/core';
 import { usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { Maximize2, MessageCircle, Minimize2, Send, X } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 // DISABLED: Laravel Reverb not available in Laravel Cloud
 // import '../lib/echo';
 
@@ -44,7 +44,7 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
     const { auth } = usePage<ExtendedPageProps>().props;
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
-    const [loading, setLoading] = useState(false);
+
     const [conversationLoading, setConversationLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isMinimized, setIsMinimized] = useState(false);
@@ -68,7 +68,7 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
     //     // WebSocket message handling commented out
     // };
 
-    const getConversation = async () => {
+    const getConversation = useCallback(async () => {
         if (!currentStudentSlug || !user) return;
 
         try {
@@ -86,31 +86,34 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
         } finally {
             setConversationLoading(false);
         }
-    };
+    }, [currentStudentSlug, user]);
 
-    const getMessages = async (isPolling = false) => {
-        if (!currentStudentSlug || !user) return;
+    const getMessages = useCallback(
+        async (isPolling = false) => {
+            if (!currentStudentSlug || !user) return;
 
-        try {
-            if (!isPolling) setConversationLoading(true);
-            setError(null);
-            const response = await axios.get(`/chat/student/${currentStudentSlug}/messages`);
-            const allMessages = response.data.messages || [];
-            // Keep only the latest 5 messages for optimal performance
-            const latestMessages = allMessages.slice(-5);
-            setMessages(latestMessages);
-            setTimeout(scrollToBottom, 0);
-        } catch (err: any) {
-            if (err.response?.status === 404) {
-                setError('No instructor assigned yet. You can start chatting once they are assigned.');
-            } else {
-                setError('Failed to load messages. Please try again.');
+            try {
+                if (!isPolling) setConversationLoading(true);
+                setError(null);
+                const response = await axios.get(`/chat/student/${currentStudentSlug}/messages`);
+                const allMessages = response.data.messages || [];
+                // Keep only the latest 5 messages for optimal performance
+                const latestMessages = allMessages.slice(-5);
+                setMessages(latestMessages);
+                setTimeout(scrollToBottom, 0);
+            } catch (err: any) {
+                if (err.response?.status === 404) {
+                    setError('No instructor assigned yet. You can start chatting once they are assigned.');
+                } else {
+                    setError('Failed to load messages. Please try again.');
+                }
+                setMessages([]); // Ensure messages is always an array
+            } finally {
+                if (!isPolling) setConversationLoading(false);
             }
-            setMessages([]); // Ensure messages is always an array
-        } finally {
-            if (!isPolling) setConversationLoading(false);
-        }
-    };
+        },
+        [currentStudentSlug, user],
+    );
 
     const sendMessage = async () => {
         if (!newMessage.trim() || !user || !currentStudentSlug) return;
@@ -123,7 +126,7 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
             await axios.post(`/chat/student/${currentStudentSlug}/messages`, { message });
             // Immediately refresh messages to show the sent message
             await getMessages(true);
-        } catch (err: any) {
+        } catch {
             setError('Failed to send message');
         }
     };
@@ -141,7 +144,7 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
             getConversation();
             getMessages();
         }
-    }, [isOpen, user, currentStudentSlug]);
+    }, [isOpen, user, currentStudentSlug, getConversation, getMessages]);
 
     // Polling effect for real-time updates
     useEffect(() => {
@@ -155,7 +158,7 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
         return () => {
             clearInterval(pollInterval);
         };
-    }, [isOpen, instructorId, currentStudentSlug]);
+    }, [isOpen, instructorId, currentStudentSlug, getMessages]);
 
     useEffect(() => {
         scrollToBottom();
@@ -207,10 +210,6 @@ export function ChatModal({ isOpen, onToggle, currentStudentSlug }: ChatModalPro
                                     {conversationLoading ? (
                                         <div className="flex h-full items-center justify-center">
                                             <p className="text-muted-foreground">Connecting to chat...</p>
-                                        </div>
-                                    ) : loading ? (
-                                        <div className="flex h-full items-center justify-center">
-                                            <p className="text-muted-foreground">Loading messages...</p>
                                         </div>
                                     ) : !messages || messages.length === 0 ? (
                                         <div className="flex h-full items-center justify-center">

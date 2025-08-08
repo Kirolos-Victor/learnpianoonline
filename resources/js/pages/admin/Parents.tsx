@@ -7,7 +7,7 @@ import { PaginationData, TablePagination } from '@/components/ui/table-paginatio
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, router } from '@inertiajs/react';
 import { Search, UserCheck, Users, UserX } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface User {
     id: string;
@@ -44,6 +44,27 @@ const AdminParents = ({ users, stats, filters }: Props) => {
     const [searchTerm, setSearchTerm] = useState(filters.search);
     const [statusFilter, setStatusFilter] = useState(filters.status);
 
+    const updateFilters = useCallback(
+        (newFilters: Partial<Filters>) => {
+            const params = {
+                ...filters,
+                ...newFilters,
+            };
+
+            // Remove empty search
+            if (!params.search) {
+                delete (params as any).search;
+            }
+
+            router.visit(route('admin.parents'), {
+                data: params,
+                preserveState: true,
+                replace: true,
+            });
+        },
+        [filters],
+    );
+
     // Debounce search
     useEffect(() => {
         const delayedSearch = setTimeout(() => {
@@ -53,25 +74,7 @@ const AdminParents = ({ users, stats, filters }: Props) => {
         }, 500);
 
         return () => clearTimeout(delayedSearch);
-    }, [searchTerm]);
-
-    const updateFilters = (newFilters: Partial<Filters>) => {
-        const params = {
-            ...filters,
-            ...newFilters,
-        };
-
-        // Remove empty search
-        if (!params.search) {
-            delete (params as any).search;
-        }
-
-        router.visit(route('admin.parents'), {
-            data: params,
-            preserveState: true,
-            replace: true,
-        });
-    };
+    }, [searchTerm, filters.search, statusFilter, filters.per_page, updateFilters]);
 
     const handlePageChange = (page: number) => {
         router.visit(route('admin.parents'), {
@@ -86,22 +89,6 @@ const AdminParents = ({ users, stats, filters }: Props) => {
 
     const handlePerPageChange = (perPage: number) => {
         updateFilters({ per_page: perPage });
-    };
-
-    const applyFilters = () => {
-        router.get(
-            route('admin.parents'),
-            {
-                search: searchTerm,
-                status: statusFilter,
-                per_page: filters.per_page,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                replace: true,
-            },
-        );
     };
 
     const handleStatusChange = (value: string) => {
@@ -147,16 +134,6 @@ const AdminParents = ({ users, stats, filters }: Props) => {
                 },
             );
         }
-    };
-
-    const handleToggleStatus = (userId: string, currentStatus: boolean) => {
-        router.patch(
-            route('admin.parents.toggle-status', { id: userId }),
-            {},
-            {
-                preserveScroll: true,
-            },
-        );
     };
 
     return (

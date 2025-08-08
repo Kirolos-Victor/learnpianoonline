@@ -8,7 +8,7 @@ interface ParentLayoutProps {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export default ({ children, breadcrumbs }: ParentLayoutProps) => (
+export default ({ children, breadcrumbs: _breadcrumbs }: ParentLayoutProps) => (
     <div className="flex min-h-screen flex-col">
         <Navbar></Navbar>
         <main className="flex-grow">

@@ -10,7 +10,7 @@ import AdminLayout from '@/layouts/admin-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import axios from 'axios';
 import { Calendar, Edit, GraduationCap, Search, UserCheck, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Student {
     id: string;
@@ -82,13 +82,11 @@ interface Filters {
 
 interface Props {
     students: PaginationData;
-    instructors: InstructorOption[];
     stats: Stats;
     filters: Filters;
-    timezone: string;
 }
 
-const AdminStudents = ({ students, instructors, stats, filters, timezone }: Props) => {
+const AdminStudents = ({ students, stats, filters }: Props) => {
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     const [subscriptionFilter, setSubscriptionFilter] = useState(filters?.subscription || 'all');
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -113,18 +111,7 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
         instructorTimezone?: string;
     }>({});
 
-    // Debounced search effect
-    useEffect(() => {
-        const delayedSearch = setTimeout(() => {
-            if (searchTerm !== (filters?.search || '')) {
-                applyFilters();
-            }
-        }, 500);
-
-        return () => clearTimeout(delayedSearch);
-    }, [searchTerm]);
-
-    const applyFilters = () => {
+    const applyFilters = useCallback(() => {
         router.get(
             route('admin.students'),
             {
@@ -138,7 +125,18 @@ const AdminStudents = ({ students, instructors, stats, filters, timezone }: Prop
                 replace: true,
             },
         );
-    };
+    }, [searchTerm, subscriptionFilter, filters?.per_page]);
+
+    // Debounced search effect
+    useEffect(() => {
+        const delayedSearch = setTimeout(() => {
+            if (searchTerm !== (filters?.search || '')) {
+                applyFilters();
+            }
+        }, 500);
+
+        return () => clearTimeout(delayedSearch);
+    }, [searchTerm, filters?.search, applyFilters]);
 
     const handleSubscriptionFilterChange = (value: string) => {
         setSubscriptionFilter(value);

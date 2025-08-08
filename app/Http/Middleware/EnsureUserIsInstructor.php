@@ -15,7 +15,7 @@ class EnsureUserIsInstructor
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || $request->user()->role !== 'instructor' || !$request->user()->is_active) {
+        if (! $request->user() || $request->user()->role !== 'instructor' || ! $request->user()->is_active) {
             abort(403, 'Access denied. Instructor privileges required.');
         }
 

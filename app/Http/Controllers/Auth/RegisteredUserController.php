@@ -4,14 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Student;
 use App\Services\LocationService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -40,7 +38,7 @@ class RegisteredUserController extends Controller
 
         $request->validate([
             'name' => 'required|string|min:2|max:255|regex:/^[a-zA-Z\s\-\'\.]+$/',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => [
                 'required',
                 'confirmed',
@@ -110,7 +108,7 @@ class RegisteredUserController extends Controller
     {
         $country = $request->get('country');
 
-        if (!$country) {
+        if (! $country) {
             return response()->json(['error' => 'Country parameter is required'], 400);
         }
 
@@ -118,7 +116,7 @@ class RegisteredUserController extends Controller
 
         return response()->json([
             'locations' => $locations,
-            'country' => $country
+            'country' => $country,
         ]);
     }
 
@@ -129,7 +127,7 @@ class RegisteredUserController extends Controller
     {
         $country = $request->get('country');
 
-        if (!$country) {
+        if (! $country) {
             return response()->json(['error' => 'Country parameter is required'], 400);
         }
 
@@ -137,7 +135,7 @@ class RegisteredUserController extends Controller
 
         return response()->json([
             'phone_code' => $phoneCode,
-            'country' => $country
+            'country' => $country,
         ]);
     }
 }

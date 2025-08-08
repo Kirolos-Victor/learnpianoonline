@@ -39,7 +39,7 @@ class SubscriptionController extends Controller
         if ($studentSlug) {
             $selectedStudent = \App\Models\Student::findBySlugForUser($studentSlug, $user->id);
 
-            if (!$selectedStudent) {
+            if (! $selectedStudent) {
                 return redirect()->route('parent.students')->with('error', 'Student not found or access denied');
             }
 

@@ -11,7 +11,7 @@ interface StudentLayoutProps {
     isSubscribed?: boolean;
 }
 
-export default ({ children, breadcrumbs, currentStudentSlug, isSubscribed = false }: StudentLayoutProps) => (
+export default ({ children, breadcrumbs: _breadcrumbs, currentStudentSlug, isSubscribed = false }: StudentLayoutProps) => (
     <div className="flex min-h-screen flex-col">
         <Navbar></Navbar>
         <main className="flex-grow">

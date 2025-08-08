@@ -5,10 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\StudentSession;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class SessionsController extends Controller
 {
@@ -34,7 +33,7 @@ class SessionsController extends Controller
 
         // Find the selected student
         $selectedStudent = $students->firstWhere('slug', $selectedStudentSlug);
-        if (!$selectedStudent) {
+        if (! $selectedStudent) {
             $selectedStudent = $students->first();
         }
 
@@ -100,7 +99,7 @@ class SessionsController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$student) {
+        if (! $student) {
             return [];
         }
 
@@ -179,8 +178,6 @@ class SessionsController extends Controller
             'subscribePrice' => (float) env('MONTHLY_SUBSCRIBE_PRICE', 29.99),
         ]);
     }
-
-
 
     /**
      * Generate available months for filtering

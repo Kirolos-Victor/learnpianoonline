@@ -40,7 +40,7 @@ class PaymentController extends Controller
         if ($studentSlug) {
             $selectedStudent = \App\Models\Student::findBySlugForUser($studentSlug, $user->id);
 
-            if (!$selectedStudent) {
+            if (! $selectedStudent) {
                 return redirect()->route('parent.students')->with('error', 'Student not found or access denied');
             }
 
@@ -147,7 +147,7 @@ class PaymentController extends Controller
     {
         $sessionId = $request->query('session_id');
 
-        if (!$sessionId) {
+        if (! $sessionId) {
             return redirect()->route('parent.dashboard')->with('error', 'Invalid payment session');
         }
 

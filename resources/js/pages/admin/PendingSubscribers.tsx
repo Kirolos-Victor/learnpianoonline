@@ -10,7 +10,7 @@ import AdminLayout from '@/layouts/admin-layout';
 import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
 import { Calendar, Search, UserPlus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Student {
     id: string;
@@ -72,11 +72,10 @@ interface Filters {
 
 interface Props {
     students: PaginationData;
-    instructors: InstructorOption[];
     filters: Filters;
 }
 
-const PendingSubscribers = ({ students, instructors, filters }: Props) => {
+const PendingSubscribers = ({ students, filters }: Props) => {
     const [searchTerm, setSearchTerm] = useState(filters.search);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
@@ -100,18 +99,7 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
         instructorTimezone?: string;
     }>({});
 
-    // Debounced search effect
-    useEffect(() => {
-        const delayedSearch = setTimeout(() => {
-            if (searchTerm !== filters.search) {
-                applyFilters();
-            }
-        }, 500);
-
-        return () => clearTimeout(delayedSearch);
-    }, [searchTerm]);
-
-    const applyFilters = () => {
+    const applyFilters = useCallback(() => {
         router.get(
             '/admin/pending-subscribers',
             {
@@ -124,7 +112,18 @@ const PendingSubscribers = ({ students, instructors, filters }: Props) => {
                 replace: true,
             },
         );
-    };
+    }, [searchTerm, filters.per_page]);
+
+    // Debounced search effect
+    useEffect(() => {
+        const delayedSearch = setTimeout(() => {
+            if (searchTerm !== filters.search) {
+                applyFilters();
+            }
+        }, 500);
+
+        return () => clearTimeout(delayedSearch);
+    }, [searchTerm, filters.search, applyFilters]);
 
     const handleOpenAssignDialog = async (student: Student) => {
         setSelectedStudent(student);

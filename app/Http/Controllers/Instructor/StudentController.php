@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Student;
 use App\Models\Lesson;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use App\Models\Student;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class StudentController extends Controller
 {
@@ -130,7 +129,7 @@ class StudentController extends Controller
         $preferredTimezone = config('app.preferred_timezone', 'Africa/Cairo');
 
         // If student doesn't have a preferred time or day set, return as-is
-        if (!$student->preferred_time || !$student->day_of_week) {
+        if (! $student->preferred_time || ! $student->day_of_week) {
             return [
                 'day_of_week' => $student->day_of_week,
                 'preferred_time' => $student->preferred_time?->format('g:i A'),

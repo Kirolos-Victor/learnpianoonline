@@ -7,9 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Student;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
@@ -69,7 +68,7 @@ class ChatController extends Controller
             ->with('user')
             ->first();
 
-        if (!$student) {
+        if (! $student) {
             return response()->json(['error' => 'Student not found or not assigned to you'], 404);
         }
 
@@ -147,7 +146,7 @@ class ChatController extends Controller
             ->where('instructor_id', $instructor->id)
             ->first();
 
-        if (!$student) {
+        if (! $student) {
             return response()->json(['error' => 'Student not found or not assigned to you'], 404);
         }
 

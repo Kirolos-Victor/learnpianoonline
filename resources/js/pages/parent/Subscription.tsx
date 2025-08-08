@@ -16,6 +16,7 @@ interface SubscriptionPageData extends SubscriptionPageProps {
     subscribedStudents?: Array<{
         id: number;
         name: string;
+        slug: string;
         age: number;
         is_subscribed: boolean;
         subscription_expires_at?: string;
@@ -24,7 +25,7 @@ interface SubscriptionPageData extends SubscriptionPageProps {
 }
 
 const Subscription = () => {
-    const { monthlySubscribePrice, yearlySubscribePrice, discountPercentage, csrf_token } = usePage<SharedData>().props;
+    const { monthlySubscribePrice, yearlySubscribePrice, discountPercentage } = usePage<SharedData>().props;
     const { availableStudents, subscribedStudents, isSingleStudent, selectedStudentSlug, selectedStudentSlugs } =
         usePage<SubscriptionPageData>().props;
 
@@ -183,7 +184,7 @@ const Subscription = () => {
                     <div className="container mx-auto">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h1 className="font-playfair mb-2 text-3xl font-bold text-primary md:text-4xl">Subscription</h1>
+                                <h1 className="mb-2 font-playfair text-3xl font-bold text-primary md:text-4xl">Subscription</h1>
                                 <p className="text-muted-foreground">
                                     {selectedStudentSlug
                                         ? `Subscribe ${availableStudents.find((s) => s.slug === selectedStudentSlug)?.name || 'your student'} and get a `

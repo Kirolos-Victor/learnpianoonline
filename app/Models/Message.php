@@ -30,6 +30,7 @@ class Message extends Model
         if ($this->sender_type === 'student') {
             return $this->belongsTo(Student::class, 'sender_id');
         }
+
         // Both 'user' and 'instructor' types refer to User model
         return $this->belongsTo(User::class, 'sender_id');
     }
@@ -42,6 +43,7 @@ class Message extends Model
         if ($this->receiver_type === 'student') {
             return $this->belongsTo(Student::class, 'receiver_id');
         }
+
         // Both 'user' and 'instructor' types refer to User model
         return $this->belongsTo(User::class, 'receiver_id');
     }
@@ -57,6 +59,7 @@ class Message extends Model
         if ($this->sender_type === 'instructor') {
             return $this->sender->name ?? 'Instructor';
         }
+
         return $this->sender->name ?? 'User';
     }
 
@@ -71,6 +74,7 @@ class Message extends Model
         if ($this->receiver_type === 'instructor') {
             return $this->receiver->name ?? 'Instructor';
         }
+
         return $this->receiver->name ?? 'User';
     }
 

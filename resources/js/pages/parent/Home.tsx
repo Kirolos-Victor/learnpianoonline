@@ -29,7 +29,7 @@ interface ParentHomeSharedData extends SharedData {
 
 const ParentHome = () => {
     const { auth, students } = usePage<ParentHomeSharedData>().props;
-    const [loading, setLoading] = useState(false);
+    const [loading] = useState(false);
 
     return (
         <ParentLayout>
@@ -59,7 +59,7 @@ const ParentHome = () => {
                 </Head>
 
                 {/* Kid-friendly Header */}
-                <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
+                <div className="relative overflow-hidden bg-rainbow-gradient px-6 py-12">
                     {/* Decorative musical notes */}
                     <div className="pointer-events-none absolute inset-0">
                         <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
@@ -92,7 +92,7 @@ const ParentHome = () => {
                 <div className="container mx-auto px-6 py-8">
                     {loading ? (
                         <div className="mx-auto max-w-4xl">
-                            <Card className="bg-fun-gradient rounded-3xl border-fun-purple/20">
+                            <Card className="rounded-3xl border-fun-purple/20 bg-fun-gradient">
                                 <CardContent className="flex items-center justify-center py-16">
                                     <div className="text-center">
                                         <div className="mx-auto mb-6 h-12 w-12 animate-spin rounded-full border-4 border-fun-purple border-b-transparent"></div>

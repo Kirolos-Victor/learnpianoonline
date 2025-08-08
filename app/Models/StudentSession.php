@@ -106,7 +106,7 @@ class StudentSession extends Model
      */
     public function hasInstructor(): bool
     {
-        return !is_null($this->instructor_id);
+        return ! is_null($this->instructor_id);
     }
 
     /**
@@ -116,7 +116,7 @@ class StudentSession extends Model
     {
         $this->update([
             'instructor_id' => $instructorId,
-            'notes' => $this->notes ? $this->notes . ' - Instructor assigned' : 'Instructor assigned',
+            'notes' => $this->notes ? $this->notes.' - Instructor assigned' : 'Instructor assigned',
         ]);
     }
 
@@ -125,7 +125,7 @@ class StudentSession extends Model
      */
     private function scheduleReplacementSession(): void
     {
-        if (!$this->student) {
+        if (! $this->student) {
             return;
         }
 
@@ -144,7 +144,7 @@ class StudentSession extends Model
             'instructor_id' => $this->instructor_id, // Can be null
             'scheduled_at' => $replacementDateTime,
             'status' => 'pending',
-            'notes' => 'Replacement session for cancelled session on ' . $this->scheduled_at->format('Y-m-d'),
+            'notes' => 'Replacement session for cancelled session on '.$this->scheduled_at->format('Y-m-d'),
         ]);
     }
 }

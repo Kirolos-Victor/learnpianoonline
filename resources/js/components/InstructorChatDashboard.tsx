@@ -7,7 +7,7 @@ import { PageProps } from '@inertiajs/core';
 import { usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { MessageCircle, Search, Send } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 // DISABLED: Laravel Reverb not available in Laravel Cloud
 // import '../lib/echo';
 
@@ -78,29 +78,32 @@ export function InstructorChatDashboard() {
     //     // WebSocket code commented out - using message polling for real-time updates
     // };
 
-    const getMessages = async (isPolling = false) => {
-        if (!selectedConversation) return;
+    const getMessages = useCallback(
+        async (isPolling = false) => {
+            if (!selectedConversation) return;
 
-        try {
-            if (!isPolling) setLoading(true);
-            const response = await axios.get(`/instructor/chat/students/${selectedConversation.student.id}/messages`);
-            const allMessages = response.data.messages || [];
-            // Keep only the latest 5 messages for optimal performance
-            const latestMessages = allMessages.slice(-5);
-            setMessages(latestMessages);
-        } catch (err: any) {
-            // Handle error silently
-        } finally {
-            if (!isPolling) setLoading(false);
-        }
-    };
+            try {
+                if (!isPolling) setLoading(true);
+                const response = await axios.get(`/instructor/chat/students/${selectedConversation.student.id}/messages`);
+                const allMessages = response.data.messages || [];
+                // Keep only the latest 5 messages for optimal performance
+                const latestMessages = allMessages.slice(-5);
+                setMessages(latestMessages);
+            } catch {
+                // Handle error silently
+            } finally {
+                if (!isPolling) setLoading(false);
+            }
+        },
+        [selectedConversation],
+    );
 
     const getConversations = async () => {
         try {
             setLoading(true);
             const response = await axios.get('/instructor/chat/conversations');
             setConversations(response.data);
-        } catch (err: any) {
+        } catch {
             // Handle error silently
         } finally {
             setLoading(false);
@@ -150,7 +153,7 @@ export function InstructorChatDashboard() {
         if (selectedConversation) {
             getMessages();
         }
-    }, [selectedConversation]);
+    }, [selectedConversation, getMessages]);
 
     useEffect(() => {
         scrollToBottom();
@@ -168,7 +171,7 @@ export function InstructorChatDashboard() {
         return () => {
             clearInterval(pollInterval);
         };
-    }, [selectedConversation]);
+    }, [selectedConversation, getMessages]);
 
     const filteredConversations = conversations.filter((conv) => conv.student.name.toLowerCase().includes(searchTerm.toLowerCase()));
 

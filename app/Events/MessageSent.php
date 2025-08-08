@@ -5,7 +5,6 @@ namespace App\Events;
 use App\Models\Message;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -16,6 +15,7 @@ class MessageSent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $newMessage;
+
     public $message;
 
     /**
@@ -48,23 +48,23 @@ class MessageSent implements ShouldBroadcast
 
         // Add sender's channel
         if ($this->message->sender_type === 'user' || $this->message->sender_type === 'instructor') {
-            $channels[] = new PrivateChannel('chat.' . $this->message->sender_id);
+            $channels[] = new PrivateChannel('chat.'.$this->message->sender_id);
         } elseif ($this->message->sender_type === 'student') {
             // For students, broadcast to their parent's channel
             $student = $this->message->sender;
             if ($student && $student->user_id) {
-                $channels[] = new PrivateChannel('chat.' . $student->user_id);
+                $channels[] = new PrivateChannel('chat.'.$student->user_id);
             }
         }
 
         // Add receiver's channel
         if ($this->message->receiver_type === 'user') {
-            $channels[] = new PrivateChannel('chat.' . $this->message->receiver_id);
+            $channels[] = new PrivateChannel('chat.'.$this->message->receiver_id);
         } elseif ($this->message->receiver_type === 'student') {
             // For students, broadcast to their parent's channel
             $student = $this->message->receiver;
             if ($student && $student->user_id) {
-                $channels[] = new PrivateChannel('chat.' . $student->user_id);
+                $channels[] = new PrivateChannel('chat.'.$student->user_id);
             }
         }
 

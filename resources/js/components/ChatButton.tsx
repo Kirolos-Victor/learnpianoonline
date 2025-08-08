@@ -4,7 +4,7 @@ import { PageProps } from '@inertiajs/core';
 import { usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { MessageCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ChatModal } from './ChatModal';
 
 interface ChatButtonProps {
@@ -29,24 +29,20 @@ export function ChatButton({ currentStudentSlug, isSubscribed = false }: ChatBut
     const { auth } = usePage<ExtendedPageProps>().props;
     const [isOpen, setIsOpen] = useState(isSubscribed);
     const [totalUnread, setTotalUnread] = useState(0);
-    const [loading, setLoading] = useState(false);
 
     const user = auth.user;
 
-    const getUnreadCount = async () => {
+    const getUnreadCount = useCallback(async () => {
         if (!user || !isSubscribed) return;
 
         try {
-            setLoading(true);
             const response = await axios.get('/chat/conversations');
             const total = response.data.reduce((sum: number, conv: any) => sum + (conv.unread_count || 0), 0);
             setTotalUnread(total);
-        } catch (err: any) {
+        } catch {
             setTotalUnread(0);
-        } finally {
-            setLoading(false);
         }
-    };
+    }, [user, isSubscribed]);
 
     useEffect(() => {
         if (user && isSubscribed) {
@@ -56,7 +52,7 @@ export function ChatButton({ currentStudentSlug, isSubscribed = false }: ChatBut
             const interval = setInterval(getUnreadCount, 30000);
             return () => clearInterval(interval);
         }
-    }, [user, isSubscribed]);
+    }, [user, isSubscribed, getUnreadCount]);
 
     // Only show chat for subscribed students who are authenticated
     if (!isSubscribed || !user) {

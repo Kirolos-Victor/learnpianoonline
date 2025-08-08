@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\StudentSession;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class StudentController extends Controller
 {
@@ -129,6 +129,7 @@ class StudentController extends Controller
         ]);
 
         $student->update(['sessions_remaining' => $request->sessions]);
+
         return redirect()->back()->with('success', 'Sessions updated successfully.');
     }
 
@@ -222,6 +223,7 @@ class StudentController extends Controller
         }
 
         $student->update(['instructor_id' => $request->instructor_id]);
+
         return redirect()->back()->with('success', 'Instructor changed successfully.');
     }
 
@@ -318,7 +320,7 @@ class StudentController extends Controller
         $student = Student::where('slug', $slug)->firstOrFail();
 
         // Verify the student is subscribed and has no instructor
-        if (!$student->is_subscribed || $student->instructor_id) {
+        if (! $student->is_subscribed || $student->instructor_id) {
             return redirect()->back()->with('error', 'This student is not eligible for instructor assignment.');
         }
 
@@ -343,7 +345,7 @@ class StudentController extends Controller
     {
         $student = Student::with('user')->where('slug', $slug)->firstOrFail();
 
-        if (!$student->day_of_week || !$student->preferred_time) {
+        if (! $student->day_of_week || ! $student->preferred_time) {
             return response()->json([
                 'instructors' => [],
                 'message' => 'Student has no preferred day or time set.',
@@ -373,7 +375,7 @@ class StudentController extends Controller
 
         // Filter out instructors who have conflicts at that time
         $filteredInstructors = $availableInstructors->filter(function ($instructor) use ($studentPreferredDateTime) {
-            return !$this->hasScheduleConflict($instructor->id, $studentPreferredDateTime);
+            return ! $this->hasScheduleConflict($instructor->id, $studentPreferredDateTime);
         });
 
         return response()->json([
@@ -409,7 +411,7 @@ class StudentController extends Controller
             'thursday' => 4,
             'friday' => 5,
             'saturday' => 6,
-            'satureday' => 6  // Handle misspelled Saturday
+            'satureday' => 6,  // Handle misspelled Saturday
         ];
 
         $targetDayNumber = $daysOfWeek[strtolower($dayOfWeek)];

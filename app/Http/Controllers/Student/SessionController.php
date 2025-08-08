@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\StudentSession;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class SessionController extends Controller
 {
@@ -132,7 +132,7 @@ class SessionController extends Controller
         for ($month = 1; $month <= 12; $month++) {
             $months[] = [
                 'value' => str_pad($month, 2, '0', STR_PAD_LEFT),
-                'label' => Carbon::create()->month($month)->format('F')
+                'label' => Carbon::create()->month($month)->format('F'),
             ];
         }
 

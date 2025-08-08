@@ -36,17 +36,6 @@ interface PaginatedSessions {
     last_page: number;
 }
 
-interface Month {
-    value: string;
-    label: string;
-}
-
-interface Filters {
-    month: string | null;
-    status: string;
-    per_page: number;
-}
-
 interface Props {
     student: Student;
     sessions: PaginatedSessions;

@@ -61,7 +61,7 @@ const formatTime = (timeString: string) => {
         }
 
         return timeString;
-    } catch (error) {
+    } catch {
         return timeString;
     }
 };
@@ -177,7 +177,7 @@ export default function Students({ students, availableTimeSlots, availableDays }
                 try {
                     const date = new Date(student.preferredTime);
                     timeToMatch = date.toTimeString().slice(0, 5);
-                } catch (error) {
+                } catch {
                     timeToMatch = student.preferredTime;
                 }
             }

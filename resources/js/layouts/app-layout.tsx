@@ -8,7 +8,7 @@ interface AppLayoutProps {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export default ({ children, breadcrumbs }: AppLayoutProps) => (
+export default ({ children, breadcrumbs: _breadcrumbs }: AppLayoutProps) => (
     <div className="flex min-h-screen flex-col">
         <Navbar></Navbar>
         <main className="flex-grow">

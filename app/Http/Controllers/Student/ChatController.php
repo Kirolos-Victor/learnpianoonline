@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Student;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
@@ -19,15 +19,15 @@ class ChatController extends Controller
     {
         // Find the student by slug
         $student = Student::where('slug', $studentSlug)->first();
-        if (!$student) {
+        if (! $student) {
             return response()->json(['error' => 'Student not found'], 404);
         }
 
         // Check if student has an assigned instructor
-        if (!$student->instructor_id) {
+        if (! $student->instructor_id) {
             return response()->json([
                 'error' => 'No instructor assigned',
-                'message' => 'Your instructor will be assigned soon. You can start chatting once they are assigned.'
+                'message' => 'Your instructor will be assigned soon. You can start chatting once they are assigned.',
             ], 404);
         }
 
@@ -48,15 +48,15 @@ class ChatController extends Controller
     {
         // Find the student by slug
         $student = Student::where('slug', $studentSlug)->first();
-        if (!$student) {
+        if (! $student) {
             return response()->json(['error' => 'Student not found'], 404);
         }
 
         // Check if student has an assigned instructor
-        if (!$student->instructor_id) {
+        if (! $student->instructor_id) {
             return response()->json([
                 'error' => 'No instructor assigned',
-                'message' => 'Your instructor will be assigned soon. You can start chatting once they are assigned.'
+                'message' => 'Your instructor will be assigned soon. You can start chatting once they are assigned.',
             ], 404);
         }
 
@@ -112,12 +112,12 @@ class ChatController extends Controller
 
         // Find the student by slug
         $student = Student::where('slug', $studentSlug)->first();
-        if (!$student) {
+        if (! $student) {
             return response()->json(['error' => 'Student not found'], 404);
         }
 
         // Check if student has an assigned instructor
-        if (!$student->instructor_id) {
+        if (! $student->instructor_id) {
             return response()->json(['error' => 'No instructor assigned'], 404);
         }
 
@@ -147,8 +147,8 @@ class ChatController extends Controller
         $conversations = $user->students()
             ->with('instructor')
             ->get()
-            ->map(function ($student) use ($user) {
-                if (!$student->instructor_id) {
+            ->map(function ($student) {
+                if (! $student->instructor_id) {
                     return null;
                 }
 

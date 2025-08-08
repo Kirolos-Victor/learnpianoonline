@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Parent;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class StudentController extends Controller
 {
@@ -52,7 +52,7 @@ class StudentController extends Controller
             'name' => 'required|string|max:255|min:2',
             'age' => 'required|integer|min:5|max:100',
             'hasPiano' => 'required|boolean',
-            'dayOfWeek' => 'required|string|in:' . implode(',', $availableDays),
+            'dayOfWeek' => 'required|string|in:'.implode(',', $availableDays),
             'preferredTime' => 'required|string',
         ], [
             'name.required' => 'Student name is required.',
@@ -94,7 +94,7 @@ class StudentController extends Controller
             'name' => 'required|string|max:255|min:2',
             'age' => 'required|integer|min:5|max:100',
             'hasPiano' => 'required|boolean',
-            'dayOfWeek' => 'required|string|in:' . implode(',', $availableDays),
+            'dayOfWeek' => 'required|string|in:'.implode(',', $availableDays),
             'preferredTime' => 'required|string',
         ], [
             'name.required' => 'Student name is required.',

@@ -5,11 +5,10 @@ import { Award, Crown, FileText, Star, Target, Zap } from 'lucide-react';
 
 interface SubscriptionBenefitsProps {
     studentName: string;
-    subscribePrice: number;
     studentSlug: string;
 }
 
-const SubscriptionBenefits = ({ studentName, subscribePrice, studentSlug }: SubscriptionBenefitsProps) => {
+const SubscriptionBenefits = ({ studentName, studentSlug }: SubscriptionBenefitsProps) => {
     const subscriptionBenefits = [
         {
             icon: Crown,

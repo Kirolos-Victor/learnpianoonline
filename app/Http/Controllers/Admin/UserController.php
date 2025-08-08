@@ -60,6 +60,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update(['is_active' => false]);
+
         return redirect()->back()->with('success', 'User access restricted successfully.');
     }
 
@@ -67,6 +68,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update(['is_active' => true]);
+
         return redirect()->back()->with('success', 'User activated successfully.');
     }
 }

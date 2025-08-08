@@ -4,11 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Student;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class InstructorController extends Controller
@@ -64,7 +60,7 @@ class InstructorController extends Controller
         $user = User::where('email', $request->email)->first();
 
         // Check if user exists and is a parent
-        if (!$user) {
+        if (! $user) {
             return redirect()->back()->withErrors(['email' => 'User with this email does not exist.']);
         }
 
@@ -80,7 +76,7 @@ class InstructorController extends Controller
         $studentsCount = $user->students()->count();
         if ($studentsCount > 0) {
             return redirect()->back()->withErrors([
-                'email' => "Cannot add {$user->name} as instructor because they currently have {$studentsCount} student" . ($studentsCount > 1 ? 's' : '') . ". Parents with active students cannot be converted to instructors.",
+                'email' => "Cannot add {$user->name} as instructor because they currently have {$studentsCount} student".($studentsCount > 1 ? 's' : '').'. Parents with active students cannot be converted to instructors.',
             ]);
         }
 
@@ -90,7 +86,7 @@ class InstructorController extends Controller
             'is_active' => true,
         ]);
 
-        return redirect()->back()->with('success', 'Parent successfully added as instructor: ' . $user->name);
+        return redirect()->back()->with('success', 'Parent successfully added as instructor: '.$user->name);
     }
 
     public function restrictAccess($id): \Illuminate\Http\RedirectResponse

@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Student>
@@ -38,7 +37,7 @@ class StudentFactory extends Factory
      */
     public function subscribed(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'is_subscribed' => true,
             'sessions_remaining' => fake()->numberBetween(1, 10),
             'subscription_expires_at' => fake()->dateTimeBetween('now', '+1 year'),
@@ -50,7 +49,7 @@ class StudentFactory extends Factory
      */
     public function withInstructor(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'instructor_id' => User::factory()->create(['role' => 'instructor']),
         ]);
     }

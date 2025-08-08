@@ -4,10 +4,10 @@ namespace App\Services;
 
 use App\Models\Subscription;
 use App\Models\User;
-use Stripe\Stripe;
-use Stripe\Checkout\Session;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Stripe\Checkout\Session;
+use Stripe\Stripe;
 
 class StripeService
 {
@@ -20,7 +20,6 @@ class StripeService
      * - Extends existing subscription time rather than replacing it
      * This ensures consistent billing and complete transaction history.
      */
-
     public function __construct()
     {
         Stripe::setApiKey(config('services.stripe.secret'));
@@ -110,7 +109,7 @@ class StripeService
                             'price_data' => [
                                 'currency' => 'usd',
                                 'product_data' => [
-                                    'name' => "Piano Sessions " . ucfirst($subscriptionType) . " Subscription - {$studentCount} Student(s)",
+                                    'name' => 'Piano Sessions '.ucfirst($subscriptionType)." Subscription - {$studentCount} Student(s)",
                                     'description' => $planDescription,
                                 ],
                                 'unit_amount' => $amountInCents, // Already in cents
@@ -119,8 +118,8 @@ class StripeService
                         ],
                     ],
                     'mode' => 'payment',
-                    'success_url' => route('parent.payment.success') . '?session_id={CHECKOUT_SESSION_ID}',
-                    'cancel_url' => route('parent.payment.failed') . '?session_id={CHECKOUT_SESSION_ID}',
+                    'success_url' => route('parent.payment.success').'?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url' => route('parent.payment.failed').'?session_id={CHECKOUT_SESSION_ID}',
                     'metadata' => [
                         'subscription_id' => $subscription->id,
                         'user_id' => $user->id,
@@ -168,6 +167,7 @@ class StripeService
             // Check if already processed
             if ($subscription->status === 'completed') {
                 Log::info('Payment already processed', ['session_id' => $sessionId]);
+
                 return $subscription;
             }
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -47,7 +46,7 @@ class DashboardController extends Controller
             ->map(function ($session, $index) {
                 return [
                     'id' => $session->id,
-                    'title' => 'Piano Session #' . ($index + 1),
+                    'title' => 'Piano Session #'.($index + 1),
                     'instructor' => $session->instructor->name ?? 'Not assigned',
                     'date' => $session->scheduled_at->format('F j, Y'), // Changed to full month name format
                     'time' => $session->scheduled_at->format('g:i A'),

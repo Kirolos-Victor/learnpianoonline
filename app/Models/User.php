@@ -158,6 +158,7 @@ class User extends Authenticatable
     public function getCurrentTimeInTimezone(): \Carbon\Carbon
     {
         $timezone = $this->timezone ?? 'UTC';
+
         return now()->setTimezone($timezone);
     }
 
@@ -167,6 +168,7 @@ class User extends Authenticatable
     public function convertToUserTimezone(\Carbon\Carbon $utcTime): \Carbon\Carbon
     {
         $timezone = $this->timezone ?? 'UTC';
+
         return $utcTime->setTimezone($timezone);
     }
 

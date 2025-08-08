@@ -58,7 +58,7 @@ interface SessionsSharedData extends Omit<SharedData, 'subscribePrice'> {
 }
 
 const Sessions = () => {
-    const { student, sessions, selectedMonth, availableYears, availableMonths, subscribePrice } = usePage<SessionsSharedData>().props;
+    const { student, sessions, selectedMonth, availableYears, availableMonths } = usePage<SessionsSharedData>().props;
 
     // Parse selected month to get year and month
     const [selectedYear, selectedMonthNum] = selectedMonth.split('-');
@@ -68,8 +68,6 @@ const Sessions = () => {
     // Filter sessions by status
     const completedSessions = sessions.filter((session) => session.is_completed);
     const pendingSessions = sessions.filter((session) => session.is_pending);
-    const cancelledSessions = sessions.filter((session) => session.is_cancelled);
-    const missedSessions = sessions.filter((session) => session.is_missed);
 
     // Format month for display
     const formatMonthDisplay = (monthString: string) => {
@@ -120,7 +118,7 @@ const Sessions = () => {
                     <Head title={`${student.name}'s Piano Sessions`}></Head>
 
                     {/* Header */}
-                    <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
+                    <div className="relative overflow-hidden bg-rainbow-gradient px-6 py-12">
                         <div className="pointer-events-none absolute inset-0">
                             <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
                             <div className="animate-gentle-bounce absolute top-8 right-1/3 text-xl text-white/20" style={{ animationDelay: '0.5s' }}>
@@ -210,7 +208,7 @@ const Sessions = () => {
                     <Head title={`${student.name}'s Piano Sessions`}></Head>
 
                     {/* Header */}
-                    <section className="bg-rainbow-gradient relative overflow-hidden py-16 text-white">
+                    <section className="relative overflow-hidden bg-rainbow-gradient py-16 text-white">
                         <div className="pointer-events-none absolute inset-0">
                             <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
                             <div className="animate-gentle-bounce absolute top-8 right-1/3 text-xl text-white/20" style={{ animationDelay: '0.5s' }}>
@@ -295,7 +293,7 @@ const Sessions = () => {
                 <Head title={`${student.name}'s Piano Sessions`}></Head>
 
                 {/* Header */}
-                <section className="bg-rainbow-gradient relative overflow-hidden py-16 text-white">
+                <section className="relative overflow-hidden bg-rainbow-gradient py-16 text-white">
                     <div className="pointer-events-none absolute inset-0">
                         <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
                         <div className="animate-gentle-bounce absolute top-8 right-1/3 text-xl text-white/20" style={{ animationDelay: '0.5s' }}>

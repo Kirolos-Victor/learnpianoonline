@@ -44,7 +44,7 @@ interface StudentHomeSharedData extends Omit<SharedData, 'subscribePrice'> {
 }
 
 const StudentHome = () => {
-    const { auth, student, studentData, subscribePrice } = usePage<StudentHomeSharedData>().props;
+    const { student, studentData } = usePage<StudentHomeSharedData>().props;
 
     const currentSessions = studentData?.sessions || [];
     const upcomingSession = currentSessions.find((session) => session.status === 'pending');
@@ -57,7 +57,7 @@ const StudentHome = () => {
                     <Head title={`${student.name}'s Piano Journey`}></Head>
 
                     {/* Fun Header */}
-                    <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
+                    <div className="relative overflow-hidden bg-rainbow-gradient px-6 py-12">
                         <div className="pointer-events-none absolute inset-0">
                             <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
                             <div className="animate-gentle-bounce absolute top-8 right-1/3 text-xl text-white/20" style={{ animationDelay: '0.5s' }}>
@@ -99,7 +99,7 @@ const StudentHome = () => {
 
                     {/* Subscription Benefits */}
                     <div className="container mx-auto px-6 py-8">
-                        <SubscriptionBenefits studentName={student.name} subscribePrice={subscribePrice || 29.99} studentSlug={student.slug} />
+                        <SubscriptionBenefits studentName={student.name} studentSlug={student.slug} />
                     </div>
                 </div>
             </StudentLayout>
@@ -113,7 +113,7 @@ const StudentHome = () => {
                 <Head title={`${student.name}'s Piano Dashboard`}></Head>
 
                 {/* Fun Header */}
-                <div className="bg-rainbow-gradient relative overflow-hidden px-6 py-12">
+                <div className="relative overflow-hidden bg-rainbow-gradient px-6 py-12">
                     <div className="pointer-events-none absolute inset-0">
                         <div className="animate-gentle-bounce absolute top-4 left-1/4 text-2xl text-white/20">♪</div>
                         <div className="animate-gentle-bounce absolute top-8 right-1/3 text-xl text-white/20" style={{ animationDelay: '0.5s' }}>

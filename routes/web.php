@@ -1,19 +1,16 @@
 <?php
 
-use App\Http\Controllers\User\ContactController;
-use App\Http\Controllers\User\DashboardController;
-use App\Http\Controllers\User\HomeController;
-use App\Http\Controllers\User\LessonsController;
-use App\Http\Controllers\User\PricingController;
-use App\Http\Controllers\User\StudentController;
-use App\Http\Controllers\User\SessionsController;
 use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
 use App\Http\Controllers\Parent\StudentController as ParentStudentController;
 use App\Http\Controllers\Parent\SubscriptionController as ParentSubscriptionController;
-use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
-
-use App\Http\Controllers\Student\SessionController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Student\SessionController;
+use App\Http\Controllers\User\ContactController;
+use App\Http\Controllers\User\HomeController;
+use App\Http\Controllers\User\PricingController;
+use App\Http\Controllers\User\SessionsController;
+use App\Http\Controllers\User\StudentController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -38,7 +35,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/chat/student/{studentSlug}/messages', [App\Http\Controllers\Student\ChatController::class, 'sendMessage'])->name('chat.student-send-message');
     Route::get('/chat/conversations', [App\Http\Controllers\Student\ChatController::class, 'conversations'])->name('chat.conversations');
 });
-
 
 // Parent routes (require authentication and parent role)
 Route::middleware(['auth', 'parent'])->prefix('parent')->name('parent.')->group(function () {
@@ -91,6 +87,6 @@ Route::middleware(['auth', 'parent'])->group(function () {
     });
 });
 
-require __DIR__ . '/auth.php';
-require __DIR__ . '/instructor.php';
-require __DIR__ . '/admin.php';
+require __DIR__.'/auth.php';
+require __DIR__.'/instructor.php';
+require __DIR__.'/admin.php';

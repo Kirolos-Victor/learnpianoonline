@@ -168,6 +168,7 @@ class DashboardController extends Controller
     {
         // Generate session title based on session number
         $sessionNumber = $session->id;
+
         return "Session #{$sessionNumber}";
     }
 }

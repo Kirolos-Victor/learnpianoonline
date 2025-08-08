@@ -64,6 +64,7 @@ class AuthenticatedSessionController extends Controller
         // Clear any remember me cookies
         if ($request->hasCookie(Auth::getRecallerName())) {
             $cookie = cookie()->forget(Auth::getRecallerName());
+
             return redirect('/')->withCookie($cookie);
         }
 
