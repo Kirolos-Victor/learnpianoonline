@@ -5,7 +5,8 @@ import { BookOpen, CreditCard, Heart, Home, MessageCircle, Music, Star } from 'l
 import { route } from 'ziggy-js';
 
 const Footer = () => {
-    const { auth, supportEmail, supportPhone } = usePage<SharedData>().props;
+    const { auth, supportEmail, supportPhone, name } = usePage<SharedData>().props;
+    const currentYear = new Date().getFullYear();
 
     // Check if we're on a student page
     const isStudentPage = () => {
@@ -148,7 +149,9 @@ const Footer = () => {
                 {/* Bottom section */}
                 <div className="mt-12 border-t border-white/20 pt-8 text-center text-white/80">
                     <div className="font-comic text-lg">
-                        <p className="mb-2">&copy; 2024 MyPianoClass.net - Where Piano Dreams Come True!</p>
+                        <p className="mb-2">
+                            &copy; {currentYear} {name} - Where Piano Dreams Come True!
+                        </p>
                         <p className="text-sm">Made with 💖 for young musicians and their families</p>
                     </div>
                 </div>
