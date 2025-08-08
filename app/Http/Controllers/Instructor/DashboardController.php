@@ -14,8 +14,18 @@ class DashboardController extends Controller
         $instructor = auth()->user();
 
         // Get today's sessions for the instructor
+        // Include sessions explicitly assigned to the instructor OR
+        // sessions with no assigned instructor but whose student is assigned to this instructor
         $todaysSessions = StudentSession::with(['student'])
-            ->where('instructor_id', $instructor->id)
+            ->where(function ($query) use ($instructor) {
+                $query->where('instructor_id', $instructor->id)
+                    ->orWhere(function ($q) use ($instructor) {
+                        $q->whereNull('instructor_id')
+                            ->whereHas('student', function ($studentQuery) use ($instructor) {
+                                $studentQuery->where('instructor_id', $instructor->id);
+                            });
+                    });
+            })
             ->whereDate('scheduled_at', today())
             ->orderBy('scheduled_at')
             ->get()
@@ -31,34 +41,74 @@ class DashboardController extends Controller
             });
 
         // Get total sessions this month
-        $totalSessionsThisMonth = StudentSession::where('instructor_id', $instructor->id)
+        $totalSessionsThisMonth = StudentSession::where(function ($query) use ($instructor) {
+            $query->where('instructor_id', $instructor->id)
+                ->orWhere(function ($q) use ($instructor) {
+                    $q->whereNull('instructor_id')
+                        ->whereHas('student', function ($studentQuery) use ($instructor) {
+                            $studentQuery->where('instructor_id', $instructor->id);
+                        });
+                });
+        })
             ->whereMonth('scheduled_at', now()->month)
             ->whereYear('scheduled_at', now()->year)
             ->count();
 
         // Get pending sessions
-        $pendingSessions = StudentSession::where('instructor_id', $instructor->id)
+        $pendingSessions = StudentSession::where(function ($query) use ($instructor) {
+            $query->where('instructor_id', $instructor->id)
+                ->orWhere(function ($q) use ($instructor) {
+                    $q->whereNull('instructor_id')
+                        ->whereHas('student', function ($studentQuery) use ($instructor) {
+                            $studentQuery->where('instructor_id', $instructor->id);
+                        });
+                });
+        })
             ->where('status', 'pending')
             ->whereMonth('scheduled_at', now()->month)
             ->whereYear('scheduled_at', now()->year)
             ->count();
 
         // Get completed sessions
-        $completedSessions = StudentSession::where('instructor_id', $instructor->id)
+        $completedSessions = StudentSession::where(function ($query) use ($instructor) {
+            $query->where('instructor_id', $instructor->id)
+                ->orWhere(function ($q) use ($instructor) {
+                    $q->whereNull('instructor_id')
+                        ->whereHas('student', function ($studentQuery) use ($instructor) {
+                            $studentQuery->where('instructor_id', $instructor->id);
+                        });
+                });
+        })
             ->where('status', 'completed')
             ->whereMonth('scheduled_at', now()->month)
             ->whereYear('scheduled_at', now()->year)
             ->count();
 
         // Get cancelled sessions
-        $cancelledSessions = StudentSession::where('instructor_id', $instructor->id)
+        $cancelledSessions = StudentSession::where(function ($query) use ($instructor) {
+            $query->where('instructor_id', $instructor->id)
+                ->orWhere(function ($q) use ($instructor) {
+                    $q->whereNull('instructor_id')
+                        ->whereHas('student', function ($studentQuery) use ($instructor) {
+                            $studentQuery->where('instructor_id', $instructor->id);
+                        });
+                });
+        })
             ->where('status', 'cancelled')
             ->whereMonth('scheduled_at', now()->month)
             ->whereYear('scheduled_at', now()->year)
             ->count();
 
         // Get missed sessions
-        $missedSessions = StudentSession::where('instructor_id', $instructor->id)
+        $missedSessions = StudentSession::where(function ($query) use ($instructor) {
+            $query->where('instructor_id', $instructor->id)
+                ->orWhere(function ($q) use ($instructor) {
+                    $q->whereNull('instructor_id')
+                        ->whereHas('student', function ($studentQuery) use ($instructor) {
+                            $studentQuery->where('instructor_id', $instructor->id);
+                        });
+                });
+        })
             ->where('status', 'missed')
             ->whereMonth('scheduled_at', now()->month)
             ->whereYear('scheduled_at', now()->year)

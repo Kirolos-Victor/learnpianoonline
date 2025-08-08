@@ -19,6 +19,53 @@ class StudentController extends Controller
             ->where('instructor_id', $instructor->id)
             ->get()
             ->map(function ($student) {
+                $studentTimezone = $student->user->timezone ?? 'UTC';
+                $preferredTimezone = config('app.preferred_timezone', 'Africa/Cairo');
+
+                // Build schedule/timezone conversion details if day/time set
+                $timezoneConversion = null;
+                $dayOfWeek = $student->day_of_week ? strtolower($student->day_of_week) : null;
+                $preferredTimeDisplay = $student->preferred_time ? $student->preferred_time->format('g:i A') : null;
+
+                if ($student->preferred_time && $dayOfWeek) {
+                    try {
+                        $dayOfWeekMap = [
+                            'monday' => 1,
+                            'tuesday' => 2,
+                            'wednesday' => 3,
+                            'thursday' => 4,
+                            'friday' => 5,
+                            'saturday' => 6,
+                            'sunday' => 7,
+                        ];
+
+                        $dayNumber = $dayOfWeekMap[$dayOfWeek] ?? 1;
+
+                        // Create base datetime in student's timezone for next occurrence
+                        $studentDateTime = Carbon::now($studentTimezone)
+                            ->next($dayNumber)
+                            ->setTimeFromTimeString($student->preferred_time->format('H:i'));
+
+                        $convertedDateTime = (clone $studentDateTime)->setTimezone($preferredTimezone);
+
+                        $timezoneConversion = [
+                            'student_original' => [
+                                'day' => ucfirst($dayOfWeek),
+                                'time' => $preferredTimeDisplay,
+                                'timezone' => $studentTimezone,
+                            ],
+                            'instructor_converted' => [
+                                'day' => strtolower($convertedDateTime->format('l')),
+                                'time' => $convertedDateTime->format('g:i A'),
+                                'timezone' => $preferredTimezone,
+                                'full_datetime' => $convertedDateTime->format('l, F j, Y g:i A'),
+                            ],
+                        ];
+                    } catch (\Exception $e) {
+                        // Leave conversion as null on failure
+                    }
+                }
+
                 return [
                     'id' => $student->id,
                     'name' => $student->name,
@@ -27,10 +74,17 @@ class StudentController extends Controller
                     'age' => $student->age,
                     'has_piano' => $student->has_piano,
                     'sessions_remaining' => $student->sessions_remaining,
-                    'sessions_completed' => $student->completedStudentSessions()->count(),
-                    'sessions_pending' => $student->pendingStudentSessions()->count(),
-                    'last_session_date' => $student->completedStudentSessions()->latest('completed_at')->first()?->completed_at,
-                    'next_session_date' => $student->pendingStudentSessions()->oldest('scheduled_at')->first()?->scheduled_at,
+                    // Align names with frontend expectations
+                    'lessons_completed' => $student->completedStudentSessions()->count(),
+                    'lessons_pending' => $student->pendingStudentSessions()->count(),
+                    'last_lesson_date' => $student->completedStudentSessions()->latest('completed_at')->first()?->completed_at,
+                    'next_lesson_date' => $student->pendingStudentSessions()->oldest('scheduled_at')->first()?->scheduled_at,
+                    // Schedule and timezone fields
+                    'day_of_week' => $dayOfWeek,
+                    'preferred_time' => $preferredTimeDisplay,
+                    'student_timezone' => $studentTimezone,
+                    'converted_timezone' => $preferredTimezone,
+                    'timezone_conversion' => $timezoneConversion,
                 ];
             });
 

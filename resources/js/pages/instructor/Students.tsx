@@ -25,6 +25,19 @@ interface Student {
     preferred_time: string | null;
     student_timezone: string;
     converted_timezone: string;
+    timezone_conversion?: {
+        student_original: {
+            day: string;
+            time: string;
+            timezone: string;
+        };
+        instructor_converted: {
+            day: string;
+            time: string;
+            timezone: string;
+            full_datetime: string;
+        };
+    };
 }
 
 interface Props {
@@ -173,17 +186,45 @@ const InstructorStudents = ({ students }: Props) => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">{getDayLabel(student.day_of_week)}</div>
-                                                <div className="text-sm text-gray-500">
-                                                    <Clock className="mr-1 inline h-4 w-4" />
-                                                    {student.preferred_time || 'Not set'}
-                                                </div>
-                                                {student.student_timezone !== student.converted_timezone && (
-                                                    <div
-                                                        className="mt-1 text-xs text-blue-600"
-                                                        title={`Converted from ${student.student_timezone} to ${student.converted_timezone}`}
-                                                    >
-                                                        ⓘ Converted from {student.student_timezone}
+                                                {student.timezone_conversion ? (
+                                                    <div className="space-y-1">
+                                                        {/* Student's Original Time */}
+                                                        <div className="flex items-center text-xs">
+                                                            <Clock className="mr-1 h-3 w-3 text-blue-500" />
+                                                            <span className="text-blue-700">
+                                                                {getDayLabel(student.timezone_conversion.student_original.day.toLowerCase())} at{' '}
+                                                                {student.timezone_conversion.student_original.time}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Converted Preferred Timezone */}
+                                                        <div className="flex items-center text-xs">
+                                                            <Clock className="mr-1 h-3 w-3 text-green-500" />
+                                                            <span className="text-green-700">
+                                                                {student.timezone_conversion.instructor_converted.full_datetime}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Timezone Indicator */}
+                                                        <div className="text-xs text-gray-500">
+                                                            ↻ {student.student_timezone} → {student.converted_timezone}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        <div className="text-sm text-gray-900">{getDayLabel(student.day_of_week)}</div>
+                                                        <div className="text-sm text-gray-500">
+                                                            <Clock className="mr-1 inline h-4 w-4" />
+                                                            {student.preferred_time || 'Not set'}
+                                                        </div>
+                                                        {student.student_timezone !== student.converted_timezone && (
+                                                            <div
+                                                                className="mt-1 text-xs text-blue-600"
+                                                                title={`Converted from ${student.student_timezone} to ${student.converted_timezone}`}
+                                                            >
+                                                                ⓘ Converted from {student.student_timezone}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )}
                                             </td>
