@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Student;
 
-use App\Events\MessageSent;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Student;
@@ -130,8 +129,7 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        // DISABLED: Laravel Reverb broadcasting not available in Laravel Cloud
-        // broadcast(new MessageSent($message->load(['sender', 'receiver'])))->toOthers();
+        // Real-time broadcasting removed; frontend polls for new messages
 
         return response()->json(['status' => 'Message sent!']);
     }
