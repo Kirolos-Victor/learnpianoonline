@@ -7,12 +7,19 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         {{-- SEO Meta Tags --}}
+        <meta name="description" content="Online piano lessons for kids ages 5–14. Live 1-on-1 with friendly, vetted teachers. Flexible scheduling, fun curriculum, progress tracking, and parent updates — learn piano at home with confidence.">
+        <meta name="keywords" content="online piano lessons for kids, private piano lessons for children, beginner piano classes, piano teacher online, kids music lessons, learn piano at home, piano lessons for beginners, virtual piano teacher">
         <meta name="author" content="Learn Piano Online">
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
         <meta name="theme-color" content="#8B5CF6">
         <meta name="msapplication-TileColor" content="#8B5CF6">
+        <link rel="canonical" href="{{ url()->current() }}">
 
         {{-- Open Graph / Facebook --}}
+        <meta property="og:title" content="Learn Piano Online — Private Piano Lessons for Kids">
+        <meta property="og:description" content="Live 1-on-1 online piano lessons for kids with friendly teachers, a playful curriculum, and parent progress updates. Flexible scheduling — learn from home.">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:type" content="website">
         <meta property="og:locale" content="en_US">
         <meta property="og:site_name" content="Learn Piano Online">
         <meta property="og:image" content="{{ asset('logo.svg') }}">
@@ -21,6 +28,9 @@
         <meta property="og:image:alt" content="Learn Piano Online - Professional Piano Lessons">
 
         {{-- Twitter --}}
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Learn Piano Online — Private Piano Lessons for Kids">
+        <meta name="twitter:description" content="Fun, live 1-on-1 online piano lessons for kids with friendly teachers and parent updates. Flexible, effective, and at-home.">
         <meta name="twitter:site" content="@learnpianoonline">
         <meta name="twitter:creator" content="@learnpianoonline">
         <meta name="twitter:image" content="{{ asset('logo.svg') }}">
@@ -49,8 +59,16 @@
         }
         </script>
 
-        {{-- Page-specific structured data --}}
+        {{-- Page-specific meta overrides and structured data --}}
         @if(request()->is('/'))
+        {{-- Home: meta overrides tailored to parents and young learners --}}
+        <meta name="description" content="Fun online piano lessons for kids ages 5+. Live 1-on-1 with friendly teachers, playful curriculum, and clear parent updates. Flexible scheduling — start learning from home.">
+        <meta property="og:title" content="Online Piano Lessons for Kids | Live 1-on-1 at Home">
+        <meta property="og:description" content="Give your child the joy of music. Live 1-on-1 online piano lessons with friendly teachers, personalized homework, and motivating feedback.">
+        <meta property="og:type" content="website">
+        <meta name="twitter:title" content="Online Piano Lessons for Kids | Live 1-on-1 at Home">
+        <meta name="twitter:description" content="Live 1-on-1 piano lessons for kids. Friendly teachers. Flexible scheduling. Parent progress updates.">
+
         <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -75,9 +93,73 @@
             }
         }
         </script>
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "What ages are your piano lessons for?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Our lessons are designed for children ages 5 and up — beginners to intermediate learners."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "How long are the lessons?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Standard lessons are 30 minutes, with 45-minute options for older or more advanced students."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Do we need a piano at home?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "An acoustic piano or an 88-key touch-sensitive digital keyboard works great for starting out."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "How much do lessons cost?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Affordable plans start at ${{ env('MONTHLY_SUBSCRIBE_PRICE', '29.99') }} per month with no long-term contracts."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Can parents see progress?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Yes. Parents receive clear progress updates, practice goals, and tips after each lesson."
+                    }
+                }
+            ]
+        }
+        </script>
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ url('/') }}"}
+            ]
+        }
+        </script>
         @endif
 
         @if(request()->is('pricing'))
+        {{-- Pricing: meta overrides and product structured data --}}
+        <meta name="description" content="Simple, affordable pricing for online piano lessons for kids. Choose monthly or yearly plans with live 1-on-1 lessons and parent progress updates.">
+        <meta property="og:title" content="Pricing | Online Piano Lessons for Kids">
+        <meta property="og:description" content="Flexible plans for every family — live 1-on-1 lessons, friendly teachers, and progress tracking.">
+        <meta property="og:type" content="website">
+        <meta name="twitter:title" content="Pricing | Online Piano Lessons for Kids">
+        <meta name="twitter:description" content="Flexible plans for every family — live 1-on-1 lessons, friendly teachers, and progress tracking.">
         <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -109,6 +191,76 @@
                     "priceValidUntil": "2025-12-31",
                     "description": "48 fun 1-on-1 piano lessons per year with exciting activities and bonus features"
                 }
+            ]
+        }
+        </script>
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ url('/') }}"},
+                {"@type": "ListItem", "position": 2, "name": "Pricing", "item": "{{ url('/pricing') }}"}
+            ]
+        }
+        </script>
+        @endif
+
+        @if(request()->is('about'))
+        {{-- About: meta and breadcrumbs --}}
+        <meta name="description" content="Meet the team behind Learn Piano Online. Our mission is to make music education joyful and accessible, with vetted instructors and a child-friendly curriculum.">
+        <meta property="og:title" content="About Us | Learn Piano Online">
+        <meta property="og:description" content="Our mission, our teachers, and our approach to helping kids love piano.">
+        <meta property="og:type" content="website">
+        <meta name="twitter:title" content="About Us | Learn Piano Online">
+        <meta name="twitter:description" content="Our mission, our teachers, and our approach to helping kids love piano.">
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ url('/') }}"},
+                {"@type": "ListItem", "position": 2, "name": "About", "item": "{{ url('/about') }}"}
+            ]
+        }
+        </script>
+        @endif
+
+        @if(request()->is('contact'))
+        {{-- Contact: meta and breadcrumbs --}}
+        <meta name="description" content="Have questions about online piano lessons for your child? Contact our friendly team for help with scheduling, pricing, or getting started.">
+        <meta property="og:title" content="Contact Us | Learn Piano Online">
+        <meta property="og:description" content="We're here to help you choose the right plan and schedule lessons that fit your family.">
+        <meta property="og:type" content="website">
+        <meta name="twitter:title" content="Contact Us | Learn Piano Online">
+        <meta name="twitter:description" content="We're here to help you choose the right plan and schedule lessons that fit your family.">
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ url('/') }}"},
+                {"@type": "ListItem", "position": 2, "name": "Contact", "item": "{{ url('/contact') }}"}
+            ]
+        }
+        </script>
+        @endif
+
+        @if(request()->is('blog'))
+        {{-- Blog index: meta and breadcrumbs --}}
+        <meta name="description" content="Parent tips, practice ideas, and music education resources to help your child thrive at the piano.">
+        <meta property="og:title" content="Blog | Piano Tips for Parents and Kids">
+        <meta property="og:description" content="Practical guidance for supporting your young pianist at home.">
+        <meta property="og:type" content="website">
+        <meta name="twitter:title" content="Blog | Piano Tips for Parents and Kids">
+        <meta name="twitter:description" content="Practical guidance for supporting your young pianist at home.">
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ url('/') }}"},
+                {"@type": "ListItem", "position": 2, "name": "Blog", "item": "{{ url('/blog') }}"}
             ]
         }
         </script>
@@ -151,7 +303,6 @@
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600&display=swap" rel="stylesheet" />
 
         {{-- Performance optimizations --}}
-        <link rel="preload" href="/logo.svg" as="image">
         <meta name="format-detection" content="telephone=no">
         <meta http-equiv="x-dns-prefetch-control" content="on">
 
