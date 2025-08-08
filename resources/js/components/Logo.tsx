@@ -64,7 +64,7 @@ const Logo: React.FC<LogoProps> = ({ className = '', showText = true, size = 'md
                     <span
                         className={`font-fredoka ${textSizeClasses[size]} bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text font-bold text-transparent`}
                     >
-                        {name || 'MyPianoClass'}
+                        {name || 'LearnPianoOnline'}
                     </span>
                     <span className="font-comic text-xs text-gray-600">Learn & Play! 🎵</span>
                 </div>
