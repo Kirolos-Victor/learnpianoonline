@@ -1,87 +1,28 @@
-<?xml version="1.0" ?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
-	
-    
-	<!-- Piano body with fun gradient -->
-	
-    
-	<rect x="2" y="6" width="36" height="20" rx="4" fill="url(#pianoGradient)" stroke="#8B5CF6" stroke-width="2"/>
-	
 
-    
-	<!-- White keys with fun colors -->
-	
-    
-	<rect x="4" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1"/>
-	
-    
-	<rect x="9" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1"/>
-	
-    
-	<rect x="14" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1"/>
-	
-    
-	<rect x="19" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1"/>
-	
-    
-	<rect x="24" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1"/>
-	
-    
-	<rect x="29" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1"/>
-	
+<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Piano body with fun gradient -->
+    <rect x="2" y="6" width="36" height="20" rx="4" fill="url(#pianoGradient)" stroke="#8B5CF6" stroke-width="2" />
 
-    
-	<!-- Black keys with fun colors -->
-	
-    
-	<rect x="6" y="10" width="2.5" height="8" fill="#F97316" stroke="#EA580C" stroke-width="1" rx="1"/>
-	
-    
-	<rect x="11" y="10" width="2.5" height="8" fill="#EC4899" stroke="#DB2777" stroke-width="1" rx="1"/>
-	
-    
-	<rect x="21" y="10" width="2.5" height="8" fill="#06B6D4" stroke="#0891B2" stroke-width="1" rx="1"/>
-	
-    
-	<rect x="26" y="10" width="2.5" height="8" fill="#22C55E" stroke="#16A34A" stroke-width="1" rx="1"/>
-	
+    <!-- White keys with fun colors -->
+    <rect x="4" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1" />
+    <rect x="9" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1" />
+    <rect x="14" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1" />
+    <rect x="19" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1" />
+    <rect x="24" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1" />
+    <rect x="29" y="10" width="4" height="12" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1" rx="1" />
 
-    
-	<!-- Musical notes floating around -->
-	
-    
-	<circle cx="8" cy="4" r="1.5" fill="#F59E0B"/>
-	
-    
-	<circle cx="32" cy="6" r="1" fill="#A855F7"/>
-	
-    
-	<circle cx="6" cy="32" r="1.2" fill="#EF4444"/>
-	
+    <!-- Black keys with fun colors -->
+    <rect x="6" y="10" width="2.5" height="8" fill="#F97316" stroke="#EA580C" stroke-width="1" rx="1" />
+    <rect x="11" y="10" width="2.5" height="8" fill="#EC4899" stroke="#DB2777" stroke-width="1" rx="1" />
+    <rect x="21" y="10" width="2.5" height="8" fill="#06B6D4" stroke="#0891B2" stroke-width="1" rx="1" />
+    <rect x="26" y="10" width="2.5" height="8" fill="#22C55E" stroke="#16A34A" stroke-width="1" rx="1" />
 
-    
-	<!-- Gradient definitions -->
-	
-    
-	<defs>
-		
-        
-		<linearGradient id="pianoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-			
-            
-			<stop offset="0%" stop-color="#FEF3C7"/>
-			
-            
-			<stop offset="50%" stop-color="#FDE68A"/>
-			
-            
-			<stop offset="100%" stop-color="#FCD34D"/>
-			
-        
-		</linearGradient>
-		
-    
-	</defs>
-	
-
+    <!-- Gradient definitions -->
+    <defs>
+        <linearGradient id="pianoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FEF3C7" />
+            <stop offset="50%" stop-color="#FDE68A" />
+            <stop offset="100%" stop-color="#FCD34D" />
+        </linearGradient>
+    </defs>
 </svg>
