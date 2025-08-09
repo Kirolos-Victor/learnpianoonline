@@ -68,10 +68,7 @@ Route::middleware(['auth', 'parent'])->group(function () {
     Route::get('home/student/{student:slug}', function ($student) {
         return redirect()->route('student.dashboard', $student);
     });
-    Route::get('sessions', function () {
-        return redirect()->route('sessions.index');
-    })->name('sessions');
-
+    // Removed legacy /sessions route to avoid overriding public sessions.index
     Route::get('sessions/student/{student:slug}', function ($student) {
         return redirect()->route('student.sessions', $student);
     })->name('sessions.student');
@@ -87,6 +84,6 @@ Route::middleware(['auth', 'parent'])->group(function () {
     });
 });
 
-require __DIR__.'/auth.php';
-require __DIR__.'/instructor.php';
-require __DIR__.'/admin.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/instructor.php';
+require __DIR__ . '/admin.php';

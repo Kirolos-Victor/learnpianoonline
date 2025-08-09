@@ -30,3 +30,7 @@ yarn-error.log
 # Color reference file
 colors-reference.json
 colors-reference-v2.json
+
+# Generated SEO artifacts
+/public/sitemap.xml
+/public/robots.txt

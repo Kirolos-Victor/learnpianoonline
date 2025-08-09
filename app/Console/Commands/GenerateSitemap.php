@@ -92,7 +92,50 @@ class GenerateSitemap extends Command
             })
             ->writeToFile($sitemapPath);
 
+        $this->writeRobotsTxt($baseUrl);
+
         $this->info('Sitemap generated at: ' . $sitemapPath);
+        $this->info('Robots.txt generated at: ' . public_path('robots.txt'));
         return self::SUCCESS;
+    }
+
+    private function writeRobotsTxt(string $baseUrl): void
+    {
+        $sitemapUrl = rtrim($baseUrl, '/') . '/sitemap.xml';
+
+        $lines = [
+            'User-agent: *',
+            'Allow: /',
+            '',
+            '# Block admin and user-specific areas',
+            'Disallow: /admin/',
+            'Disallow: /parent/',
+            'Disallow: /student/',
+            'Disallow: /instructor/',
+            'Disallow: /login',
+            'Disallow: /register',
+            'Disallow: /forgot-password',
+            'Disallow: /reset-password',
+            'Disallow: /email',
+            'Disallow: /verify-email',
+            'Disallow: /payment',
+            'Disallow: /chat',
+            'Disallow: /api',
+            'Disallow: /telescope',
+            'Disallow: /horizon',
+            '',
+            '# Allow important pages for SEO',
+            'Allow: /pricing',
+            'Allow: /contact',
+            'Allow: /sessions',
+            '',
+            '# Sitemap location',
+            'Sitemap: ' . $sitemapUrl,
+            '',
+            '# Crawl delay for polite crawling',
+            'Crawl-delay: 1',
+        ];
+
+        file_put_contents(public_path('robots.txt'), implode("\n", $lines) . "\n");
     }
 }
