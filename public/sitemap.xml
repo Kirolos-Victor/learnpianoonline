@@ -1,74 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-
-    <!-- Homepage -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
-        <loc>https://learnpianoonline.com/</loc>
-        <lastmod>2024-01-20</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>1.0</priority>
-        <image:image>
-            <image:loc>https://learnpianoonline.com/logo.svg</image:loc>
-            <image:title>Learn Piano Online - Professional Piano Lessons</image:title>
-            <image:caption>Master piano with live 1-on-1 online lessons from certified instructors</image:caption>
-        </image:image>
-    </url>
-
-    <!-- About Page -->
-    <url>
-        <loc>https://learnpianoonline.com/about</loc>
-        <lastmod>2024-01-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-
-    <!-- Blog Page -->
-    <url>
-        <loc>https://learnpianoonline.com/blog</loc>
-        <lastmod>2024-01-20</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.7</priority>
-    </url>
-
-    <!-- Pricing Page -->
-    <url>
-        <loc>https://learnpianoonline.com/pricing</loc>
-        <lastmod>2024-01-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.9</priority>
-    </url>
-
-    <!-- Contact Page -->
-    <url>
-        <loc>https://learnpianoonline.com/contact</loc>
-        <lastmod>2024-01-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-
-    <!-- Sessions Page -->
-    <url>
-        <loc>https://learnpianoonline.com/sessions</loc>
-        <lastmod>2024-01-20</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
-
-    <!-- Registration Page -->
-    <url>
-        <loc>https://learnpianoonline.com/register</loc>
-        <lastmod>2024-01-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-
-    <!-- Login Page -->
-    <url>
-        <loc>https://learnpianoonline.com/login</loc>
-        <lastmod>2024-01-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.5</priority>
-    </url>
-
+    <loc>http://learnpianoonline.test/</loc>
+    <lastmod>2025-08-09T17:13:45+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+    <image:loc>http://learnpianoonline.test/logo.svg</image:loc>
+    <image:caption>Learn Piano Online – 1-on-1 Private Piano Lessons for Kids and Parents</image:caption>
+</image:image>
+        </url>
 </urlset>

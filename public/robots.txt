@@ -10,6 +10,13 @@ Disallow: /login
 Disallow: /register
 Disallow: /forgot-password
 Disallow: /reset-password
+Disallow: /email
+Disallow: /verify-email
+Disallow: /payment
+Disallow: /chat
+Disallow: /api
+Disallow: /telescope
+Disallow: /horizon
 
 # Allow important pages for SEO
 Allow: /pricing
@@ -17,7 +24,7 @@ Allow: /contact
 Allow: /sessions
 
 # Sitemap location
-Sitemap: https://learnpianoonline.com/sitemap.xml
+Sitemap: http://learnpianoonline.test/sitemap.xml
 
 # Crawl delay for polite crawling
 Crawl-delay: 1
